@@ -1,1 +1,7 @@
+# vscode setting
 .vscode
+
+# build & crash
+*.dSYM
+tempCodeRunnerFile.cpp
+*.exe
