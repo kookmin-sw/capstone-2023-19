@@ -29,7 +29,7 @@ int main()
     // vector<LSystem::State>* result = new vector<LSystem::State>();
     // lsystem->GetResultVertex(result);
 
-    // for (LSystem::State state : *result)
+    // for (const LSystem::State& state : *result)
     // {
     //     cout << "(" << state.position.x << ", " << state.position.y << ") " << state.angle << endl;
     // }
@@ -42,7 +42,7 @@ int main()
 
     vector<LSystem::State>* result = new vector<LSystem::State>();
     lsystem->GetResultVertex(result);
-    for (LSystem::State state : *result)
+    for (const LSystem::State& state : *result)
     {
         cout << "(" << state.position.x << ", " << state.position.y << ") " << state.angle << endl;
     }
