@@ -22,11 +22,11 @@ public:
     LLetter(const char&);
     ~LLetter();
 
-    char get_letter() const;
-    std::string get_letter_by_string() const;
-    Type get_type() const;
+    char GetLetter() const;
+    std::string GetLetterByString() const;
+    Type GetType() const;
 
-    void set_letter(const char&);
+    void SetLetter(const char&);
 
     bool IsEqual(const LLetter&);
 };

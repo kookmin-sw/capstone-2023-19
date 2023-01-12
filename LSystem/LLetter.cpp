@@ -8,7 +8,7 @@ LLetter::LLetter()
 
 LLetter::LLetter(const char& letter)
 {
-    this->set_letter(letter);
+    this->SetLetter(letter);
 }
 
 LLetter::~LLetter()
@@ -16,22 +16,22 @@ LLetter::~LLetter()
 
 }
 
-char LLetter::get_letter() const
+char LLetter::GetLetter() const
 {
     return this->letter_;
 }
 
-std::string LLetter::get_letter_by_string() const
+std::string LLetter::GetLetterByString() const
 {
     return std::string(1, this->letter_);
 }
 
-LLetter::Type LLetter::get_type() const
+LLetter::Type LLetter::GetType() const
 {
     return this->type_;
 }
 
-void LLetter::set_letter(const char& letter)
+void LLetter::SetLetter(const char& letter)
 {
     this->type_ = static_cast<LLetter::Type> (letter);
     this->letter_ = letter;
@@ -39,7 +39,7 @@ void LLetter::set_letter(const char& letter)
 
 bool LLetter::IsEqual(const LLetter& other)
 {
-    if (this->letter_ == other.get_letter())
+    if (this->letter_ == other.GetLetter())
     {
         return true;
     }

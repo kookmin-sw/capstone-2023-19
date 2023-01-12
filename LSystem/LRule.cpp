@@ -18,17 +18,17 @@ LRule::LRule(const std::string& text)
         throw "Invalid rule format";
     }
 
-    this->set_rule(text[0], text.substr(split + 2));
+    this->SetRule(text[0], text.substr(split + 2));
 }
 
 LRule::LRule(const char& key, const std::string& value)
 {
-    this->set_rule(key, value);
+    this->SetRule(key, value);
 }
 
 LRule::LRule(const std::string& keyStr, const std::string& value)
 {
-    this->set_rule(keyStr[0], value);
+    this->SetRule(keyStr[0], value);
 }
 
 LRule::~LRule()
@@ -36,31 +36,31 @@ LRule::~LRule()
 
 }
 
-LLetter LRule::get_before() const
+LLetter LRule::GetBefore() const
 {
     return *(this->before_);
 }
 
-std::vector<LLetter> LRule::get_after() const
+std::vector<LLetter> LRule::GetAfter() const
 {
     return this->after_;
 }
 
-std::string LRule::get_rule() const
+std::string LRule::GetRule() const
 {
     std::string ruleText = "";
-    ruleText += this->before_->get_letter();
+    ruleText += this->before_->GetLetter();
     ruleText += " -> ";
 
     for (const LLetter& let : this->after_)
     {
-        ruleText += let.get_letter();
+        ruleText += let.GetLetter();
     }
 
     return ruleText;
 }
 
-void LRule::set_rule(const char& key, const std::string& value)
+void LRule::SetRule(const char& key, const std::string& value)
 {
     this->before_ = new LLetter(key);
     this->after_ = std::vector<LLetter>();

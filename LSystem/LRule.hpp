@@ -18,10 +18,10 @@ public:
     LRule(const std::string&, const std::string&);
     ~LRule();
 
-    LLetter get_before() const;
-    std::vector<LLetter> get_after() const;
-    std::string get_rule() const;
+    LLetter GetBefore() const;
+    std::vector<LLetter> GetAfter() const;
+    std::string GetRule() const;
 
 private:
-    void set_rule(const char&, const std::string&);
+    void SetRule(const char&, const std::string&);
 };
