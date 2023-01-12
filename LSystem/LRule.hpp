@@ -1,16 +1,27 @@
 #pragma once
 
+class LLetter;
+
 class LRule
 {
 private:
-    std::string before_;
-    std::string after_;
+    // 변환 규칙 key가 하나인 경우만 가정
+    LLetter* before_;
+    std::vector<LLetter> after_;
+
 public:
     LRule();
+    // Full Text (ex. "A->ABAB")
     LRule(const std::string&);
+    // Key & value (ex. 'A', "ABAB")
+    LRule(const char&, const std::string&);
     LRule(const std::string&, const std::string&);
     ~LRule();
 
-    std::string get_before() const;
-    std::string get_after() const;
+    LLetter GetBefore() const;
+    std::vector<LLetter> GetAfter() const;
+    std::string GetRule() const;
+
+private:
+    void SetRule(const char&, const std::string&);
 };

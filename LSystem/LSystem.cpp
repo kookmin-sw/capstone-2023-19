@@ -1,114 +1,99 @@
 #include <string>
 #include <vector>
+#include <stack>
 #include <iostream>
+#include <cmath>
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
-bool IsOperator(char let)
-{
-    if (let == '+' || let == '-')
-    {
-        return true;
-    }
-
-    return false;
-}
-
-void AddWordToVector(std::vector<LLetter>* v, const std::string& word)
-{
-    for (const char& let : word)
-    {
-        if (IsOperator(let))
-        {
-            // +, -인 경우 이전의 추가한 letter 수정
-            LLetter* target = &(v->back());
-            target->set_letter(target->get_letter() + let);
-        }
-        else
-        {
-            LLetter letter = LLetter(let);
-            v->push_back(letter);
-        }
-    }
-}
-
-void AddWordToVector(std::vector<LLetter>* v, const LLetter& letter)
-{
-    v->push_back(letter);
-}
-
+// Public
 LSystem::LSystem()
 {
     rules_ = std::vector<LRule>();
     word_ = new std::vector<LLetter>();
-    wordText_ = "";
-    rulesText_ = "";
+
+    this->state_ = { {0.0, 0.0, 0.0}, 0.0 };
 }
 
 LSystem::~LSystem()
 {
-    
+    delete this->word_;
+    this->word_ = nullptr;
 }
 
 // Get, Set
-std::string LSystem::get_word() const
+std::string LSystem::GetWord() const
 {
-    return this->wordText_;
+    std::string wordText;
+    for (const LLetter& letter : *(this->word_))
+    {
+        wordText += letter.GetLetter();
+    }
+
+    return wordText;
 }
 
-std::string LSystem::get_rules() const
+std::string LSystem::GetRules() const
 {
-    return this->rulesText_;
+    std::string rulesText;
+    for (const LRule& rule : this->rules_)
+    {
+        rulesText += rule.GetRule() + '\n';
+    }
+    return rulesText;
+}
+
+float LSystem::GetAngleChange() const
+{
+    return this->angleChange_;
+}
+
+float LSystem::GetDistance() const
+{
+    return this->distance_;
+}
+
+void LSystem::SetAngleChange(const float& val)
+{
+    this->angleChange_ = val;
+}
+
+void LSystem::SetDistance(const float& val)
+{
+    this->distance_ = val;
 }
 
 void LSystem::SetWord(const std::string& word)
 {
-    AddWordToVector(this->word_, word);
-    this->wordText_ = word;
-}
-
-// Word
-void LSystem::ClearWord()
-{
     delete this->word_;
-    this->word_ = nullptr;
-    this->wordText_ = "";
+    this->word_ = new std::vector<LLetter>();
+
+    for (const char& letter : word)
+    {
+        this->word_->push_back(LLetter(letter));
+    }
 }
 
 // Rule
 void LSystem::AddRule(const std::string& ruleText)
 {
     this->rules_.push_back(LRule(ruleText));
-    this->rulesText_ += ruleText + '\n';
 }
 
-void LSystem::AddRule(const std::vector<std::string>& rules)
+void LSystem::AddRule(const char& key, const std::string& value)
 {
-    for (const std::string& rule : rules)
-    {
-        this->rules_.push_back(LRule(rule));
-        this->rulesText_ += rule + '\n';
-    }
+    this->rules_.push_back(LRule(key, value));
 }
 
 void LSystem::AddRule(const std::string& key, const std::string& value)
 {
     this->rules_.push_back(LRule(key, value));
-    this->rulesText_ += key + "->" + value + '\n';
-}
-
-void LSystem::ClearRule()
-{
-    std::vector<LRule>().swap(this->rules_);
-    this->rulesText_ = "";
 }
 
 // Run
 void LSystem::Iterate()
 {
-    std::string newLetter;
-    std::string wordText = "";
     bool changed;
     std::vector<LLetter> *v = new std::vector<LLetter>();
 
@@ -116,14 +101,20 @@ void LSystem::Iterate()
     {
         changed = false;
 
-        // !!! map으로 수정하기
         for (const LRule& rule : this->rules_)
         {
-            if (rule.get_before() == letter.get_letter())
+            if (rule.GetBefore().IsEqual(letter.GetLetter()))
             {
-                newLetter = rule.get_after();
-                AddWordToVector(v, newLetter);
-                wordText += newLetter;
+                std::vector<LLetter> letters = rule.GetAfter();
+                // #1
+                // for (const LLetter& letter : letters)
+                // {
+                //     v->push_back(letter);
+                // }
+                
+                // #2
+                v->insert(v->end(), letters.begin(), letters.end());    
+
                 changed = true;
                 break;
             }
@@ -131,15 +122,11 @@ void LSystem::Iterate()
 
         if (!changed)
         {
-            AddWordToVector(v, letter);
-            wordText += letter.get_letter();
+            v->push_back(letter);
         }
     }
     
-    // 변환된 word로 수정
-    this->ClearWord();
     this->word_ = v;
-    this->wordText_ = wordText;
 }
 
 void LSystem::Iterate(int n)
@@ -149,3 +136,71 @@ void LSystem::Iterate(int n)
         this->Iterate();
     }
 }
+
+
+void LSystem::GetResultVertex(std::vector<State>* out)
+{
+    if (this->word_->size() < 1)
+    {
+        throw "No word";
+    }
+
+    std::stack<LSystem::State> ss;
+
+    out->push_back(this->state_);     // start state
+    for (const LLetter& letter : *(this->word_))
+    {
+        switch (letter.GetType())
+        {
+            case LLetter::Type::Forward:
+                this->Move();
+                out->push_back(this->state_);
+                break;
+            case LLetter::Type::Left:
+                this->Turn();
+                break;
+            case LLetter::Type::Right:
+                this->Turn(false);
+                break;
+            case LLetter::Type::Push:
+                ss.push(this->state_);
+                break;
+            case LLetter::Type::Pop:
+                // !!! State에 타입 추가하기 (ex. Skip)
+                // Draw 없는 이동
+                this->state_ = ss.top();
+                ss.pop();
+                out->push_back(this->state_);
+                break;
+            case LLetter::Type::None:
+                break;
+        }
+    }
+}
+
+// Private
+void LSystem::Move()
+{
+    // 현재 위치에서 y-up vector를 기준으로 얼마나 회전된 상태인지
+    float rad = this->state_.angle / 180.0 * pi;
+
+    this->state_.position.x += std::sin(rad) * this->distance_;
+    this->state_.position.y += std::cos(rad) * this->distance_;
+}
+
+void LSystem::Turn(const bool& isLeft)
+{
+    if (isLeft)
+    {
+        this->state_.angle -= this->angleChange_;
+    }
+    else
+    {
+        this->state_.angle += this->angleChange_;
+    }
+}
+
+// void LSystem::SetPosition(const Vector3&)
+// {
+
+// }

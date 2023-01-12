@@ -2,15 +2,31 @@
 
 class LLetter
 {
+public:
+    enum Type
+    {
+        None,
+        Forward = 'F',
+        Left    = '+',
+        Right   = '-',
+        Push    = '[',
+        Pop     = ']'
+    };
+
 private:
-    std::string letter_ = "";
+    char letter_ = 0;
+    Type type_ = None;
+
 public:
     LLetter();
-    LLetter(char);
-    LLetter(const std::string&);
+    LLetter(const char&);
     ~LLetter();
 
-    std::string get_letter() const;
+    char GetLetter() const;
+    std::string GetLetterByString() const;
+    Type GetType() const;
 
-    void set_letter(const std::string&);
+    void SetLetter(const char&);
+
+    bool IsEqual(const LLetter&);
 };
