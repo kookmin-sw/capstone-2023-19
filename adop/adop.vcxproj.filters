@@ -1,6 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="LSystem">
+      <UniqueIdentifier>{66fba13c-dddf-4342-b736-053e52634d32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX">
+      <UniqueIdentifier>{42a3fff0-59fe-4b6d-8613-82c3a1698fca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="LLetter.cpp">
       <Filter>LSystem</Filter>
     </ClCompile>
@@ -13,7 +21,21 @@
     <ClCompile Include="LSystemTest.cpp">
       <Filter>LSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Temp.cpp" />
+    <ClCompile Include="DXTest.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="InputClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -25,10 +47,29 @@
     <ClInclude Include="LSystem.hpp">
       <Filter>LSystem</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="LSystem">
-      <UniqueIdentifier>{66fba13c-dddf-4342-b736-053e52634d32}</UniqueIdentifier>
-    </Filter>
+    <ClInclude Include="Stdafx.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXDefine.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="InputClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="AlignedAllocationPolicy.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
