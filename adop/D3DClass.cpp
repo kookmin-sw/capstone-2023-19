@@ -1,5 +1,6 @@
 #include "Stdafx.h"
 #include "D3DClass.hpp"
+#include <DirectXMath.h>
 
 D3DClass::D3DClass()
 {
@@ -20,7 +21,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	float screenDepth, float screenNear)
 {
 	// 수직동기화 상태 저장
-	m_vsync_enabled = vsync;
+	this->vsyncEnabled_ = vsync;
 
 	// DirectX 그래픽 인터페이스 팩토리 생성
 	IDXGIFactory* factory = nullptr;
@@ -88,10 +89,10 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	}
 
 	// 비디오카드 메모리 용량 저장 (MB)
-	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+	this->videoCardMemory_ = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
 	size_t stringLength = 0;
-	if (wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128) != 0)
+	if (wcstombs_s(&stringLength, this->videoCardDescription_, 128, adapterDesc.Description, 128) != 0)
 	{
 		return false;
 	}
@@ -116,7 +117,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	swapChainDesc.BufferDesc.Width = screenHeight;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// 32bit surface 지정
 
-	if (m_vsync_enabled)
+	if (this->vsyncEnabled_)
 	{
 		// 새로고침 비율 지정
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
@@ -158,20 +159,20 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// swap chain, directX device, device context 생성
 	if (FAILED(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
-		D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &m_device, NULL, &m_deviceContext)))
+		D3D11_SDK_VERSION, &swapChainDesc, &(this->swapChain_), &(this->device_), NULL, &(this->deviceContext_))))
 	{
 		return false;
 	}
 
 	// 백버퍼 포인터
 	ID3D11Texture2D* backBufferPtr = nullptr;
-	if (FAILED(m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr)))
+	if (FAILED(this->swapChain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr)))
 	{
 		return false;
 	}
 
 	// 백버퍼 포인터로 렌더 타겟 뷰 생성
-	if (FAILED(m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView)))
+	if (FAILED(this->device_->CreateRenderTargetView(backBufferPtr, NULL, &(this->renderTargetView_))))
 	{
 		return false;
 	}
@@ -197,7 +198,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	depthBufferDesc.MiscFlags = 0;
 
 	// 설정된 깊이버퍼 구조체를 사용하여 깊이 버퍼 텍스쳐를 생성합니다
-	if (FAILED(m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer)))
+	if (FAILED(this->device_->CreateTexture2D(&depthBufferDesc, NULL, &(this->depthStencilBuffer_))))
 	{
 		return false;
 	}
@@ -228,13 +229,13 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	// 깊이 스텐실 상태를 생성합니다
-	if (FAILED(m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState)))
+	if (FAILED(this->device_->CreateDepthStencilState(&depthStencilDesc, &(this->depthStencilState_))))
 	{
 		return false;
 	}
 
 	// 깊이 스텐실 상태를 설정합니다
-	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
+	this->deviceContext_->OMSetDepthStencilState(this->depthStencilState_, 1);
 
 	// 깊이 스텐실 뷰의 구조체를 초기화합니다
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
@@ -246,13 +247,13 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	// 깊이 스텐실 뷰를 생성합니다
-	if (FAILED(m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView)))
+	if (FAILED(this->device_->CreateDepthStencilView(this->depthStencilBuffer_, &depthStencilViewDesc, &(this->depthStencilView_))))
 	{
 		return false;
 	}
 
 	// 렌더링 대상 뷰와 깊이 스텐실 버퍼를 출력 렌더 파이프 라인에 바인딩합니다
-	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	this->deviceContext_->OMSetRenderTargets(1, &(this->renderTargetView_), this->depthStencilView_);
 
 	// 그려지는 폴리곤과 방법을 결정할 래스터 구조체를 설정합니다
 	D3D11_RASTERIZER_DESC rasterDesc;
@@ -268,13 +269,13 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	// 방금 작성한 구조체에서 래스터 라이저 상태를 만듭니다
-	if (FAILED(m_device->CreateRasterizerState(&rasterDesc, &m_rasterState)))
+	if (FAILED(this->device_->CreateRasterizerState(&rasterDesc, &(this->rasterState_))))
 	{
 		return false;
 	}
 
 	// 이제 래스터 라이저 상태를 설정합니다
-	m_deviceContext->RSSetState(m_rasterState);
+	this->deviceContext_->RSSetState(this->rasterState_);
 
 	// 렌더링을 위해 뷰포트를 설정합니다
 	D3D11_VIEWPORT viewport;
@@ -286,78 +287,78 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	viewport.TopLeftY = 0.0f;
 
 	// 뷰포트를 생성합니다
-	m_deviceContext->RSSetViewports(1, &viewport);
+	this->deviceContext_->RSSetViewports(1, &viewport);
 
 	// 투영 행렬을 설정합니다
 	float fieldOfView = 3.141592654f / 4.0f;
 	float screenAspect = (float)screenWidth / (float)screenHeight;
 
 	// 3D 렌더링을위한 투영 행렬을 만듭니다
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+	this->projectionMatrix_ = DirectX::XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
 
 	// 세계 행렬을 항등 행렬로 초기화합니다
-	m_worldMatrix = XMMatrixIdentity();
+	this->worldMatrix_ = DirectX::XMMatrixIdentity();
 
 	// 2D 렌더링을위한 직교 투영 행렬을 만듭니다
-	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	this->orthoMatrix_ = DirectX::XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
 	return true;
 }
 
 void D3DClass::Shutdown()
 {
-	if (m_swapChain)
+	if (this->swapChain_)
 	{
 		// 종료 전 윈도우 모드로 설정(swap chain 해제 시 예외 발생)
-		m_swapChain->SetFullscreenState(false, NULL);
+		this->swapChain_->SetFullscreenState(false, NULL);
 	}
 
-	if (m_rasterState)
+	if (this->rasterState_)
 	{
-		m_rasterState->Release();
-		m_rasterState = 0;
+		this->rasterState_->Release();
+		this->rasterState_ = nullptr;
 	}
 
-	if (m_depthStencilView)
+	if (this->depthStencilView_)
 	{
-		m_depthStencilView->Release();
-		m_depthStencilView = 0;
+		this->depthStencilView_->Release();
+		this->depthStencilView_ = nullptr;
 	}
 
-	if (m_depthStencilState)
+	if (this->depthStencilState_)
 	{
-		m_depthStencilState->Release();
-		m_depthStencilState = 0;
+		this->depthStencilState_->Release();
+		this->depthStencilState_ = nullptr;
 	}
 	
-	if (m_depthStencilBuffer)
+	if (this->depthStencilBuffer_)
 	{
-		m_depthStencilBuffer->Release();
-		m_depthStencilState = 0;
+		this->depthStencilBuffer_->Release();
+		this->depthStencilBuffer_ = nullptr;
 	}
 
-	if (m_renderTargetView)
+	if (this->renderTargetView_)
 	{
-		m_renderTargetView->Release();
-		m_renderTargetView = 0;
+		this->renderTargetView_->Release();
+		this->renderTargetView_ = nullptr;
 	}
 
-	if (m_deviceContext)
+	if (this->deviceContext_)
 	{
-		m_deviceContext->Release();
-		m_deviceContext = 0;
+		this->deviceContext_->Release();
+		this->deviceContext_ = nullptr;
 	}
 
-	if (m_device)
+	if (this->device_)
 	{
-		m_device->Release();
-		m_device = 0;
+		this->device_->Release();
+		this->device_ = nullptr;
 	}
 
-	if (m_swapChain)
+	if (this->swapChain_)
 	{
-		m_swapChain->Release();
-		m_swapChain = 0;
+		this->swapChain_->Release();
+		this->swapChain_ = nullptr;
 	}
 }
 
@@ -367,58 +368,58 @@ void D3DClass::BeginScene(float red, float green, float blue, float alpha)
 	float color[4] = { red, green, blue, alpha };
 
 	// 백버퍼를 지웁니다.
-	m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+	deviceContext_->ClearRenderTargetView(this->renderTargetView_, color);
 
 	// 깊이 버퍼를 지웁니다.
-	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	this->deviceContext_->ClearDepthStencilView(this->depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 void D3DClass::EndScene()
 {
 	// 렌더링이 완료되었으므로 화면에 백 버퍼를 표시
-	if (m_vsync_enabled)
+	if (this->vsyncEnabled_)
 	{
-		m_swapChain->Present(1, 0);
+		this->swapChain_->Present(1, 0);
 	}
 	else
 	{
 		// 가능한 빠르게 출력
-		m_swapChain->Present(0, 0);
+		this->swapChain_->Present(0, 0);
 	}
 }
 
 ID3D11Device* D3DClass::GetDevice()
 {
-	return m_device;
+	return this->device_;
 }
 
 
 ID3D11DeviceContext* D3DClass::GetDeviceContext()
 {
-	return m_deviceContext;
+	return this->deviceContext_;
 }
 
 
-void D3DClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+void D3DClass::GetProjectionMatrix(DirectX::XMMATRIX& projectionMatrix)
 {
-	projectionMatrix = m_projectionMatrix;
+	projectionMatrix = this->projectionMatrix_;
 }
 
 
-void D3DClass::GetWorldMatrix(XMMATRIX& worldMatrix)
+void D3DClass::GetWorldMatrix(DirectX::XMMATRIX& worldMatrix)
 {
-	worldMatrix = m_worldMatrix;
+	worldMatrix = this->worldMatrix_;
 }
 
 
-void D3DClass::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+void D3DClass::GetOrthoMatrix(DirectX::XMMATRIX& orthoMatrix)
 {
-	orthoMatrix = m_orthoMatrix;
+	orthoMatrix = this->orthoMatrix_;
 }
 
 
 void D3DClass::GetVideoCardInfo(char* cardName, int& memory)
 {
-	strcpy_s(cardName, 128, m_videoCardDescription);
-	memory = m_videoCardMemory;
+	strcpy_s(cardName, 128, this->videoCardDescription_);
+	memory = this->videoCardMemory_;
 }

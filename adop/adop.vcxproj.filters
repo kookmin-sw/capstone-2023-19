@@ -33,6 +33,9 @@
     <ClCompile Include="GraphicsClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
+    <ClCompile Include="D3DClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -60,6 +63,12 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="AlignedAllocationPolicy.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
   </ItemGroup>
