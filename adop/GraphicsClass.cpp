@@ -23,13 +23,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	// Direct3D 객체 생성
 	// C4316 이슈로 malloc 및 free 사용
-	this->direct3D_ = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
+	//this->direct3D_ = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
+	this->direct3D_ = new D3DClass;
+
 	if (!this->direct3D_)
 	{
 		return false;
 	}
-
-	return true;
 
 	// Direct3D 객체 초기화
 	if (!this->direct3D_->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd,
@@ -48,7 +48,8 @@ void GraphicsClass::Shutdown()
 	{
 		// Direct3D 객체 반환
 		this->direct3D_->Shutdown();
-		_aligned_free(this->direct3D_);
+		//_aligned_free(this->direct3D_);
+		delete this->direct3D_;
 		this->direct3D_ = nullptr;
 	}
 }

@@ -1,4 +1,4 @@
-﻿#include "Stdafx.h"
+#include "Stdafx.h"
 #include "InputClass.hpp"
 #include "GraphicsClass.hpp"
 #include "SystemClass.hpp"
@@ -131,6 +131,8 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	// 이 프로그램의 인스턴스
 	this->hInstance_ = GetModuleHandle(NULL);
+
+	this->applicationName_ = L"Dx11Demo_02";
 
 	// window 클래스 설정
 	WNDCLASSEX wc;

@@ -159,7 +159,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// swap chain, directX device, device context 생성
 	if (FAILED(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
-		D3D11_SDK_VERSION, &swapChainDesc, &(this->swapChain_), &(this->device_), NULL, &(this->deviceContext_))))
+		D3D11_SDK_VERSION, &swapChainDesc, &(this->swapChain_), &(this->device_), NULL, &(this->deviceContext_)))) 
 	{
 		return false;
 	}
