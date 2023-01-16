@@ -1,7 +1,10 @@
+#include <vector>
+#include <string>
 #include "Stdafx.h"
 #include "InputClass.hpp"
 #include "GraphicsClass.hpp"
 #include "SystemClass.hpp"
+#include "LSystem.hpp"
 
 // Public
 SystemClass::SystemClass()
@@ -37,6 +40,12 @@ bool SystemClass::Initialize()
 	
 	this->graphics_ = new GraphicsClass;
 	if (!this->graphics_)
+	{
+		return false;
+	}
+
+	this->lsystem_ = new LSystem;
+	if (!this->lsystem_)
 	{
 		return false;
 	}

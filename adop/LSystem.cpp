@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 #include <stack>
-#include <iostream>
 #include <cmath>
 #include "LRule.hpp"
 #include "LLetter.hpp"

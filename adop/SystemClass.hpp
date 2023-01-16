@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 
 class InputClass;
 class GraphicsClass;
+class LSystem;
 
 class SystemClass
 {
@@ -28,6 +29,8 @@ private:
 
 	InputClass* input_ = nullptr;
 	GraphicsClass* graphics_ = nullptr;
+
+	LSystem* lsystem_ = nullptr;
 };
 
 static LRESULT CALLBACK SWndProc(HWND, UINT, WPARAM, LPARAM);

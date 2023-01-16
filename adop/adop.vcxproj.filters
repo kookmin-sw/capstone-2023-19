@@ -45,6 +45,7 @@
     <ClCompile Include="ModelClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
