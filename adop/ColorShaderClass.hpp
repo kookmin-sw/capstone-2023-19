@@ -5,9 +5,9 @@ class ColorShaderClass : public AlignedAllocationPolicy<16>
 private:
     struct MatrixBufferType
     {
-        XMMATRIX world;
-        XMMATRIX view;;
-        XMMATRIX projection;
+        DirectX::XMMATRIX world;
+        DirectX::XMMATRIX view;;
+        DirectX::XMMATRIX projection;
     };
 
 public:
@@ -18,7 +18,7 @@ public:
     bool Initialize(ID3D11Device*, HWND);
     void Shutdown();
     // World, View, Proejction matrix로 렌더링
-    bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX);
+    bool Render(ID3D11DeviceContext*, int, DirectX::XMMATRIX, DirectX::XMMATRIX, DirectX::XMMATRIX);
 
 private:
     // WCHAR* shader 경로
@@ -26,7 +26,7 @@ private:
     void ShutdownShader();
     void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-    bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX);
+    bool SetShaderParameters(ID3D11DeviceContext*, DirectX::XMMATRIX, DirectX::XMMATRIX, DirectX::XMMATRIX);
     void RenderShader(ID3D11DeviceContext*, int);
 
 private:

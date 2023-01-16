@@ -4,7 +4,7 @@ cbuffer MatrixBuffer
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
-}
+};
 
 // TYPEDEFS
 struct VertexInputType
@@ -15,8 +15,8 @@ struct VertexInputType
 
 struct PixelInputType
 {
-    float position : SV_POSITION;
-    float color : COLOR;
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
 };
 
 // Vertex Shader

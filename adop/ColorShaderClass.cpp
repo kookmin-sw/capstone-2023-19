@@ -18,7 +18,10 @@ ColorShaderClass::~ColorShaderClass()
 
 bool ColorShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
-    return this->InitializeShader(device, hwnd, L"./Color.vs", L"./Color.ps");
+    WCHAR vs[] = L"./Color.vs";
+    WCHAR ps[] = L"./Color.ps";
+
+    return this->InitializeShader(device, hwnd, vs, ps);
 }
 
 void ColorShaderClass::Shutdown()
@@ -27,7 +30,7 @@ void ColorShaderClass::Shutdown()
 }
 
 bool ColorShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
-    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+    DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix)
 {
     if (!this->SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix))
     {
@@ -46,7 +49,7 @@ bool ColorShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd,
     ID3D10Blob* errorMessage = nullptr;
 
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    if (FAILED(D3DCompileFromFiile(VsFIlename, NULL, NULL, "ColorVertexShader", 
+    if (FAILED(D3DCompileFromFile(vsFilename, NULL, NULL, "ColorVertexShader", 
         "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage)))
     {
         if (errorMessage)
@@ -83,12 +86,13 @@ bool ColorShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd,
 
     // 버퍼로부터 셰이더 생성
     if (FAILED(device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-        vertexShaderBuffer->GetBufferSize(), NULL, this->vertexShader_)))
+        vertexShaderBuffer->GetBufferSize(), NULL, &(this->vertexShader_))))
     {
         return false;
     }
+
     if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
-        pixelShaderBuffer->GetBufferSize(), NULL, this->vertexShader_)))
+        pixelShaderBuffer->GetBufferSize(), NULL, &(this->pixelShader_))))
     {
         return false;   
     }
@@ -183,7 +187,7 @@ void ColorShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 }
 
 bool ColorShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+    DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix)
 {
     // 셰이더에서 사용할 수 있도록 matrix를 transpose
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -192,8 +196,8 @@ bool ColorShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
     // 상수 버퍼 내용을 쓸 수 있도록 수정
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-    if (FAILED(deviceContext->Map(this->matrixBuffer_, 0,
-         D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    if (FAILED(deviceContext->Map(this->matrixBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 
+        0, &mappedResource)))
     {
         return false;
     }
@@ -210,7 +214,7 @@ bool ColorShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
     // Vertex Shader의 상수 버퍼 위치 설정
     unsigned bufferNumber = 0;
     // Vertex Shader의 상수 버퍼를 바뀐 값으로 변경
-    deviceContext->VSSetConstantBufferrs(bufferNumber, 1, &(this->matrixBuffer_));
+    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &(this->matrixBuffer_));
 
     return true;
 }

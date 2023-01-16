@@ -59,14 +59,14 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
     }
 
     // 정점 배열 데이터 설정
-    vertices[0].position = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-    vertices[0].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+    vertices[0].position = DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f);
+    vertices[0].color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-    vertices[1].position = XMFLOAT3(0.0f, 1.0f, 0.0f);
-    vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+    vertices[1].position = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+    vertices[1].color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-    vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);
-    vertices[2].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+    vertices[2].position = DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f);
+    vertices[2].color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
     indices[0] = 0;
     indices[1] = 1;
@@ -75,7 +75,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
     // 정적 정점 버퍼 설정
     D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * this->.vertexCount_;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * this->vertexCount_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
@@ -83,7 +83,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
     // subresource 구조에 vertex data에 대한 포인터를 제공
     D3D11_SUBRESOURCE_DATA vertexData;
-    vertexData.pSystem = vertices;
+    vertexData.pSysMem = vertices;
     vertexData.SysMemPitch = 0;
     vertexData.SysMemSlicePitch = 0;
 
@@ -95,7 +95,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 
     // 정적 Index Buffer 설정
     D3D11_BUFFER_DESC indexBufferDesc;
-    indexBufferDesc.USage = D3D11_USAGE_DEFAULT;
+    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.ByteWidth = sizeof(unsigned long) * this->indexCount_;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
@@ -106,7 +106,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
     D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices;
     indexData.SysMemPitch = 0;
-    indexData.SysMemSlicePith = 0;
+    indexData.SysMemSlicePitch = 0;
 
     if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &(this->indexBuffer_))))
     {
@@ -145,7 +145,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
     unsigned int offset = 0;
 
     // !!! Check
-    deviceContext->IASetVertexBuffer(0, 1, &(this->vertexBuffer_), &stride, &offset);
+    deviceContext->IASetVertexBuffers(0, 1, &(this->vertexBuffer_), &stride, &offset);
     deviceContext->IASetIndexBuffer(this->indexBuffer_, DXGI_FORMAT_R32_UINT, 0);
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

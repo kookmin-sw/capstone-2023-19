@@ -27,7 +27,7 @@ bool SystemClass::Initialize()
 
 	this->InitializeWindows(screenWidth, screenHeight);
 
-	this->input_ = new InputClass();
+	this->input_ = new InputClass;
 	if (!this->input_)
 	{
 		return false;

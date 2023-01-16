@@ -5,8 +5,8 @@ class ModelClass : public AlignedAllocationPolicy<16>
 private:
     struct VertexType
     {
-        XMFLOAT3 position;
-        XMFLOAT4 color;
+        DirectX::XMFLOAT3 position;
+        DirectX::XMFLOAT4 color;
     };
 public:
     ModelClass();
@@ -29,4 +29,4 @@ private:
     ID3D11Buffer* indexBuffer_ = nullptr;
     int vertexCount_ = 0;
     int indexCount_ = 0;
-}
+};
