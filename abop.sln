@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32802.440
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "adop", "adop\adop.vcxproj", "{3B6CB7AF-A8A7-4AC9-AF72-564056F0CC35}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "abop", "abop\abop.vcxproj", "{3B6CB7AF-A8A7-4AC9-AF72-564056F0CC35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
