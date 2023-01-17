@@ -16,33 +16,10 @@ ModelClass::~ModelClass()
     
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, const int& modelType, 
-    float* floatArr, int nFloatArr)
+bool ModelClass::Initialize(ID3D11Device* device, const Model& model)
 {
-    // modelType
-    // 3 - Triple
-    // 4 - Quad
-    // Vertex each value
-    // floatArr : x1, y1, z1, x2, y2, z2, x3, y3, z3 ...
-    // nFloatArr : floatArr.size * 3
-    // ModelClass에서 별도의 헤더 파일을 참조 안하기 위해 float 배열 사용
-
-    if (!(modelType == 3 || modelType == 4))
-    {
-        // 삼각형, 직사각형 이외는 에러
-        return false;
-    }
-
-    if (nFloatArr % 3 != 0)
-    {
-        // x, y, z 쌍의 연속이어야 함
-        return false;
-    }
-
-    ModelClass::VertexType {}
-
     // vertex 및 인덱스 버퍼 초기화
-    return this->InitializeBuffers(device, modelType, floatArr, nFloatArr);
+    return this->InitializeBuffers(device, model);
 }
 
 void ModelClass::Shutdown()
@@ -146,23 +123,23 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
     return true;
 }
 
-bool ModelClass::InitializeBuffers(ID3D11Device* device, int modelType, 
-    float* floatArr, int nFloatArr)
+bool ModelClass::InitializeBuffers(ID3D11Device* device, const Model& model)
 {
     // !!! 추후 개별적인 상속 클래스로 구현해도 좋을듯
     // vertexArr은 왼쪽 상단부터 시계 방향
-    if (modelType == 3)
+
+    if (model.vertexCount == 3)
     {
         // Triple
         this->vertexCount_ = 3;
         this->indexCount_ = 3;
     }
-    else if (modelType == 4)
+    else if (model.vertexCount == 4)
     {
         // Quad
         // 인덱스 배열의 인덱스 수를 설정
-        this->vertexCount_ = 6;
-        this->indexCount_ = 4;
+        this->vertexCount_ = 4;
+        this->indexCount_ = 6;
     }
     else
     {
@@ -183,26 +160,33 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, int modelType,
         return false;
     }
 
-    int i;
-
-    for (i = 0; i < nFloatArr / 3; i++)
+    // 정점 배열 데이터 설정
+    for (int i = 0; i < model.vertexCount; i++)
     {
-
+        vertices[i].position = DirectX::XMFLOAT3(
+            model.vertexTypes[i].position.x,
+            model.vertexTypes[i].position.y,
+            model.vertexTypes[i].position.z
+        );
+        vertices[i].color = DirectX::XMFLOAT4(
+            model.vertexTypes[i].color.w,
+            model.vertexTypes[i].color.x,
+            model.vertexTypes[i].color.y,
+            model.vertexTypes[i].color.z
+        );
     }
 
-    // 정점 배열 데이터 설정
-    vertices[0].position = DirectX::XMFLOAT3(-1.0f, -1.0f, 0.0f);
-    vertices[0].color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-
-    vertices[1].position = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-    vertices[1].color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-
-    vertices[2].position = DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f);
-    vertices[2].color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-
+    // default5
     indices[0] = 0;
     indices[1] = 1;
     indices[2] = 2;
+    if (model.vertexCount == 4)
+    {
+        // 직사각형인 경우
+        indices[3] = 2;
+        indices[4] = 3;
+        indices[5] = 0;
+    }
 
     // 정적 정점 버퍼 설정
     D3D11_BUFFER_DESC vertexBufferDesc;

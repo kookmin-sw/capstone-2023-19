@@ -31,7 +31,7 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
 {
     // xy 평면의 line
     
-    float halfWidth = 0.5;
+    float halfWidth = 0.2;
     // !!! color 일단 블랙 고정
     Vector4 black { 0, 0, 0, 0 };
     Model model;
@@ -39,17 +39,17 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     // 이동 벡터
     Vector3 move { end.x - start.x, end.y - start.y, 0 };
     // 수직 벡터
-    Vector3 left { -move.x, move.y, 0 };
-    Vector3 right { move.x, -move.y, 0 };
+    Vector3 left { -move.y, move.x, 0 };
+    Vector3 right { move.y, -move.x, 0 };
     // 수직 벡터의 길이를 half width 만큼
     Normalized(left, halfWidth);
     Normalized(right, halfWidth);
     
     model.vertexCount = 4;
-    model.a = VertexType { AddVector(end, left), black };
-    model.b = VertexType { AddVector(end, right), black };
-    model.c = VertexType { AddVector(start, right), black };
-    model.d = VertexType { AddVector(start, left), black };
+    model.vertexTypes[0] = VertexType { AddVector(end, left), black };
+    model.vertexTypes[1] = VertexType { AddVector(end, right),  black };
+    model.vertexTypes[2] = VertexType { AddVector(start, right), black };
+    model.vertexTypes[3] = VertexType { AddVector(start, left), black };
 
     return model;
 }

@@ -13,7 +13,7 @@ public:
     ModelClass(const ModelClass&);
     ~ModelClass();
 
-    bool Initialize(ID3D11Device*, int, float*, int);
+    bool Initialize(ID3D11Device*, const Model&);
     void Shutdown();
     void Render(ID3D11DeviceContext*);
 
@@ -21,7 +21,7 @@ public:
 
 private:
     bool InitializeBuffers(ID3D11Device*);      // not used
-    bool InitializeBuffers(ID3D11Device*, int, float*, int);
+    bool InitializeBuffers(ID3D11Device*, const Model&);
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext*);
 

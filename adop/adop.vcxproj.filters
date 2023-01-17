@@ -90,6 +90,7 @@
     <ClInclude Include="ModelClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
+    <ClInclude Include="CommonStructure.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">

@@ -23,6 +23,31 @@ SystemClass::~SystemClass()
 }
 
 
+bool SystemClass::Initialize()
+{
+	int screenWidth = 0;
+	int screenHeight = 0;
+
+	this->InitializeWindows(screenWidth, screenHeight);
+
+	this->input_ = new InputClass;
+	if (!this->input_)
+	{
+		return false;
+	}
+
+	this->input_->Initialize();
+
+	this->graphics_ = new GraphicsClass;
+	if (!this->graphics_)
+	{
+		return false;
+	}
+
+	// GraphicsClass에도 LSystem 포인터 할당
+	return this->graphics_->Initialize(screenWidth, screenHeight, this->hwnd_);
+}
+
 bool SystemClass::Initialize(LSystem* lSystem)
 {
 	// Main의 LSystem 포인터 할당

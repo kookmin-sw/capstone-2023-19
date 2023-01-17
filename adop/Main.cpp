@@ -15,18 +15,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 	
-	// !!! TEMP
-	lSystem->SetWord("F-F-F-F");
-    lSystem->AddRule('F', "F-F+F+FF-F-F+F");
-    lSystem->SetAngleChange(90.0);
-    lSystem->Iterate(3);
+	// 프랙탈
+	// Case 1
+	//lSystem->SetWord("F-F-F-F");
+ //   lSystem->AddRule('F', "F-F+F+FF-F-F+F");
+ //   lSystem->SetAngleChange(90.0);
+ //   lSystem->Iterate(3);
+	
+	// Case 2
+	//lSystem->SetWord("-F");
+ //   lSystem->AddRule('F', "F+F-F-F+F");
+ //   lSystem->SetAngleChange(90.0);
+ //   lSystem->Iterate(4);
 
-    // std::vector<LSystem::State>* result = new std::vector<LSystem::State>();
-    // lSystem->GetResultVertex(result);
-    // for (const LSystem::State& state : *result)
-    // {
-    //     cout << "(" << state.position.x << ", " << state.position.y << ") " << state.angle << endl;
-    // }
+	// Case 3
+	//lSystem->SetWord("F-F-F-F");
+ //   lSystem->AddRule('F', "F-FF--F-F");
+ //   lSystem->SetAngleChange(90.0);
+ //   lSystem->Iterate(5);
+
+	// 브랜치
+	// Case 1
+	//lSystem->SetWord("F");
+ //   lSystem->AddRule('F', "FF-[-F+F+F]+[+F-F-F]");
+ //   lSystem->SetAngleChange(22.5);
+ //   lSystem->Iterate(4);
+
+	// Case 2
+	lSystem->SetWord("F");
+    lSystem->AddRule('F', "F[+F]F[-F][F]");
+    lSystem->SetAngleChange(20.0);
+    lSystem->Iterate(5);
 
 	SystemClass* system = new SystemClass;
 	if (!system)

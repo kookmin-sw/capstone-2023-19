@@ -19,7 +19,7 @@ public:
 	GraphicsClass(const GraphicsClass&);
 	~GraphicsClass();
 
-	bool Initialize(int, int, HWND, LSystem*);
+	bool Initialize(int, int, HWND, LSystem* = nullptr);
 	void Shutdown();
 	bool Frame();
 	

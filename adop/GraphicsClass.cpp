@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include "Stdafx.h"
+#include "CommonStructure.hpp"
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
@@ -27,11 +28,10 @@ GraphicsClass::~GraphicsClass()
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSystem* lSystem)
 {
 	// Main의 LSystem 포인터 할당
-	if (!lSystem)
+	if (lSystem)
 	{
-		return false;
+		this->lSystem_ = lSystem;
 	}
-	this->lSystem_ = lSystem;
 
 	// Direct3D 객체 생성
 	// C4316 이슈로 malloc 및 free 사용
@@ -57,7 +57,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -5.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -150.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -66,22 +66,54 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		return false;
 	}
 
+	std::vector<Model>* models = new std::vector<Model>();
 	// vetex 정보를 가져옴
-	std::vector<VertexType>* states = new std::vector<LSystem::State>();
-	this->lSystem_->GetResultVertex(states);
-
-	// Model 객체 초기화
-	// for (ModelClass* model : *(this->models_))
-	for (const LSystem::State& state : *states)
+	if (lSystem)
 	{
-		ModelClass* model = new ModelClass;
-		model->Initialize(this->direct3D_->GetDevice());
+		this->lSystem_->GetResultVertex(models);
 
-		this->models_->push_back(model);
-		// if (!this->model_->Initialize(this->direct3D_->GetDevice()))
-		// {
-		// 	MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		// }
+		// Model 객체 초기화
+		// for (ModelClass* model : *(this->models_))
+		for (const Model& model : *models)
+		{
+			ModelClass* modelClass = new ModelClass;
+			modelClass->Initialize(this->direct3D_->GetDevice(), model);
+
+			this->models_->push_back(modelClass);
+		}		
+	}
+	else
+	{
+		// lSystem이 null인 경우
+		// triangle
+		//Model model;
+		//model.vertexCount = 3;
+
+		//Vector4 black = { 0, 0, 0, 0 };
+		//Vector3 position;
+		//position = { 0, 0.5, 0 };
+		//model.vertexTypes[0] = { position, black };
+		//position = { 0.5, -0.5, 0 };
+		//model.vertexTypes[1] = { position, black };
+		//position = { -0.5, -0.5, 0 };
+		//model.vertexTypes[2] = { position, black };
+		Model model;
+		model.vertexCount = 4;
+
+		Vector4 black = { 0, 0, 0, 0 };
+		Vector3 position;
+		position = { -0.5, 0.5, 0 };
+		model.vertexTypes[0] = { position, black };
+		position = { 0.5, 0.5, 0 };
+		model.vertexTypes[1] = { position, black };
+		position = { 0.5, -0.5, 0 };
+		model.vertexTypes[2] = { position, black };
+		position = { -0.5, -0.5, 0 };
+		model.vertexTypes[3] = { position, black };
+
+		ModelClass* modelClass = new ModelClass;
+		modelClass->Initialize(this->direct3D_->GetDevice(), model);
+		this->models_->push_back(modelClass);
 	}
 
 	// ColorShader 객체 생성
@@ -145,7 +177,7 @@ bool GraphicsClass::Frame()
 bool GraphicsClass::Render()
 {
 	// 버퍼 지우기
-	this->direct3D_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	this->direct3D_->BeginScene(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// 카메라 위치에 따라 뷰 행렬 생성
 	this->camera_->Render();
