@@ -1,4 +1,4 @@
-﻿#include "Stdafx.h"
+#include "Stdafx.h"
 #include "SystemClass.hpp"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -12,7 +12,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
-	if (system->Initialize())
+	if (system->Initialize(nullptr))
 	{
 		system->Run();
 	}

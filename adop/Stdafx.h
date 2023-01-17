@@ -13,3 +13,4 @@
 #include <tchar.h>
 
 #include "DXDefine.h"
+#include "CommonStructure.hpp"

@@ -36,6 +36,16 @@
     <ClCompile Include="D3DClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
+    <ClCompile Include="ColorShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -71,5 +81,23 @@
     <ClInclude Include="D3DClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
+    <ClInclude Include="CameraClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonStructure.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Color.ps">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="Color.vs">
+      <Filter>DX</Filter>
+    </None>
   </ItemGroup>
 </Project>

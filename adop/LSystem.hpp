@@ -5,18 +5,6 @@ class LLetter;
 
 class LSystem
 {
-public:
-    struct Vector3
-    {
-        float x, y, z;
-    };
-
-    struct State
-    {
-        Vector3 position;
-        float angle;
-    };
-
 private:
     const double pi = 3.14159265358979;
 
@@ -53,7 +41,7 @@ public:
     void Iterate(int);
 
     // Result
-    void GetResultVertex(std::vector<State>*);
+    void GetResultVertex(std::vector<Model>*);
 
 private:
     void Move();
