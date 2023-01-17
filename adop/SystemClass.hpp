@@ -11,7 +11,7 @@ public:
 	SystemClass(const SystemClass&);
 	~SystemClass();
 
-	bool Initialize();
+	bool Initialize(LSystem* lSystem);
 	void Shutdown();
 	void Run();
 
@@ -30,7 +30,7 @@ private:
 	InputClass* input_ = nullptr;
 	GraphicsClass* graphics_ = nullptr;
 
-	LSystem* lsystem_ = nullptr;
+	LSystem* lSystem_ = nullptr;
 };
 
 static LRESULT CALLBACK SWndProc(HWND, UINT, WPARAM, LPARAM);

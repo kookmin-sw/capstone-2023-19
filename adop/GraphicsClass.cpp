@@ -1,10 +1,12 @@
+#include <vector>
+#include <string>
 #include "Stdafx.h"
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
 #include "ColorShaderClass.hpp"
+#include "LSystem.hpp"
 #include "GraphicsClass.hpp"
-
 
 // Public
 GraphicsClass::GraphicsClass()
@@ -22,8 +24,15 @@ GraphicsClass::~GraphicsClass()
 
 }
 
-bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSystem* lSystem)
 {
+	// Main의 LSystem 포인터 할당
+	if (!lSystem)
+	{
+		return false;
+	}
+	this->lSystem_ = lSystem;
+
 	// Direct3D 객체 생성
 	// C4316 이슈로 malloc 및 free 사용
 	//this->direct3D_ = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
@@ -51,16 +60,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	this->camera_->SetPosition(0.0f, 0.0f, -5.0f);
 
 	// Model 객체 생성
-	this->model_ = new ModelClass;
-	if (!this->model_)
+	this->models_ = new std::vector<ModelClass*>();
+	if (!this->models_)
 	{
 		return false;
 	}
 
+	// vetex 정보를 가져옴
+	std::vector<LSystem::State>* states = new std::vector<LSystem::State>();
+	this->lSystem_->GetResultVertex(states);
+
 	// Model 객체 초기화
-	if (!this->model_->Initialize(this->direct3D_->GetDevice()))
+	// for (ModelClass* model : *(this->models_))
+	for (const LSystem::State& state : *states)
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		ModelClass* model = new ModelClass;
+		model->Initialize(this->direct3D_->GetDevice());
+
+		this->models_->push_back(model);
+		// if (!this->model_->Initialize(this->direct3D_->GetDevice()))
+		// {
+		// 	MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		// }
 	}
 
 	// ColorShader 객체 생성
@@ -89,11 +110,14 @@ void GraphicsClass::Shutdown()
 		this->colorShader_ = nullptr;
 	}
 
-	if (this->model_)
+	if (this->models_)
 	{
-		this->model_->Shutdown();
-		delete this->model_;
-		this->model_ = nullptr;
+		for (ModelClass* model : *(this->models_))
+		{
+			model->Shutdown();
+			delete model;
+			model = nullptr;
+		}
 	}
 
 	if (this->camera_)
