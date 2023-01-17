@@ -2,9 +2,57 @@
 #include <vector>
 #include <stack>
 #include <cmath>
+#include "CommonStructure.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
+
+// moveVector를 wantLength의 길이로 normalize
+void Normalized(Vector3& moveVector, float wantLength)
+{
+    float vectorLen = hypot(moveVector.x, moveVector.y);
+
+    // for only line
+    moveVector.x = moveVector.x / vectorLen * wantLength;
+    moveVector.y = moveVector.y / vectorLen * wantLength;
+}
+
+Vector3 AddVector(const Vector3& a, const Vector3& b)
+{
+    return Vector3
+    {
+        a.x + b.x,
+        a.y + b.y,
+        a.z + a.z
+    };
+}
+
+Model CreateLineModel(const Vector3& start, const Vector3& end)
+{
+    // xy 평면의 line
+    
+    float halfWidth = 0.5;
+    // !!! color 일단 블랙 고정
+    Vector4 black { 0, 0, 0, 0 };
+    Model model;
+
+    // 이동 벡터
+    Vector3 move { end.x - start.x, end.y - start.y, 0 };
+    // 수직 벡터
+    Vector3 left { -move.x, move.y, 0 };
+    Vector3 right { move.x, -move.y, 0 };
+    // 수직 벡터의 길이를 half width 만큼
+    Normalized(left, halfWidth);
+    Normalized(right, halfWidth);
+    
+    model.vertexCount = 4;
+    model.a = VertexType { AddVector(end, left), black };
+    model.b = VertexType { AddVector(end, right), black };
+    model.c = VertexType { AddVector(start, right), black };
+    model.d = VertexType { AddVector(start, left), black };
+
+    return model;
+}
 
 // Public
 LSystem::LSystem()
@@ -137,23 +185,31 @@ void LSystem::Iterate(int n)
 }
 
 
-void LSystem::GetResultVertex(std::vector<State>* out)
+void LSystem::GetResultVertex(std::vector<Model>* out)
 {
+    // out -> jk,
     if (this->word_->size() < 1)
     {
         throw "No word";
     }
 
-    std::stack<LSystem::State> ss;
+    float width = 0.5;
+    std::stack<State> ss;
 
-    out->push_back(this->state_);     // start state
+    Vector3 start;
+    Vector3 end;
+
+    start = this->state_.position;
     for (const LLetter& letter : *(this->word_))
     {
+        // Move: 이동 후 현재 위치 end에 저장 후 push
         switch (letter.GetType())
         {
             case LLetter::Type::Forward:
                 this->Move();
-                out->push_back(this->state_);
+                end = this->state_.position;
+                out->push_back(CreateLineModel(start, end));
+                start = this->state_.position;
                 break;
             case LLetter::Type::Left:
                 this->Turn();
@@ -169,7 +225,7 @@ void LSystem::GetResultVertex(std::vector<State>* out)
                 // Draw 없는 이동
                 this->state_ = ss.top();
                 ss.pop();
-                out->push_back(this->state_);
+                start = this->state_.position;
                 break;
             case LLetter::Type::None:
                 break;

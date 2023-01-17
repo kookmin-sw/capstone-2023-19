@@ -2,7 +2,7 @@
 
 class ModelClass : public AlignedAllocationPolicy<16>
 {
-protected:
+private:
     struct VertexType
     {
         DirectX::XMFLOAT3 position;
@@ -13,18 +13,19 @@ public:
     ModelClass(const ModelClass&);
     ~ModelClass();
 
-    bool Initialize(ID3D11Device*);
+    bool Initialize(ID3D11Device*, int, float*, int);
     void Shutdown();
     void Render(ID3D11DeviceContext*);
 
     int GetIndexCount();
 
-protected:
-    bool InitializeBuffers(ID3D11Device*);
+private:
+    bool InitializeBuffers(ID3D11Device*);      // not used
+    bool InitializeBuffers(ID3D11Device*, int, float*, int);
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext*);
 
-protected:
+private:
     ID3D11Buffer* vertexBuffer_ = nullptr;
     ID3D11Buffer* indexBuffer_ = nullptr;
     int vertexCount_ = 0;

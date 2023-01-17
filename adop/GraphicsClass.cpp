@@ -67,7 +67,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	}
 
 	// vetex 정보를 가져옴
-	std::vector<LSystem::State>* states = new std::vector<LSystem::State>();
+	std::vector<VertexType>* states = new std::vector<LSystem::State>();
 	this->lSystem_->GetResultVertex(states);
 
 	// Model 객체 초기화
@@ -156,13 +156,16 @@ bool GraphicsClass::Render()
 	this->direct3D_->GetProjectionMatrix(projectionMatrix);
 
 	// Vertex, Index buffer를 그래픽 파이프라인에 배치
-	this->model_->Render(this->direct3D_->GetDeviceContext());
-
-	if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-		this->model_->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+	for (ModelClass* model : *(this->models_))
 	{
-		// ColorShader를 통해 렌더링
-		return false;
+		model->Render(this->direct3D_->GetDeviceContext());
+
+		if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
+			model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+		{
+			// ColorShader를 통해 렌더링
+			return false;
+		}
 	}
 
 	this->direct3D_->EndScene();
