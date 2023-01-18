@@ -206,29 +206,50 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         switch (letter.GetType())
         {
             case LLetter::Type::Forward:
+            {
+                // Draw + Move forward
                 this->Move();
                 end = this->state_.position;
                 out->push_back(CreateLineModel(start, end));
                 start = this->state_.position;
                 break;
+            }
+            case LLetter::Type::NoDrawForward:
+            {
+                // No Draw + Move foward
+                break;
+            }
             case LLetter::Type::Left:
+            {
+                // angleChange_ 만큼 turn left
                 this->Turn();
                 break;
+            }
             case LLetter::Type::Right:
+            {
+                // angleChange_ 만큼 turn right
                 this->Turn(false);
                 break;
+            }
             case LLetter::Type::Push:
+            {
+                // 현재 State 저장
                 ss.push(this->state_);
                 break;
+            }
             case LLetter::Type::Pop:
-                // !!! State에 타입 추가하기 (ex. Skip)
-                // Draw 없는 이동
+            {
+                // 이전 State 복원
+                // 위치도 같이 옮겨지는 경우 No draw
                 this->state_ = ss.top();
                 ss.pop();
                 start = this->state_.position;
                 break;
+            }
             case LLetter::Type::None:
+            {
                 break;
+            }
         }
     }
 }
@@ -254,8 +275,3 @@ void LSystem::Turn(const bool& isLeft)
         this->state_.angle += this->angleChange_;
     }
 }
-
-// void LSystem::SetPosition(const Vector3&)
-// {
-
-// }

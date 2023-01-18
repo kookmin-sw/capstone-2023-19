@@ -7,6 +7,7 @@ public:
     {
         None,
         Forward = 'F',
+        NoDrawForward = 'f',
         Left    = '+',
         Right   = '-',
         Push    = '[',
