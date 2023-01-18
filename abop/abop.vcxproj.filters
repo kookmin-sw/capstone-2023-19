@@ -7,6 +7,9 @@
     <Filter Include="DX">
       <UniqueIdentifier>{42a3fff0-59fe-4b6d-8613-82c3a1698fca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DX\Models">
+      <UniqueIdentifier>{fd08c5be-71da-4193-b7eb-7dc1db1f11fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LLetter.cpp">
@@ -42,10 +45,16 @@
     <ClCompile Include="CameraClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
-    <ClCompile Include="ModelClass.cpp">
-      <Filter>DX</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ModelClass.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Square.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -87,10 +96,19 @@
     <ClInclude Include="ColorShaderClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
-    <ClInclude Include="ModelClass.hpp">
-      <Filter>DX</Filter>
-    </ClInclude>
     <ClInclude Include="CommonStructure.hpp" />
+    <ClInclude Include="ModelClass.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Square.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">

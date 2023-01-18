@@ -9,11 +9,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_ LPWSTR lpCmdLine,
 	_In_ int nCmdShow)
 {
-	LSystem* lSystem = new LSystem();
-	if (!lSystem)
-	{
-		return -1;
-	}
+	//LSystem* lSystem = new LSystem();
+	//if (!lSystem)
+	//{
+	//	return -1;
+	//}
 	
 	// 프랙탈
 	// Case 1
@@ -42,10 +42,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
  //   lSystem->Iterate(4);
 
 	// Case 2
-	lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[+F]F[-F][F]");
-    lSystem->SetAngleChange(20.0);
-    lSystem->Iterate(5);
+	//lSystem->SetWord("F");
+ //   lSystem->AddRule('F', "F[+F]F[-F][F]");
+ //   lSystem->SetAngleChange(20.0);
+ //   lSystem->Iterate(5);
 
 	SystemClass* system = new SystemClass;
 	if (!system)
@@ -53,14 +53,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
-	if (system->Initialize(lSystem))
+	if (system->Initialize())
 	{
 		system->Run();
 	}
 
 
-    delete lSystem;
-    lSystem = nullptr;
+    //delete lSystem;
+    //lSystem = nullptr;
 
 	system->Shutdown();
 	delete system;

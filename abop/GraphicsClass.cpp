@@ -5,6 +5,7 @@
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
+#include "Model.hpp"
 #include "ColorShaderClass.hpp"
 #include "LSystem.hpp"
 #include "GraphicsClass.hpp"
@@ -57,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -150.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -5.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -66,10 +67,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		return false;
 	}
 
-	std::vector<Model>* models = new std::vector<Model>();
 	// vetex 정보를 가져옴
 	if (lSystem)
 	{
+		std::vector<Model>* models = new std::vector<Model>();
 		this->lSystem_->GetResultVertex(models);
 
 		// Model 객체 초기화
@@ -77,7 +78,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		for (const Model& model : *models)
 		{
 			ModelClass* modelClass = new ModelClass;
-			modelClass->Initialize(this->direct3D_->GetDevice(), model);
+			// !!! to be update
+			// modelClass->Initialize(this->direct3D_->GetDevice(), model);
 
 			this->models_->push_back(modelClass);
 		}		
@@ -85,7 +87,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	else
 	{
 		// lSystem이 null인 경우
-		// triangle
+		// Test triangle
 		//Model model;
 		//model.vertexCount = 3;
 
@@ -97,7 +99,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		//model.vertexTypes[1] = { position, black };
 		//position = { -0.5, -0.5, 0 };
 		//model.vertexTypes[2] = { position, black };
-		Model model;
+
+		// Test Square
+		/*Model model;
 		model.vertexCount = 4;
 
 		Vector4 black = { 0, 0, 0, 0 };
@@ -109,11 +113,25 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		position = { 0.5, -0.5, 0 };
 		model.vertexTypes[2] = { position, black };
 		position = { -0.5, -0.5, 0 };
-		model.vertexTypes[3] = { position, black };
+		model.vertexTypes[3] = { position, black };*/
 
-		ModelClass* modelClass = new ModelClass;
+		/*ModelClass* modelClass = new ModelClass;
 		modelClass->Initialize(this->direct3D_->GetDevice(), model);
-		this->models_->push_back(modelClass);
+		this->models_->push_back(modelClass);*/
+
+		Triangle* triangle1 = new Triangle;
+		triangle1->SetPosition(-2.0, 0.0, 0.0);
+		if (triangle1->Initialize(this->direct3D_->GetDevice()))
+		{
+			this->models_->push_back((ModelClass*)triangle1);
+		}
+
+		Triangle* triangle2 = new Triangle;
+		triangle2->SetPosition(2.0, 0.0, 0.0);
+		if (triangle2->Initialize(this->direct3D_->GetDevice()))
+		{
+			this->models_->push_back((ModelClass*)triangle2);
+		}
 	}
 
 	// ColorShader 객체 생성
