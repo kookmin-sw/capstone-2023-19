@@ -62,7 +62,7 @@ bool Square::InitializeBuffers(ID3D11Device* device)
     vertices[0].color = this->color_;
     vertices[1].color = this->color_;
     vertices[2].color = this->color_;
-    vertices[2].color = this->color_;
+    vertices[3].color = this->color_;
 
     // Index
     indices[0] = 0;
