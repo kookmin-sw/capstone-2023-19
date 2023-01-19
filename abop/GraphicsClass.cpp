@@ -58,7 +58,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -20.0f);
+	this->camera_->SetPosition(2.0f, -5.0f, -5.0f);
+	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -115,17 +116,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		//	this->models_->push_back((ModelClass*)square2);
 		//}
 
-		Plane* plane = new Plane;
-		if (plane->Initialize(this->direct3D_->GetDevice()))
+		//Plane* plane = new Plane;
+		//if (plane->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)plane);
+		//}
+
+		//Triangle* triangle = new Triangle;
+		//if (triangle->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)triangle);
+		//}
+		Cube* cube = new Cube;
+		if (cube->Initialize(this->direct3D_->GetDevice()))
 		{
-			this->models_->push_back((ModelClass*)plane);
+			this->models_->push_back((ModelClass*)cube);
 		}
 
-		Triangle* triangle = new Triangle;
-		if (triangle->Initialize(this->direct3D_->GetDevice()))
-		{
-			this->models_->push_back((ModelClass*)triangle);
-		}
 	}
 
 	// ColorShader 객체 생성

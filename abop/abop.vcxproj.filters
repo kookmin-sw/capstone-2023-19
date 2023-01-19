@@ -58,6 +58,9 @@
     <ClCompile Include="Plane.cpp">
       <Filter>DX\Models</Filter>
     </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -113,6 +116,9 @@
       <Filter>DX\Models</Filter>
     </ClInclude>
     <ClInclude Include="Plane.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
   </ItemGroup>

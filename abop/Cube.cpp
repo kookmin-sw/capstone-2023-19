@@ -1,4 +1,4 @@
-#include "Stadafx.h"
+#include "Stdafx.h"
 #include "ModelClass.hpp"
 #include "Cube.hpp"
 
@@ -11,7 +11,7 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
 {
     // Cube buffer, index count 설정
     this->vertexCount_ = 8;
-    this->indexCount_ = 24;
+    this->indexCount_ = 36;
     
     // 정적 배열 생성
     VertexType* vertices = new VertexType[this->vertexCount_];
@@ -35,55 +35,55 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
     (
         this->position_.x - hWidth,
         this->position_.y + hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
     vertices[1].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y + hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
     vertices[2].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y - hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
     vertices[3].position = DirectX::XMFLOAT3
     (
         this->position_.x - hWidth,
         this->position_.y - hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
     vertices[4].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y + hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
     vertices[5].position = DirectX::XMFLOAT3
     (
         this->position_.x - hWidth,
         this->position_.y + hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
     vertices[6].position = DirectX::XMFLOAT3
     (
         this->position_.x - hWidth,
         this->position_.y - hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
     vertices[7].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y - hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
 
@@ -97,9 +97,9 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
     vertices[6].color = this->color_;
     vertices[7].color = this->color_;
 
-    int[36] cubeIndices = {
+    int cubeIndices[36] = {
         0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 5,
+        4, 5, 6, 6, 7, 4,
         3, 2, 7, 7, 6, 3,
         2, 1, 4, 4, 7, 2,
         1, 0, 5, 5, 4, 1,
@@ -109,7 +109,7 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
     // Index
     for (int i = 0; i < 36; i++)
     {
-        indices[i] = cubeIndices[i]
+        indices[i] = cubeIndices[i];
     }
 
     // 정적 vertex buffer 생성
