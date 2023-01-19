@@ -1,17 +1,17 @@
 #include "Stdafx.h"
 #include "ModelClass.hpp"
-#include "Square.hpp"
+#include "Plane.hpp"
 
-bool Square::Initialize(ID3D11Device* device)
+bool Plane::Initialize(ID3D11Device* device)
 {
     return this->InitializeBuffers(device);
 }
 
-bool Square::InitializeBuffers(ID3D11Device* device)
+bool Plane::InitializeBuffers(ID3D11Device* device)
 {
     // Square buffer index 수 설정
-    this->vertexCount_ = 4;
-    this->indexCount_ = 6;
+    this->vertexCount_ = this->nWidthSegments_ * this->nHeightSegments_;
+    this->indexCount_ = (this->nWidthSegments_ - 1) * (this->nHeightSegments_ - 1) * 6;
     
     // 정적 배열 생성
     VertexType* vertices = new VertexType[this->vertexCount_];
@@ -26,49 +26,48 @@ bool Square::InitializeBuffers(ID3D11Device* device)
         return false;
     }
 
-    float hHeight = this->height_ / 2;
     float hWidth = this->width_ / 2;
+    float hHeight = this->height_ / 2;
 
-    // Vertex
-    vertices[0].position = DirectX::XMFLOAT3
-    (
-        this->position_.x - hwidth,
-        this->position_.y + hHeight,
-        this->position_.z
-    );
+    float winv = 1 / (this->nWidthSegments_ - 1);
+    float hinv = 1 / (this->nHeightSegments_ - 1);
 
-    vertices[1].position = DirectX::XMFLOAT3
-    (
-        this->position_.x + hWidth,
-        this->position_.y + hHeight,
-        this->position_.z
-    );
+    for (int y = 0; y < nHeightSegments_; y++)
+    {
+        for (int x = 0; x < nHeightSegments_; x++)
+        {
+            int index = y * this->nWidthSegments_ + x;
 
-    vertices[2].position = DirectX::XMFLOAT3
-    (
-        this->position_.x + hWidth,
-        this->position_.y - hHeight,
-        this->position_.z
-    );
+            vertices[index].position = DirectX::XMFLOAT3
+            {
+                this->position_.x - hWidth + winv * x * width,
+                this->position_.y - hHeight + hinv * y * height,
+                this->position_.z
+            };
 
-    vertices[3].position = DirectX::XMFLOAT3
-    (
-        this->position_.x - hWidth,
-        this->position_.y - hHeight,
-        this->position_.z
-    );
+            vertices[index].color = this->color_;
+        }
+    }
 
-    // Color
-    vertices[0].color = this->color_;
-    vertices[1].color = this->color_;
-    vertices[2].color = this->color_;
-    vertices[2].color = this->color_;
+    for (int y = 0; y < nHeightSegments_ - 1; y++)
+    {
+        for (int x = 0; x < nWidthSegments_ - 1; x++)
+        {
+            int index = y * this->nWidthSegments_ + x;
 
-    // default5
-    indices = {
-        0, 1, 2,
-        2, 3, 0
-    };
+            int a = index;
+            int b = index + 1;
+            int c = index + 1 + this->nWidthSegments_;
+            int d = index + this->nWidthSegments_;
+
+            indices[index] = a;
+            indices[index + 1] = b;
+            indices[index + 2] = c;
+            indices[index + 3] = c;
+            indices[index + 4] = d;
+            indices[index + 5] = a;
+        }
+    }
 
     // 정적 vertex buffer 생성
     D3D11_BUFFER_DESC vertexBufferDesc;
@@ -121,12 +120,22 @@ bool Square::InitializeBuffers(ID3D11Device* device)
     return true;
 }
 
-void Square::SetWidth(const float& width)
+void SetWidth(const float& width)
 {
     this->width_ = width;
 }
 
-void Square::SetHeight(const float& height)
+void SetHeight(const float& height)
 {
     this->height_ = height;
+}
+
+void SetWidthSegments(const int& n)
+{
+    this->nWidthSegments_ = n;
+}
+
+void SetHeightSegments(const int& n)
+{
+    this->nHeightSegments_ = n
 }
