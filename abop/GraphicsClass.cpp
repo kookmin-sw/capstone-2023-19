@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -5.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -20.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -86,51 +86,45 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	}
 	else
 	{
-		// lSystem이 null인 경우
-		// Test triangle
-		//Model model;
-		//model.vertexCount = 3;
 
-		//Vector4 black = { 0, 0, 0, 0 };
-		//Vector3 position;
-		//position = { 0, 0.5, 0 };
-		//model.vertexTypes[0] = { position, black };
-		//position = { 0.5, -0.5, 0 };
-		//model.vertexTypes[1] = { position, black };
-		//position = { -0.5, -0.5, 0 };
-		//model.vertexTypes[2] = { position, black };
+		//Triangle* triangle1 = new Triangle;
+		//triangle1->SetPosition(-1.0, 0.0, 0.0);
+		//if (triangle1->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)triangle1);
+		//}
 
-		// Test Square
-		/*Model model;
-		model.vertexCount = 4;
+		//Triangle* triangle2 = new Triangle;
+		//triangle2->SetPosition(1.0, 0.0, 0.0);
+		//if (triangle2->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)triangle2);
+		//}
 
-		Vector4 black = { 0, 0, 0, 0 };
-		Vector3 position;
-		position = { -0.5, 0.5, 0 };
-		model.vertexTypes[0] = { position, black };
-		position = { 0.5, 0.5, 0 };
-		model.vertexTypes[1] = { position, black };
-		position = { 0.5, -0.5, 0 };
-		model.vertexTypes[2] = { position, black };
-		position = { -0.5, -0.5, 0 };
-		model.vertexTypes[3] = { position, black };*/
+		//Square* square1 = new Square;
+		//square1->SetPosition(-1.0, 0.0, 0.0);
+		//if (square1->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)square1);
+		//}
 
-		/*ModelClass* modelClass = new ModelClass;
-		modelClass->Initialize(this->direct3D_->GetDevice(), model);
-		this->models_->push_back(modelClass);*/
+		//Square* square2 = new Square;
+		//square2->SetPosition(1.0, 0.0, 0.0);
+		//if (square2->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)square2);
+		//}
 
-		Triangle* triangle1 = new Triangle;
-		triangle1->SetPosition(-2.0, 0.0, 0.0);
-		if (triangle1->Initialize(this->direct3D_->GetDevice()))
+		Plane* plane = new Plane;
+		if (plane->Initialize(this->direct3D_->GetDevice()))
 		{
-			this->models_->push_back((ModelClass*)triangle1);
+			this->models_->push_back((ModelClass*)plane);
 		}
 
-		Triangle* triangle2 = new Triangle;
-		triangle2->SetPosition(2.0, 0.0, 0.0);
-		if (triangle2->Initialize(this->direct3D_->GetDevice()))
+		Triangle* triangle = new Triangle;
+		if (triangle->Initialize(this->direct3D_->GetDevice()))
 		{
-			this->models_->push_back((ModelClass*)triangle2);
+			this->models_->push_back((ModelClass*)triangle);
 		}
 	}
 

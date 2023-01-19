@@ -32,7 +32,7 @@ bool Square::InitializeBuffers(ID3D11Device* device)
     // Vertex
     vertices[0].position = DirectX::XMFLOAT3
     (
-        this->position_.x - hwidth,
+        this->position_.x - hWidth,
         this->position_.y + hHeight,
         this->position_.z
     );
@@ -64,11 +64,13 @@ bool Square::InitializeBuffers(ID3D11Device* device)
     vertices[2].color = this->color_;
     vertices[2].color = this->color_;
 
-    // default5
-    indices = {
-        0, 1, 2,
-        2, 3, 0
-    };
+    // Index
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 2;
+    indices[4] = 3;
+    indices[5] = 0;
 
     // 정적 vertex buffer 생성
     D3D11_BUFFER_DESC vertexBufferDesc;

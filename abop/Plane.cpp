@@ -9,6 +9,11 @@ bool Plane::Initialize(ID3D11Device* device)
 
 bool Plane::InitializeBuffers(ID3D11Device* device)
 {
+    if (this->nWidthSegments_ < 2 || this->nHeightSegments_ < 2)
+    {
+        throw "Invalid nSegments";
+    }
+
     // Square buffer index 수 설정
     this->vertexCount_ = this->nWidthSegments_ * this->nHeightSegments_;
     this->indexCount_ = (this->nWidthSegments_ - 1) * (this->nHeightSegments_ - 1) * 6;
@@ -29,19 +34,19 @@ bool Plane::InitializeBuffers(ID3D11Device* device)
     float hWidth = this->width_ / 2;
     float hHeight = this->height_ / 2;
 
-    float winv = 1 / (this->nWidthSegments_ - 1);
-    float hinv = 1 / (this->nHeightSegments_ - 1);
+    float winv = 1.0 / (this->nWidthSegments_ - 1);
+    float hinv = 1.0 / (this->nHeightSegments_ - 1);
 
     for (int y = 0; y < nHeightSegments_; y++)
     {
-        for (int x = 0; x < nHeightSegments_; x++)
+        for (int x = 0; x < nWidthSegments_; x++)
         {
             int index = y * this->nWidthSegments_ + x;
 
             vertices[index].position = DirectX::XMFLOAT3
             {
-                this->position_.x - hWidth + winv * x * width,
-                this->position_.y - hHeight + hinv * y * height,
+                this->position_.x - hWidth + winv * x * this->width_,
+                this->position_.y + hHeight - hinv * y * this->height_,
                 this->position_.z
             };
 
@@ -49,6 +54,7 @@ bool Plane::InitializeBuffers(ID3D11Device* device)
         }
     }
 
+    int iBufferIndex = 0;
     for (int y = 0; y < nHeightSegments_ - 1; y++)
     {
         for (int x = 0; x < nWidthSegments_ - 1; x++)
@@ -60,12 +66,12 @@ bool Plane::InitializeBuffers(ID3D11Device* device)
             int c = index + 1 + this->nWidthSegments_;
             int d = index + this->nWidthSegments_;
 
-            indices[index] = a;
-            indices[index + 1] = b;
-            indices[index + 2] = c;
-            indices[index + 3] = c;
-            indices[index + 4] = d;
-            indices[index + 5] = a;
+            indices[iBufferIndex++] = a;
+            indices[iBufferIndex++] = b;
+            indices[iBufferIndex++] = c;
+            indices[iBufferIndex++] = c;
+            indices[iBufferIndex++] = d;
+            indices[iBufferIndex++] = a;
         }
     }
 
@@ -120,22 +126,22 @@ bool Plane::InitializeBuffers(ID3D11Device* device)
     return true;
 }
 
-void SetWidth(const float& width)
+void Plane::SetWidth(const float& width)
 {
     this->width_ = width;
 }
 
-void SetHeight(const float& height)
+void Plane::SetHeight(const float& height)
 {
     this->height_ = height;
 }
 
-void SetWidthSegments(const int& n)
+void Plane::SetWidthSegments(const int& n)
 {
     this->nWidthSegments_ = n;
 }
 
-void SetHeightSegments(const int& n)
+void Plane::SetHeightSegments(const int& n)
 {
-    this->nHeightSegments_ = n
+    this->nHeightSegments_ = n;
 }
