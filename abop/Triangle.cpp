@@ -9,10 +9,11 @@ bool Triangle::Initialize(ID3D11Device* device)
 
 bool Triangle::InitializeBuffers(ID3D11Device* device)
 {
+    // Triangle buffer index ìˆ˜ ì„¤ì •
     this->vertexCount_ = 3;
     this->indexCount_ = 3;
     
-    // Á¤Á¡ ¹è¿­ »ý¼º
+    // ì •ì  ë°°ì—´ ìƒì„±
     VertexType* vertices = new VertexType[this->vertexCount_];
     if (!vertices)
     {
@@ -60,7 +61,7 @@ bool Triangle::InitializeBuffers(ID3D11Device* device)
     indices[1] = 1;
     indices[2] = 2;
 
-    // Á¤Àû Á¤Á¡ ¹öÆÛ ¼³Á¤
+    // ì •ì  vertex buffer ìƒì„±
     D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     vertexBufferDesc.ByteWidth = sizeof(VertexType) * this->vertexCount_;
@@ -69,19 +70,19 @@ bool Triangle::InitializeBuffers(ID3D11Device* device)
     vertexBufferDesc.MiscFlags = 0;
     vertexBufferDesc.StructureByteStride = 0;
 
-    // subresource ±¸Á¶¿¡ vertex data¿¡ ´ëÇÑ Æ÷ÀÎÅÍ¸¦ Á¦°ø
+    // subresource êµ¬ì¡°ì— vertex buffer dataì— ëŒ€í•œ í¬ì¸í„°ë¥¼ ì œê³µ
     D3D11_SUBRESOURCE_DATA vertexData;
     vertexData.pSysMem = vertices;
     vertexData.SysMemPitch = 0;
     vertexData.SysMemSlicePitch = 0;
 
+    // Vertex Buffer ìƒì„±
     if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &(this->vertexBuffer_))))
     {
-        // Vertex Buffer »ý¼º
         return false;
     }
 
-    // Á¤Àû Index Buffer ¼³Á¤
+    // ì •ì  Index Buffer ì„¤ì •
     D3D11_BUFFER_DESC indexBufferDesc;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.ByteWidth = sizeof(unsigned long) * this->indexCount_;
@@ -90,7 +91,7 @@ bool Triangle::InitializeBuffers(ID3D11Device* device)
     indexBufferDesc.MiscFlags = 0;
     indexBufferDesc.StructureByteStride = 0;
 
-    // subresource ±¸Á¶¿¡ index data¿¡ ´ëÇÑ Æ÷ÀÎÅÍ¸¦ Á¦°ø
+    // subresource êµ¬ì¡°ì— index buffer dataì— ëŒ€í•œ í¬ì¸í„°ë¥¼ ì œê³µ
     D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices;
     indexData.SysMemPitch = 0;
@@ -98,7 +99,7 @@ bool Triangle::InitializeBuffers(ID3D11Device* device)
 
     if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &(this->indexBuffer_))))
     {
-        // Index Buffer »ý¼º
+        // Index Buffer ìƒì„±
         return false;
     }
 
@@ -109,4 +110,14 @@ bool Triangle::InitializeBuffers(ID3D11Device* device)
     indices = nullptr;
 
     return true;
+}
+
+void Triangle::SetWidth(const float& width)
+{
+    this->width_ = width;
+}
+
+void Triangle::SetHeight(const float& height)
+{
+    this->height_ = height;
 }
