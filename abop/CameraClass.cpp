@@ -41,7 +41,7 @@ DirectX::XMFLOAT3 CameraClass::GetRotation()
 	return this->rotation_;
 }
 
-void CameraClass::Render()
+void CameraClass::Render(WPARAM key)
 {
 	DirectX::XMFLOAT3 up, position, lookAt;
 	DirectX::XMVECTOR upVector, positionVector, lookAtVector;
@@ -55,6 +55,22 @@ void CameraClass::Render()
 	upVector = DirectX::XMLoadFloat3(&up);
 
 	// Position
+	switch (key)
+	{
+		case VK_LEFT:
+			this->position_.x += CAMERA_MOVING;
+			break;
+		case VK_UP:
+			this->position_.y -= CAMERA_MOVING;
+			break;
+		case VK_RIGHT:
+			this->position_.x -= CAMERA_MOVING;
+			break;
+		case VK_DOWN:
+			this->position_.y += CAMERA_MOVING;
+			break;
+	}
+
 	position = this->position_;
 	positionVector = DirectX::XMLoadFloat3(&position);
 
@@ -66,9 +82,9 @@ void CameraClass::Render()
 
 	// 회전값을 라디안 단위로 설정
 	// pitch (x), yaw (y), roll (z)
-	pitch = this->rotation_.x * 0.0174532925f;
-	yaw = this->rotation_.y * 0.0174532925f;
-	roll = this->rotation_.z * 0.0174532925f;
+	pitch = this->rotation_.x * CAMERA_ROTATION;
+	yaw = this->rotation_.y * CAMERA_ROTATION;
+	roll = this->rotation_.z * CAMERA_ROTATION;
 	// 회전 행렬 생성
 	rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
 
