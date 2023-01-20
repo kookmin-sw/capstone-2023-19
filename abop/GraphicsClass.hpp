@@ -21,10 +21,10 @@ public:
 
 	bool Initialize(int, int, HWND, LSystem* = nullptr);
 	void Shutdown();
-	bool Frame();
+	bool Frame(WPARAM);
 	
 private:
-	bool Render();
+	bool Render(WPARAM);
 
 private:
 	D3DClass* direct3D_ = nullptr;

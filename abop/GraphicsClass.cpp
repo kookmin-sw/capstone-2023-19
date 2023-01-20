@@ -57,7 +57,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -150.0f);
+	this->camera_->SetPosition(0.0f, 30.0f, -150.0f);
+	//this->camera_->SetRotation(0.0f, 0.0f, 0.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -168,19 +169,19 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame()
+bool GraphicsClass::Frame(WPARAM key)
 {
-	return this->Render();
+	return this->Render(key);
 }
 
 // Private
-bool GraphicsClass::Render()
+bool GraphicsClass::Render(WPARAM key)
 {
 	// 버퍼 지우기
 	this->direct3D_->BeginScene(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// 카메라 위치에 따라 뷰 행렬 생성
-	this->camera_->Render();
+	this->camera_->Render(key);
 
 	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	this->direct3D_->GetWorldMatrix(worldMatrix);

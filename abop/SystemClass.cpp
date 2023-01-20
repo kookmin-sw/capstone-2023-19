@@ -150,14 +150,44 @@ LRESULT CALLBACK SystemClass::MessageHandler(
 
 // Private
 bool SystemClass::Frame()
-{
+{	
+	// ESC 입력 시
 	if (this->input_->IsKeyDown(VK_ESCAPE))
 	{
-		// ESC 입력 시
 		return false;
 	}
+	// 방향키 입력시 
+	if (this->input_->IsKeyDown(VK_LEFT))
+	{
+		return this->graphics_->Frame(VK_LEFT);
+	}
+	if (this->input_->IsKeyDown(VK_UP))
+	{
+		return this->graphics_->Frame(VK_UP);
+	}
+	if (this->input_->IsKeyDown(VK_RIGHT))
+	{
+		return this->graphics_->Frame(VK_RIGHT);
+	}
+	if (this->input_->IsKeyDown(VK_DOWN))
+	{
+		return this->graphics_->Frame(VK_DOWN);
+	}
+	// 회전키 입력 시
+	if (this->input_->IsKeyDown(VK_F1))
+	{
+		return this->graphics_->Frame(VK_F1);
+	}
+	if (this->input_->IsKeyDown(VK_F2))
+	{
+		return this->graphics_->Frame(VK_F2);
+	}
+	if (this->input_->IsKeyDown(VK_F3))
+	{
+		return this->graphics_->Frame(VK_F3);
+	}
 
-	return this->graphics_->Frame();
+	return this->graphics_->Frame(NULL);
 }
 
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)

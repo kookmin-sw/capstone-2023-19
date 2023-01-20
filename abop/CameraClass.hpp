@@ -1,5 +1,9 @@
 #pragma
 
+//Global
+const float CAMERA_MOVING = 0.2f;
+const float CAMERA_ROTATION = 0.0174532925f;
+
 class CameraClass : public AlignedAllocationPolicy<16>
 {
 public:
@@ -13,7 +17,7 @@ public:
 	DirectX::XMFLOAT3 GetPosition();
 	DirectX::XMFLOAT3 GetRotation();
 
-	void Render();
+	void Render(WPARAM);
 	void GetViewMatrix(DirectX::XMMATRIX&);
 
 private:
