@@ -18,7 +18,7 @@ struct Vector4
 struct State
 {
     Vector3 position;
-    float angle;
+    Vector3 heading;
 };
 
 struct VertexType

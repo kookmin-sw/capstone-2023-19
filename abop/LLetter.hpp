@@ -8,8 +8,13 @@ public:
         None,
         Forward = 'F',
         NoDrawForward = 'f',
-        Left    = '+',
-        Right   = '-',
+        TurnLeft    = '+',
+        TurnRight   = '-',
+        PitchUp = '^',
+        PitchDown = '&',
+        RollLeft = '\\',
+        RollRight = '/',
+        TurnAround = '|',
         Push    = '[',
         Pop     = ']'
     };

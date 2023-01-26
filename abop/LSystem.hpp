@@ -6,13 +6,11 @@ class LLetter;
 class LSystem
 {
 private:
-    const double pi = 3.14159265358979;
-
     float angleChange_ = 90;
     float distance_ = 1.0;
     State state_;
-    // Vector3 position_ = Vector3 { 0, 0, 0 };
-    // Vector3 forward = Vector3 { 0, 1.0, 0 };
+    //Vector3 position_ = Vector3 { 0, 0, 0 };
+    //Vector3 forward_ = Vector3 { 0, 1.0, 0 };
 
     std::vector<LRule> rules_;
     std::vector<LLetter>* word_;
@@ -45,6 +43,6 @@ public:
 
 private:
     void Move();
-    void Turn(const bool& isLeft = true);
+    void Rotate(Vector3& pos, int axis, float angle);
     // void SetPosition(const Vector3&);
 };

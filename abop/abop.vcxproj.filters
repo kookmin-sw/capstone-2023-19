@@ -91,6 +91,7 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="CommonStructure.hpp" />
+    <ClInclude Include="CommonVariable.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">

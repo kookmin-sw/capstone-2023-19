@@ -3,6 +3,7 @@
 #include <stack>
 #include <cmath>
 #include "CommonStructure.hpp"
+#include "CommonVariable.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
@@ -60,7 +61,7 @@ LSystem::LSystem()
     rules_ = std::vector<LRule>();
     word_ = new std::vector<LLetter>();
 
-    this->state_ = { {0.0, 0.0, 0.0}, 0.0 };
+    this->state_ = { {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };
 }
 
 LSystem::~LSystem()
@@ -217,18 +218,51 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::NoDrawForward:
             {
                 // No Draw + Move foward
+                this->Move();
+                end = this->state_.position;
+                out->push_back(CreateLineModel(start, end));
                 break;
             }
-            case LLetter::Type::Left:
+            case LLetter::Type::RollLeft:
             {
-                // angleChange_ 만큼 turn left
-                this->Turn();
+                // angleChange_ 만큼 x축 회전
+                this->Rotate(this->state_.heading, 0, angleChange_);
                 break;
             }
-            case LLetter::Type::Right:
+            case LLetter::Type::RollRight:
             {
-                // angleChange_ 만큼 turn right
-                this->Turn(false);
+                // -angleChange_ 만큼 x축 회전
+                this->Rotate(this->state_.heading, 0, -angleChange_);
+                break;
+            }
+            case LLetter::Type::PitchUp:
+            {
+                // angleChange_ 만큼 y축 회전
+                this->Rotate(this->state_.heading, 1, angleChange_);
+                break;
+            }
+            case LLetter::Type::PitchDown:
+            {
+                // -angleChange_ 만큼 y축 회전
+                this->Rotate(this->state_.heading, 1, -angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnLeft:
+            {
+                // angleChange_ 만큼 z축 회전
+                this->Rotate(this->state_.heading, 2, angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnRight:
+            {
+                // -angleChange_ 만큼 z축 회전
+                this->Rotate(this->state_.heading, 2, -angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnAround:
+            {
+                // 180도 z축 회전
+                this->Rotate(this->state_.heading, 2, 180.0f);
                 break;
             }
             case LLetter::Type::Push:
@@ -257,21 +291,46 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
 // Private
 void LSystem::Move()
 {
-    // 현재 위치에서 y-up vector를 기준으로 얼마나 회전된 상태인지
-    float rad = this->state_.angle / 180.0 * pi;
-
-    this->state_.position.x += std::sin(rad) * this->distance_;
-    this->state_.position.y += std::cos(rad) * this->distance_;
+    // Heading Vector에 distance 곱해서 움직여주기
+    this->state_.position.x += this->state_.heading.x * this->distance_;
+    this->state_.position.y += this->state_.heading.y * this->distance_;
+    this->state_.position.z += this->state_.heading.z * this->distance_;
 }
 
-void LSystem::Turn(const bool& isLeft)
+// 축을 기준으로 한 회전
+// axis => x축 : 0, y축 : 1, z축 : 2
+void LSystem::Rotate(Vector3& pos, int axis, float angle)
 {
-    if (isLeft)
+    angle = angle / 180.0f * PI;
+
+    switch (axis)
     {
-        this->state_.angle -= this->angleChange_;
+		case 0: // x-axis
+		{
+			float newY, newZ;
+			newY = pos.y * std::cos(angle) - pos.z * std::sin(angle);
+			newZ = pos.y * std::sin(angle) + pos.z * std::cos(angle);
+			pos.y = newY, pos.z = newZ;
+			break;
+		}
+		case 1: // y-axis
+		{
+			float newX, newZ;
+			newX = pos.x * std::cos(angle) + pos.z * std::sin(angle);
+			newZ = -pos.x * std::sin(angle) + pos.z * std::cos(angle);
+			pos.x = newX, pos.z = newZ;
+			break;
+		}
+		case 2: // z-axis
+		{
+			float newX, newY;
+			newX = pos.x * std::cos(angle) - pos.y * std::sin(angle);
+			newY = pos.x * std::sin(angle) + pos.y * std::cos(angle);
+			pos.x = newX, pos.y = newY;
+			break;
+		}
     }
-    else
-    {
-        this->state_.angle += this->angleChange_;
-    }
+
+    // normalize
+    Normalized(pos, 1);
 }
