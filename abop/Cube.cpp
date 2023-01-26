@@ -35,55 +35,55 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
     (
         this->position_.x - hWidth,
         this->position_.y + hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
     vertices[1].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y + hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
     vertices[2].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y - hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
     vertices[3].position = DirectX::XMFLOAT3
     (
         this->position_.x - hWidth,
         this->position_.y - hDepth,
-        this->position_.z + hHeight
+        this->position_.z - hHeight
     );
 
     vertices[4].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y + hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
     vertices[5].position = DirectX::XMFLOAT3
     (
         this->position_.x - hWidth,
         this->position_.y + hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
     vertices[6].position = DirectX::XMFLOAT3
     (
         this->position_.x - hWidth,
         this->position_.y - hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
     vertices[7].position = DirectX::XMFLOAT3
     (
         this->position_.x + hWidth,
         this->position_.y - hDepth,
-        this->position_.z - hHeight
+        this->position_.z + hHeight
     );
 
 

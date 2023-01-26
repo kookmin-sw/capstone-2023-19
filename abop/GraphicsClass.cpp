@@ -58,7 +58,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(2.0f, -5.0f, -5.0f);
+	this->camera_->SetPosition(1.0f, -5.0f, -5.0f);
 	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
 
 	// Model 객체 생성
