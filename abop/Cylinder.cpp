@@ -8,7 +8,7 @@
 // 반지름이 radius일 때 n번째 segment 꼭지점 좌표 (높이는 z)
 Vector3 CalCylinderVertexPos(float radius, int n, int segment, float z = 0.0f)
 {
-    float ratio = (float)n / (segment - 1);
+    float ratio = (float)n / segment;
     float rad = ratio * PI * 2;
     
     float x = std::cos(rad) * radius;
@@ -17,12 +17,20 @@ Vector3 CalCylinderVertexPos(float radius, int n, int segment, float z = 0.0f)
     return Vector3 { x, y, z };
 }
 
-bool GenerateCylinderCap(Vector3 pos, DirectX::XMFLOAT4 color, float radius, int n, int segment, float top, float bottom)
+// !!! 테스트용 나중에 지우기
+bool Cylinder::GenerateCylinderCap(ID3D11Device* device)
 {
-    this->vertexCount_ = segment * 2 + 2;
-    this->indexCount_ = segment * 6;
+    float top = this->position_.z - this->height_ * 0.5f;
+    float bottom = this->position_.z + this->height_ * 0.5f;
+
+    return this->GenerateCylinderCap(device, top, bottom);
+}
+
+bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom)
+{
+    this->vertexCount_ = this->segment_ * 2 + 2;
+    this->indexCount_ = this->segment_ * 6;
     // lighting이 어색하지 않도록 별도의 cap 모델을 생성하여 buffer 생성
-    // 헷갈리지 않게 CalCylinderVertexPos()와 매개변수를 비슷하게 사용
     
     // 정적 배열 생성
     VertexType* vertices = new VertexType[this->vertexCount_];
@@ -40,62 +48,70 @@ bool GenerateCylinderCap(Vector3 pos, DirectX::XMFLOAT4 color, float radius, int
     // Vertex
     // cap mid - 중앙 (top, bottom)
     // 현재 pos에서 top, bottom만 다름
-    vertices[0] = DirectX::XMFLOAT3
+    vertices[0].position = DirectX::XMFLOAT3
     (
-        pos.x,
-        pos.y,
+        this->position_.x,
+        this->position_.y,
         top
     );
-    vertices[segment + 1] = DirectX::XMFLOAT3
+    vertices[this->segment_ + 1].position = DirectX::XMFLOAT3
     (
-        pos.x,
-        pos.y,
+        this->position_.x,
+        this->position_.y,
         bottom
     );
-    vertices[0].color = color;
-    vertices[1].color = color;
+    vertices[0].color = this->color_;
+    vertices[this->segment_ + 1].color = this->color_;
 
-    for (int i = 1; i < segment + 1; i++)
+    for (int i = 1; i < this->segment_ + 1; i++)
     {
         // ex. vertex[1]은 top cap 우측 기준 반 시계 방향 0번째(i - 1)
-        Vector3 vt = CalCylinderVertexPos(radius, i - 1, segment);
+        Vector3 vt = CalCylinderVertexPos(this->radius_, i - 1, this->segment_);
 
         // top cap 
         // cap mid (0) + cap side ( 1 ~ segment )  
-        vertices[i] = DirectX::XMFLOAT3
+        vertices[i].position = DirectX::XMFLOAT3
         (
-            pos.x + vt.x,
-            pos.y + vt.y,
-            top,
+            this->position_.x + vt.x,
+            this->position_.y + vt.y,
+            top
         );
-        
+
         // bottom cap
         // cap mid (segment + 1) + cap side ( segment + 2 ~ segment * 2 + 1)
-        vertices[i + segment + 1] = DirectX::XMFLOAT3
+        vertices[i + this->segment_ + 1].position = DirectX::XMFLOAT3
         (
-            pos.x + vt.x,
-            pos.y + vt.y,
+            this->position_.x + vt.x,
+            this->position_.y + vt.y,
             bottom
         );
 
-        vertices[i].color = color;
-        vertices[i + segment + 1].color = color;
+        vertices[i].color = this->color_;
+        vertices[i + this->segment_ + 1].color = this->color_;
     }
     
     // Index
-    for (int i = 1; i < segment; i++)
+    int it = 0;     // top mid
+    int ib = this->segment_ + 1;
+    int diff = this->segment_ * 3;
+
+    for (int i = 0; i < this->segment_; i++)
     {
-        int n = (i - 1) * 3;
+        int n = i * 3;
 
-        // top
-        indices[n] = 0;
-        indices[n + 1] = i + 1;
-        indices[n + 2] = i
+        // top (시계)
+        indices[n] = it;
+        indices[n + 1] = i + 2 > this->segment_
+            ? 1
+            : i + 2;
+        indices[n + 2] = i + 1;
 
-        // bottom
-        indices[n + segment + 1] = segment + 1;
-        indices[n + segment + 2] = i + segment + 2;
-        indices[n + segment + 3] = i + segment + 1;
+        // bottom (반시계)
+        indices[diff + n] = ib;
+        indices[diff + n + 1] = this->segment_ + i + 2;
+        indices[diff + n + 2] = this->segment_ + i + 3 > this->segment_ * 2 + 1
+            ? ib + 1
+            : this->segment_ + i + 3;
     }
 
     // 정적 vertex buffer 생성
@@ -156,18 +172,19 @@ bool Cylinder::Initialize(ID3D11Device* device)
 
 bool Cylinder::InitializeBuffers(ID3D11Device* device)
 {
-    float top = this->position_ - this->height_ * 0.5f;
-    float bottom = this->position_ + this->height_ * 0.5f;
-    if (GenerateCylinderCap())
-    {
-        // Cap 먼저 생성
-        return false;
-    }
-
+    float top = this->position_.z - this->height_ * 0.5f;
+    float bottom = this->position_.z + this->height_ * 0.5f;
+    //if (!this->GenerateCylinderCap(device, top, bottom))
+    //{
+    //    // Cap 먼저 생성
+    //    // !!! 임시로 따로 처리
+    //    return false;
+    //}
+    
     // Cylinder buffer, index count 설정
     this->vertexCount_ = this->segment_ * 2;
     this->indexCount_ = this->segment_ * 6;
-    
+   
     // 정적 배열 생성
     VertexType* vertices = new VertexType[this->vertexCount_];
     if (!vertices)
@@ -181,19 +198,19 @@ bool Cylinder::InitializeBuffers(ID3D11Device* device)
         return false;
     }
 
-    for (int i = 0; i < this->segment_ * 2; i += 2)
+    for (int i = 0; i < this->segment_; i++)
     {
         // vertex
         Vector3 vt = CalCylinderVertexPos(this->radius_, i, this->segment_);
 
-        vertices[i].position = DirectX::XMFLOAT3
+        vertices[i * 2].position = DirectX::XMFLOAT3
         (
             this->position_.x + vt.x,
             this->position_.y + vt.y,
             this->position_.z + top
         );
 
-        vertices[i + 1].position = DirectX::XMFLOAT3
+        vertices[i * 2 + 1].position = DirectX::XMFLOAT3
         (
             this->position_.x + vt.x,
             this->position_.y + vt.y,
@@ -201,19 +218,19 @@ bool Cylinder::InitializeBuffers(ID3D11Device* device)
         );
 
         // color
-        vertices[i].color = this->color_;
-        vertices[i + 1].color = this->color_;
+        vertices[i * 2].color = this->color_;
+        vertices[i * 2 + 1].color = this->color_;
     }
 
     // Index
     for (int i = 0; i < this->segment_; i++)
     {
-        int n = i * 6;  // i번째 측면 index 6개
+        int n = i * 6;
 
-        int a = i;
-        int b = i + 2;
-        int c = i + 3;
-        int d = i + 1;
+        int a = i * 2;
+        int b = (i * 2 + 2) % (this->segment_ * 2);
+        int c = (i * 2 + 3) % (this->segment_ * 2);
+        int d = i * 2 + 1;
 
         indices[n] = a;
         indices[n + 1] = b;
@@ -271,7 +288,7 @@ bool Cylinder::InitializeBuffers(ID3D11Device* device)
 
     delete[] indices;
     indices = nullptr;
-
+    
     return true;
 }
 

@@ -61,6 +61,9 @@
     <ClCompile Include="Cube.cpp">
       <Filter>DX\Models</Filter>
     </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -119,6 +122,10 @@
       <Filter>DX\Models</Filter>
     </ClInclude>
     <ClInclude Include="Cube.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonVariable.hpp" />
+    <ClInclude Include="Cylinder.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
   </ItemGroup>

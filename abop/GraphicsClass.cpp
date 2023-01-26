@@ -127,12 +127,22 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		//{
 		//	this->models_->push_back((ModelClass*)triangle);
 		//}
-		Cube* cube = new Cube;
-		if (cube->Initialize(this->direct3D_->GetDevice()))
+		//Cube* cube = new Cube;
+		//if (cube->Initialize(this->direct3D_->GetDevice()))
+		//{
+		//	this->models_->push_back((ModelClass*)cube);
+		//}
+		Cylinder* cylinder = new Cylinder;
+		if (cylinder->Initialize(this->direct3D_->GetDevice()))
 		{
-			this->models_->push_back((ModelClass*)cube);
+			this->models_->push_back((ModelClass*)cylinder);
 		}
 
+		Cylinder* cylinderCap = new Cylinder;
+		if (cylinderCap->GenerateCylinderCap(this->direct3D_->GetDevice()))
+		{
+			this->models_->push_back((ModelClass*)cylinderCap);
+		}
 	}
 
 	// ColorShader 객체 생성
