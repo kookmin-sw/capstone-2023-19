@@ -207,6 +207,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         switch (letter.GetType())
         {
             case LLetter::Type::Forward:
+            case LLetter::Type::Forward2:
             {
                 // Draw + Move forward
                 this->Move();

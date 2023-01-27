@@ -70,11 +70,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->Iterate(2);
 
 	// TEMP 2D TEST
-	//lSystem->SetWord("F-G-G");
-	//lSystem->AddRule('F', "F-G+F+G-F");
-	//lSystem->AddRule('G', "GG");
-	//lSystem->SetAngleChange(120.0f);
-	//lSystem->Iterate(6);
+	lSystem->SetWord("F-G-G");
+	lSystem->AddRule('F', "F-G+F+G-F");
+	lSystem->AddRule('G', "GG");
+	lSystem->SetAngleChange(120.0f);
+	lSystem->Iterate(6);
 
 	SystemClass* system = new SystemClass;
 	if (!system)

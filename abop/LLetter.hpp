@@ -7,6 +7,7 @@ public:
     {
         None,
         Forward = 'F',
+        Forward2 = 'G',
         NoDrawForward = 'f',
         TurnLeft    = '+',
         TurnRight   = '-',
