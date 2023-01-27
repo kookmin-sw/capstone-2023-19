@@ -23,7 +23,7 @@ public:
     int GetIndexCount();
 
 protected:
-    // ModelClass ÀÚ½Ä ¸ğµ¨ ¿À¹ö¶óÀÌµå
+    // ModelClassì—ì„œ ì¬ì •ì˜
     bool InitializeBuffers(ID3D11Device*);
     bool InitializeBuffers(ID3D11Device*, float*);
     void ShutdownBuffers();
