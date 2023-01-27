@@ -57,7 +57,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -150.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -120.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
