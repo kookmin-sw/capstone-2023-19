@@ -7,8 +7,8 @@ public:
     {
         None,
         Forward = 'F',
-        Forward2 = 'G',
         NoDrawForward = 'f',
+        NoDrawForward2 = 'G',
         TurnLeft    = '+',
         TurnRight   = '-',
         PitchUp = '^',
@@ -17,7 +17,10 @@ public:
         RollRight = '/',
         TurnAround = '|',
         Push    = '[',
-        Pop     = ']'
+        Pop     = ']',
+        StartingPoint = '{',
+        EndingPoint = '}',
+        MarkingPoint = '.'
     };
 
 private:

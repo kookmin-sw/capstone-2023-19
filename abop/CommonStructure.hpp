@@ -30,11 +30,7 @@ struct VertexType
 
 struct Model
 {
-    //  a
-    // b  c
-
-    // a  b
-    // c  d
     int vertexCount;
-    VertexType vertexTypes[4];
+    VertexType* vertexTypes;
+    int* indices;
 };

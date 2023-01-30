@@ -49,10 +49,48 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     Normalized(right, halfWidth);
     
     model.vertexCount = 4;
+    model.vertexTypes = new VertexType[4];
+
     model.vertexTypes[0] = VertexType { AddVector(end, left), black };
     model.vertexTypes[1] = VertexType { AddVector(end, right),  black };
     model.vertexTypes[2] = VertexType { AddVector(start, right), black };
     model.vertexTypes[3] = VertexType { AddVector(start, left), black };
+
+    // !!! 메모리 해제
+
+    return model;
+}
+
+Model CreateLeaf(std::vector<Vector3>* leaf)
+{
+    int size = leaf->size();
+
+    // !!! color 일단 블랙 고정
+    Vector4 green { 0.0f, 1.0f, 0.0f, 0.0f };
+
+    Model model;
+
+    model.vertexCount = size;
+    model.vertexTypes = new VertexType[size];
+
+    int nIndex = (size - 1) * 3;
+    model.indices = new int[nIndex];
+
+    // TEMP
+    for (int i = 0; i < size; i++)
+    {
+        model.vertexTypes[i] = VertexType { (*leaf)[i], green };
+    }
+
+    int i = 0;
+    int vertex = 1;
+    while (i < (size - 1) * 3 - 1)
+    {
+        model.indices[i++] = 0;
+        model.indices[i++] = vertex++;
+        model.indices[i++] = vertex;
+    }
+    model.indices[--i] = 1;
 
     return model;
 }
@@ -205,6 +243,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
 
     float width = 0.5;
     std::stack<State> ss;
+    std::vector<Vector3>* leaf = nullptr;
 
     Vector3 startPos;
     Vector3 endPos;
@@ -216,7 +255,6 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         switch (letter.GetType())
         {
             case LLetter::Type::Forward:
-            case LLetter::Type::Forward2:
             {
                 // Draw + Move forward
                 this->Move();
@@ -226,6 +264,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 break;
             }
             case LLetter::Type::NoDrawForward:
+            case LLetter::Type::NoDrawForward2:
             {
                 // No Draw + Move foward
                 this->Move();
@@ -288,6 +327,24 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 this->state_ = ss.top();
                 ss.pop();
                 startPos = this->state_.position;
+                break;
+            }
+            case LLetter::Type::StartingPoint:
+            {
+                leaf = new std::vector<Vector3>();
+                
+                leaf->push_back(this->state_.position);
+                break;
+            }
+            case LLetter::Type::MarkingPoint:
+            {
+                leaf->push_back(this->state_.position);
+                break;
+            }
+            case LLetter::Type::EndingPoint:
+            {
+                out->push_back(CreateLeaf(leaf));
+                leaf = nullptr;
                 break;
             }
             case LLetter::Type::None:
