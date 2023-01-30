@@ -14,7 +14,7 @@ public:
     ModelClass(const ModelClass&);
     ~ModelClass();
 
-    bool Initialize(ID3D11Device*, float* = nullptr);
+    bool Initialize(ID3D11Device*, Model);
     void Shutdown();
     void Render(ID3D11DeviceContext*);
 
@@ -25,7 +25,7 @@ public:
 protected:
     // ModelClass에서 재정의
     bool InitializeBuffers(ID3D11Device*);
-    bool InitializeBuffers(ID3D11Device*, float*);
+    bool InitializeBuffers(ID3D11Device*, Model);
     void ShutdownBuffers();
     void RenderBuffers(ID3D11DeviceContext*);
 

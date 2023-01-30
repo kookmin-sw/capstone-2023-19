@@ -28,12 +28,6 @@ GraphicsClass::~GraphicsClass()
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSystem* lSystem)
 {
-	// Main의 LSystem 포인터 할당
-	if (lSystem)
-	{
-		this->lSystem_ = lSystem;
-	}
-
 	// Direct3D 객체 생성
 	// C4316 이슈로 malloc 및 free 사용
 	//this->direct3D_ = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
@@ -58,7 +52,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(1.0f, -5.0f, -5.0f);
+	/*this->camera_->SetPosition(1.0f, -5.0f, -5.0f);
+	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);*/
+	this->camera_->SetPosition(0.0f, -3.0f, -5.0f);
 	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
 
 	// Model 객체 생성
@@ -71,6 +67,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	// vetex 정보를 가져옴
 	if (lSystem)
 	{
+		// !!! 렌더링할 L-System을 가져온 상태여야 함
+		this->lSystem_ = lSystem;
+
 		std::vector<Model>* models = new std::vector<Model>();
 		this->lSystem_->GetResultVertex(models);
 
@@ -80,69 +79,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		{
 			ModelClass* modelClass = new ModelClass;
 			// !!! to be update
-			// modelClass->Initialize(this->direct3D_->GetDevice(), model);
-
+			modelClass->Initialize(this->direct3D_->GetDevice(), model);
 			this->models_->push_back(modelClass);
 		}		
 	}
 	else
 	{
-
-		//Triangle* triangle1 = new Triangle;
-		//triangle1->SetPosition(-1.0, 0.0, 0.0);
-		//if (triangle1->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)triangle1);
-		//}
-
-		//Triangle* triangle2 = new Triangle;
-		//triangle2->SetPosition(1.0, 0.0, 0.0);
-		//if (triangle2->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)triangle2);
-		//}
-
-		//Square* square1 = new Square;
-		//square1->SetPosition(-1.0, 0.0, 0.0);
-		//if (square1->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)square1);
-		//}
-
-		//Square* square2 = new Square;
-		//square2->SetPosition(1.0, 0.0, 0.0);
-		//if (square2->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)square2);
-		//}
-
-		//Plane* plane = new Plane;
-		//if (plane->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)plane);
-		//}
-
-		//Triangle* triangle = new Triangle;
-		//if (triangle->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)triangle);
-		//}
-		//Cube* cube = new Cube;
-		//if (cube->Initialize(this->direct3D_->GetDevice()))
-		//{
-		//	this->models_->push_back((ModelClass*)cube);
-		//}
-		Cylinder* cylinder = new Cylinder;
-		if (cylinder->Initialize(this->direct3D_->GetDevice()))
-		{
-			this->models_->push_back((ModelClass*)cylinder);
-		}
-
-		Cylinder* cylinderCap = new Cylinder;
-		if (cylinderCap->GenerateCylinderCap(this->direct3D_->GetDevice()))
-		{
-			this->models_->push_back((ModelClass*)cylinderCap);
-		}
+		// !!! FOR TEST
+		// ---------------------
 	}
 
 	// ColorShader 객체 생성

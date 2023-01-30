@@ -50,6 +50,8 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     
     model.vertexCount = 4;
     model.vertexTypes = new VertexType[4];
+    model.indexCount = 6;
+    model.indices = new int[6]{ 0, 1, 2, 2, 3, 0 };
 
     model.vertexTypes[0] = VertexType { AddVector(end, left), black };
     model.vertexTypes[1] = VertexType { AddVector(end, right),  black };
@@ -72,9 +74,8 @@ Model CreateLeaf(std::vector<Vector3>* leaf)
 
     model.vertexCount = size;
     model.vertexTypes = new VertexType[size];
-
-    int nIndex = (size - 1) * 3;
-    model.indices = new int[nIndex];
+    model.indexCount = (size - 1) * 3;
+    model.indices = new int[model.indexCount];
 
     // TEMP
     for (int i = 0; i < size; i++)
@@ -107,7 +108,6 @@ LSystem::LSystem()
     { 
         {0.0f, 0.0f, 0.0f}, 
         {0.0f, 1.0f, 0.0f}
-        // , {0.0f, 0.0f, -1.0f}
     };
 }
 
@@ -269,7 +269,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // No Draw + Move foward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateLineModel(startPos, endPos));
+                //out->push_back(CreateLineModel(startPos, endPos));
                 break;
             }
             case LLetter::Type::RollLeft:
@@ -404,8 +404,8 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 		case 2:
 		{
             // Yaw, z, Up
-            float newX = cos * y + sin * x;
-            float newY = -1 * sin * y + cos * x;
+            float newX = cos * x - sin * y;
+            float newY = sin * x + cos * y;
 
             this->state_.heading.x = newX;
             this->state_.heading.y = newY;

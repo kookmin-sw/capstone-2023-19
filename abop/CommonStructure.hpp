@@ -31,6 +31,7 @@ struct VertexType
 struct Model
 {
     int vertexCount;
+    int indexCount;
     VertexType* vertexTypes;
     int* indices;
 };
