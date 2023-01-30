@@ -8,6 +8,7 @@
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
+#pragma region LSystemUtils
 // moveVector를 wantLength의 길이로 normalize
 void Normalized(Vector3& moveVector, float wantLength)
 {
@@ -28,6 +29,7 @@ Vector3 AddVector(const Vector3& a, const Vector3& b)
     };
 }
 
+// TEMP
 Model CreateLineModel(const Vector3& start, const Vector3& end)
 {
     // xy 평면의 line
@@ -55,13 +57,20 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     return model;
 }
 
+#pragma endregion LSystemUtils
+
 // Public
 LSystem::LSystem()
 {
     rules_ = std::vector<LRule>();
     word_ = new std::vector<LLetter>();
 
-    this->state_ = { {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} };
+    this->state_ = 
+    { 
+        {0.0f, 0.0f, 0.0f}, 
+        {0.0f, 1.0f, 0.0f}
+        // , {0.0f, 0.0f, -1.0f}
+    };
 }
 
 LSystem::~LSystem()
@@ -197,10 +206,10 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     float width = 0.5;
     std::stack<State> ss;
 
-    Vector3 start;
-    Vector3 end;
+    Vector3 startPos;
+    Vector3 endPos;
 
-    start = this->state_.position;
+    startPos = this->state_.position;
     for (const LLetter& letter : *(this->word_))
     {
         // Move: 이동 후 현재 위치 end에 저장 후 push
@@ -211,59 +220,59 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 // Draw + Move forward
                 this->Move();
-                end = this->state_.position;
-                out->push_back(CreateLineModel(start, end));
-                start = this->state_.position;
+                endPos = this->state_.position;
+                out->push_back(CreateLineModel(startPos, endPos));
+                startPos = this->state_.position;
                 break;
             }
             case LLetter::Type::NoDrawForward:
             {
                 // No Draw + Move foward
                 this->Move();
-                end = this->state_.position;
-                out->push_back(CreateLineModel(start, end));
+                endPos = this->state_.position;
+                out->push_back(CreateLineModel(startPos, endPos));
                 break;
             }
             case LLetter::Type::RollLeft:
             {
-                // angleChange_ 만큼 x축 회전
-                this->Rotate(this->state_.heading, 0, angleChange_);
+                // angleChange_ 만큼 y축 회전
+                this->Rotate(1, angleChange_);
                 break;
             }
             case LLetter::Type::RollRight:
             {
-                // -angleChange_ 만큼 x축 회전
-                this->Rotate(this->state_.heading, 0, -angleChange_);
+                // -angleChange_ 만큼 y축 회전
+                this->Rotate(1, -angleChange_);
                 break;
             }
             case LLetter::Type::PitchUp:
             {
-                // angleChange_ 만큼 y축 회전
-                this->Rotate(this->state_.heading, 1, angleChange_);
+                // angleChange_ 만큼 x축 회전
+                this->Rotate(0, angleChange_);
                 break;
             }
             case LLetter::Type::PitchDown:
             {
-                // -angleChange_ 만큼 y축 회전
-                this->Rotate(this->state_.heading, 1, -angleChange_);
+                // -angleChange_ 만큼 x축 회전
+                this->Rotate(0, -angleChange_);
                 break;
             }
             case LLetter::Type::TurnLeft:
             {
                 // angleChange_ 만큼 z축 회전
-                this->Rotate(this->state_.heading, 2, angleChange_);
+                this->Rotate(2, angleChange_);
                 break;
             }
             case LLetter::Type::TurnRight:
             {
                 // -angleChange_ 만큼 z축 회전
-                this->Rotate(this->state_.heading, 2, -angleChange_);
+                this->Rotate(2, -angleChange_);
                 break;
             }
             case LLetter::Type::TurnAround:
             {
                 // 180도 z축 회전
-                this->Rotate(this->state_.heading, 2, 180.0f);
+                this->Rotate(2, 180.0f);
                 break;
             }
             case LLetter::Type::Push:
@@ -278,7 +287,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // 위치도 같이 옮겨지는 경우 No draw
                 this->state_ = ss.top();
                 ss.pop();
-                start = this->state_.position;
+                startPos = this->state_.position;
                 break;
             }
             case LLetter::Type::None:
@@ -298,40 +307,52 @@ void LSystem::Move()
     this->state_.position.z += this->state_.heading.z * this->distance_;
 }
 
-// 축을 기준으로 한 회전
-// axis => x축 : 0, y축 : 1, z축 : 2
-void LSystem::Rotate(Vector3& pos, int axis, float angle)
+// 현재 state를 기준으로 회전
+void LSystem::Rotate(const unsigned short& axis, const float& angle)
 {
-    angle = angle / 180.0f * PI;
+    // axis
+    // 0: Pitch, x, Left
+    // 1: Roll, y, Heading
+    // 2: yaw, z, Up
+    float rad = angle / 180.0f * PI;
+    float cos = std::cos(rad);
+    float sin = std::sin(rad);
+
+    float x = this->state_.heading.x;
+    float y = this->state_.heading.y;
+    float z = this->state_.heading.z;
 
     switch (axis)
     {
-		case 0: // x-axis
+		case 0:
 		{
-			float newY, newZ;
-			newY = pos.y * std::cos(angle) - pos.z * std::sin(angle);
-			newZ = pos.y * std::sin(angle) + pos.z * std::cos(angle);
-			pos.y = newY, pos.z = newZ;
+            // Pitch, x, Left
+            float newY = cos * y - sin * z;
+			float newZ = sin * y + cos * z;
+            this->state_.heading.y = newY;
+            this->state_.heading.z = newZ;
+            
 			break;
 		}
-		case 1: // y-axis
+		case 1:
 		{
-			float newX, newZ;
-			newX = pos.x * std::cos(angle) + pos.z * std::sin(angle);
-			newZ = -pos.x * std::sin(angle) + pos.z * std::cos(angle);
-			pos.x = newX, pos.z = newZ;
+            // Roll, y, Heading
+			float newX = cos * x + sin * z;
+            float newZ = -1 * sin * x + cos * z;
+            this->state_.heading.x = newX;
+            this->state_.heading.z = newZ;
+
 			break;
 		}
-		case 2: // z-axis
+		case 2:
 		{
-			float newX, newY;
-			newX = pos.x * std::cos(angle) - pos.y * std::sin(angle);
-			newY = pos.x * std::sin(angle) + pos.y * std::cos(angle);
-			pos.x = newX, pos.y = newY;
+            // Yaw, z, Up
+            float newX = cos * y + sin * x;
+            float newY = -1 * sin * y + cos * x;
+
+            this->state_.heading.x = newX;
+            this->state_.heading.y = newY;
 			break;
 		}
     }
-
-    // normalize
-    Normalized(pos, 1);
 }

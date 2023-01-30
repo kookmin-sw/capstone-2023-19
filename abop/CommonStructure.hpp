@@ -19,6 +19,7 @@ struct State
 {
     Vector3 position;
     Vector3 heading;
+    // Vector3 up;             // 기준 좌표 heading과 수직
 };
 
 struct VertexType
