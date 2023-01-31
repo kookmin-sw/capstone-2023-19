@@ -1,23 +1,8 @@
 #pragma once
 
-enum ModelType
-{
-    // Same as Model.hpp
-    Custom,
-    Square,
-    Plane,
-    Cube,
-    Cylinder
-};
+#include "Vector3.hpp"
 
-struct Vector3
-{
-    float x;
-    float y;
-    float z;
-};
-
-struct Vector4
+struct Vector4      // !!! Vector4는 아직 struct임
 {
     float w;
     float x;
@@ -29,24 +14,36 @@ struct State
 {
     Vector3 position;
     Vector3 heading;
-    // Vector3 up;             // 기준 좌표 heading과 수직
 };
 
 struct VertexType
 {
     Vector3 position;
-    Vector4 color;
+    Vector4 color;          
+};
+
+enum ModelType
+{
+    Custom,
+    // Same as DX/Models/ModelVariation.cpp
+    TriangleModel,
+    SquareModel,
+    PlaneModel,
+    CubeModel,
+    CylinderModel
 };
 
 struct Model
 {
-    ModelType modelType;
+    ModelType modelType = ModelType::Custom;
+
+    // For custom
     int vertexCount;
     int indexCount;
-    VertexType* vertexTypes;
-    int* indices;
+    VertexType* vertexTypes = nullptr;
+    int* indices = nullptr;
 
-    // temp
+    // For others
     int dataCount;
-    float* datas;
+    float* data;
 };

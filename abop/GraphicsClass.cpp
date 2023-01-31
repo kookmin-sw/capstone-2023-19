@@ -5,7 +5,7 @@
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
-#include "Model.hpp"
+#include "ModelVariation.hpp"
 #include "ColorShaderClass.hpp"
 #include "LSystem.hpp"
 #include "GraphicsClass.hpp"
@@ -52,9 +52,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	/*this->camera_->SetPosition(1.0f, -5.0f, -5.0f);
-	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);*/
-	this->camera_->SetPosition(0.0f, -3.0f, -100.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -60.0f);
 	//this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
 
 	// Model 객체 생성
@@ -76,11 +74,33 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		// Model 객체 초기화
 		for (const Model& model : *models)
 		{
-			// !!! 임시
+			// !!! 임시 마음에 안듦
 			// Model -> ModelClass
-			ModelClass* modelClass = new ModelClass;
-			modelClass->Initialize(this->direct3D_->GetDevice(), model);
-			this->models_->push_back(modelClass);
+
+			if (model.modelType == ModelType::Custom)
+			{
+				ModelClass* modelClass = new ModelClass;
+				modelClass->Initialize(this->direct3D_->GetDevice(), model);
+
+				delete[] model.vertexTypes;
+				delete[] model.indices;
+
+				this->models_->push_back(modelClass);
+			}
+			else
+			{
+				// !!! TEMP
+				Cube* cube = new Cube;
+				cube->SetPosition(model.data[0], model.data[1], model.data[2]);
+				cube->SetRotation(model.data[3], model.data[4], model.data[5]);
+				cube->SetSize(model.data[6], model.data[7], model.data[8]);
+
+				cube->Initialize(this->direct3D_->GetDevice());
+
+				delete[] model.data;
+
+				this->models_->push_back((ModelClass*)cube);
+			}
 		}		
 	}
 	else
@@ -156,18 +176,18 @@ bool GraphicsClass::Render()
 	this->camera_->Render();
 
 	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	this->direct3D_->GetWorldMatrix(worldMatrix);
-	this->camera_->GetViewMatrix(viewMatrix);
-	this->direct3D_->GetProjectionMatrix(projectionMatrix);
 
 	// Vertex, Index buffer를 그래픽 파이프라인에 배치
 	for (ModelClass* model : *(this->models_))
 	{
+		this->direct3D_->GetWorldMatrix(worldMatrix);
+		this->camera_->GetViewMatrix(viewMatrix);
+		this->direct3D_->GetProjectionMatrix(projectionMatrix);
+
 		model->Render(this->direct3D_->GetDeviceContext());
 
 		if (model->IsRotated())
 		{
-			// 회전 했으면 회전 변환 행렬 적용
 			Vector3 rotation = model->GetRotation();
 			DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw
 			(
@@ -175,13 +195,12 @@ bool GraphicsClass::Render()
 				rotation.y,
 				rotation.z
 			);
-
 			worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, rotationMatrix);
 			//DirectX::XMMatrixRotationZ(rotation.z);
 			//DirectX::XMMatrixRotationX(rotation.x);
 			//DirectX::XMMatrixRotationY(rotation.y);
 		}
-
+		
 		Vector3 translation = model->GetPosition();
 		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation
 		(

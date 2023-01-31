@@ -42,5 +42,4 @@ public:
 private:
     void Move();
     void Rotate(const unsigned short&, const float&);
-    // void SetPosition(const Vector3&);
 };

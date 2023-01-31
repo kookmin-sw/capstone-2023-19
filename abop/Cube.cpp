@@ -31,71 +31,20 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
     float hHeight = this->size_.z / 2;
 
     // Vertex
-    vertices[0].position = DirectX::XMFLOAT3
-    (
-        this->position_.x - hWidth,
-        this->position_.y + hDepth,
-        this->position_.z - hHeight
-    );
-    vertices[1].position = DirectX::XMFLOAT3
-    (
-        this->position_.x + hWidth,
-        this->position_.y + hDepth,
-        this->position_.z - hHeight
-    );
-
-    vertices[2].position = DirectX::XMFLOAT3
-    (
-        this->position_.x + hWidth,
-        this->position_.y - hDepth,
-        this->position_.z - hHeight
-    );
-
-    vertices[3].position = DirectX::XMFLOAT3
-    (
-        this->position_.x - hWidth,
-        this->position_.y - hDepth,
-        this->position_.z - hHeight
-    );
-
-    vertices[4].position = DirectX::XMFLOAT3
-    (
-        this->position_.x + hWidth,
-        this->position_.y + hDepth,
-        this->position_.z + hHeight
-    );
-
-    vertices[5].position = DirectX::XMFLOAT3
-    (
-        this->position_.x - hWidth,
-        this->position_.y + hDepth,
-        this->position_.z + hHeight
-    );
-
-    vertices[6].position = DirectX::XMFLOAT3
-    (
-        this->position_.x - hWidth,
-        this->position_.y - hDepth,
-        this->position_.z + hHeight
-    );
-
-    vertices[7].position = DirectX::XMFLOAT3
-    (
-        this->position_.x + hWidth,
-        this->position_.y - hDepth,
-        this->position_.z + hHeight
-    );
-
+    vertices[0].position = DirectX::XMFLOAT3(-hWidth, hDepth, -hHeight);
+    vertices[1].position = DirectX::XMFLOAT3(hWidth, hDepth, -hHeight);
+    vertices[2].position = DirectX::XMFLOAT3(hWidth, -hDepth, -hHeight);
+    vertices[3].position = DirectX::XMFLOAT3(-hWidth, -hDepth, -hHeight);
+    vertices[4].position = DirectX::XMFLOAT3(hWidth, hDepth, hHeight);
+    vertices[5].position = DirectX::XMFLOAT3(-hWidth, hDepth, hHeight);
+    vertices[6].position = DirectX::XMFLOAT3(-hWidth, -hDepth, hHeight);
+    vertices[7].position = DirectX::XMFLOAT3(hWidth, -hDepth, hHeight);
 
     // Color
-    vertices[0].color = this->color_;
-    vertices[1].color = this->color_;
-    vertices[2].color = this->color_;
-    vertices[3].color = this->color_;
-    vertices[4].color = this->color_;
-    vertices[5].color = this->color_;
-    vertices[6].color = this->color_;
-    vertices[7].color = this->color_;
+    for (int i = 0; i < 8; i++)
+    {
+        vertices[i].color = this->color_;
+    }
 
     int cubeIndices[36] = {
         0, 1, 2, 2, 3, 0,

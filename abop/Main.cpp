@@ -15,8 +15,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
-	lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
-	lSystem->SetAngleChange(30.0f);
+	lSystem->SetWord("FF-FF+FF+FFFF+FF");
+	lSystem->SetDistance(3.0f);
+	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 
 	SystemClass* system = new SystemClass;
 	if (!system)

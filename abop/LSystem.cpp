@@ -8,96 +8,27 @@
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
-#pragma region LSystemUtils
-// moveVector를 wantLength의 길이로 normalize
-void Normalized(Vector3& moveVector, float wantLength)
-{
-    float vectorLen = sqrt(moveVector.x * moveVector.x)
-
-    // for only line
-    moveVector.x = moveVector.x / vectorLen * wantLength;
-    moveVector.y = moveVector.y / vectorLen * wantLength;
-}
-
-Vector3 AddVector(const Vector3& a, const Vector3& b)
-{
-    return Vector3
-    {
-        a.x + b.x,
-        a.y + b.y,
-        a.z + a.z
-    };
-}
-
-float SqartMagnitude(const Vector3& vector)
-{
-    return 
-}
-
-Vector3 SubtractVector(const Vector3& a, const Vector3& b)
-{
-    return Vector3
-    {
-        a.x - b.x,
-        a.y - b.y,
-        a.z - b.z
-    };
-}
-
 // TEMP
-Model CreateLineModel(const Vector3& start, const Vector3& end)
-{
-    // xy 평면의 line
-    
-    float halfWidth = 0.2;
-    // !!! color 일단 블랙 고정
-    Vector4 black { 0, 0, 0, 0 };
-    Model model;
-
-    // 이동 벡터
-    Vector3 move { end.x - start.x, end.y - start.y, 0 };
-    // 수직 벡터
-    Vector3 left { -move.y, move.x, 0 };
-    Vector3 right { move.y, -move.x, 0 };
-    // 수직 벡터의 길이를 half width 만큼
-    Normalized(left, halfWidth);
-    Normalized(right, halfWidth);
-
-    model.modelType = ModelType::Custom;
-    model.vertexCount = 4;
-    model.vertexTypes = new VertexType[4];
-    model.indexCount = 6;
-    model.indices = new int[6]{ 0, 1, 2, 2, 3, 0 };
-
-    model.vertexTypes[0] = VertexType { AddVector(end, left), black };
-    model.vertexTypes[1] = VertexType { AddVector(end, right),  black };
-    model.vertexTypes[2] = VertexType { AddVector(start, right), black };
-    model.vertexTypes[3] = VertexType { AddVector(start, left), black };
-
-    // !!! 메모리 해제
-
-    return model;
-}
-
-Model CreateTrunk(const Vector3& startPos, const Vector3& endPos, const Vector3& rotation)
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, const Vector3& rotation, const float& distance)
 {
     // !!! TEMP
 
     Model model;
-    model.modelType = ModelType::Cylinder;
-    model.dataCount = 4;
-    model.datas = new float[model.dataCount];
-    
+    model.modelType = ModelType::CubeModel;
+    model.dataCount = 9;
+    model.data = new float[9];
 
-    model.datas[0] = position.x;
-    model.datas[0] = position.y;
-    model.datas[0] = position.z;
-    model.datas[0] = rotation.x;
-    model.datas[0] = rotation.y;
-    model.datas[0] = rotation.z;
-    model.datas[0] = 50;            // segment
-    model.datas[0] = 3;             // radius
-    model.datas[0] = height;
+    Vector3 position = (startPos + endPos) / 2.0f;
+
+    model.data[0] = position.x;
+    model.data[1] = position.y;
+    model.data[2] = position.z;
+    model.data[3] = rotation.x;
+    model.data[4] = rotation.y;
+    model.data[5] = rotation.z;
+    model.data[6] = 1.0f;       // size.x
+    model.data[7] = distance;   // size.y
+    model.data[8] = 1.0f;       // size.z (height)
 
     return model;
 }
@@ -111,7 +42,6 @@ Model CreateLeaf(std::vector<Vector3>* leaf)
 
     Model model;
 
-    model.modelType = ModelType::Custom;
     model.vertexCount = size;
     model.vertexTypes = new VertexType[size];
     model.indexCount = (size - 1) * 3;
@@ -135,8 +65,6 @@ Model CreateLeaf(std::vector<Vector3>* leaf)
 
     return model;
 }
-
-#pragma endregion LSystemUtils
 
 // Public
 LSystem::LSystem()
@@ -241,13 +169,7 @@ void LSystem::Iterate()
             if (rule.GetBefore().IsEqual(letter.GetLetter()))
             {
                 std::vector<LLetter> letters = rule.GetAfter();
-                // #1
-                // for (const LLetter& letter : letters)
-                // {
-                //     v->push_back(letter);
-                // }
-                
-                // #2
+
                 v->insert(v->end(), letters.begin(), letters.end());    
 
                 changed = true;
@@ -271,7 +193,6 @@ void LSystem::Iterate(int n)
         this->Iterate();
     }
 }
-
 
 void LSystem::GetResultVertex(std::vector<Model>* out)
 {
@@ -299,7 +220,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateLineModel(startPos, endPos));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.heading, this->distance_));
                 startPos = this->state_.position;
                 break;
             }

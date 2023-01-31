@@ -10,6 +10,9 @@
     <Filter Include="DX\Models">
       <UniqueIdentifier>{fd08c5be-71da-4193-b7eb-7dc1db1f11fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{0081bf59-3c4d-418a-84ed-35b4dce4e3e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LLetter.cpp">
@@ -64,6 +67,9 @@
     <ClCompile Include="Cylinder.cpp">
       <Filter>DX\Models</Filter>
     </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -105,7 +111,6 @@
     <ClInclude Include="ColorShaderClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
-    <ClInclude Include="CommonStructure.hpp" />
     <ClInclude Include="ModelClass.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
@@ -115,7 +120,7 @@
     <ClInclude Include="Square.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Model.hpp">
+    <ClInclude Include="ModelVariation.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
     <ClInclude Include="Plane.hpp">
@@ -124,9 +129,17 @@
     <ClInclude Include="Cube.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
-    <ClInclude Include="CommonVariable.hpp" />
     <ClInclude Include="Cylinder.hpp">
       <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonVariable.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonStructure.hpp">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
