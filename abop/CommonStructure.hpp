@@ -1,5 +1,15 @@
 #pragma once
 
+enum ModelType
+{
+    // Same as Model.hpp
+    Custom,
+    Square,
+    Plane,
+    Cube,
+    Cylinder
+};
+
 struct Vector3
 {
     float x;
@@ -30,6 +40,7 @@ struct VertexType
 
 struct Model
 {
+    ModelType modelType;
     int vertexCount;
     int indexCount;
     VertexType* vertexTypes;

@@ -42,10 +42,50 @@ int ModelClass::GetIndexCount()
     return this->indexCount_;
 }
 
+bool ModelClass::IsRotated()
+{
+    return this->isRotated_;
+}
+
+Vector3 ModelClass::GetRotation()
+{
+    return this->rotation_;
+}
+
 void ModelClass::SetPosition(const float& x, const float& y, const float& z)
 {
     this->position_ = { x, y, z };
 }
+
+void ModelClass::SetPosition(const Vector3& position)
+{
+    this->position_ = position;
+}
+
+void ModelClass::SetRotation(const float& x, const float& y, const float& z)
+{
+    this->isRotated = true;
+
+    this->rotation_ = { x, y, z };
+}
+
+void ModelClass::SetRotation(const Vector3& rotation)
+{
+    this->isRotated = true;
+
+    this->rotation_ = rotation;
+}
+
+void ModelClass::SetScale(const float& x, const float& y, const float& z)
+{
+
+}
+
+void ModelClass::SetScale(const Vector3& scale)
+{
+
+}
+
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {

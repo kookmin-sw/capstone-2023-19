@@ -54,8 +54,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	}
 	/*this->camera_->SetPosition(1.0f, -5.0f, -5.0f);
 	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);*/
-	this->camera_->SetPosition(0.0f, -3.0f, -5.0f);
-	this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
+	this->camera_->SetPosition(0.0f, -3.0f, -100.0f);
+	//this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -164,6 +164,23 @@ bool GraphicsClass::Render()
 	for (ModelClass* model : *(this->models_))
 	{
 		model->Render(this->direct3D_->GetDeviceContext());
+
+		if (model->IsRotated())
+		{
+			// 회전 했으면 회전 변환 행렬 적용
+			Vector3 rotation = model->GetRotation();
+			DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw
+			(
+				rotation.x,
+				rotation.y,
+				rotation.z
+			);
+
+			worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, rotationMatrix);
+			//DirectX::XMMatrixRotationZ(rotation.z);
+			//DirectX::XMMatrixRotationX(rotation.x);
+			//DirectX::XMMatrixRotationY(rotation.y);
+		}
 
 		if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
 			model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))

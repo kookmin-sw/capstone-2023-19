@@ -47,7 +47,8 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     // 수직 벡터의 길이를 half width 만큼
     Normalized(left, halfWidth);
     Normalized(right, halfWidth);
-    
+
+    model.modelType = ModelType::Custom;
     model.vertexCount = 4;
     model.vertexTypes = new VertexType[4];
     model.indexCount = 6;
@@ -63,15 +64,25 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     return model;
 }
 
+Model CreateTrunk(const Vector3& position, const Vector3& rotation)
+{
+    Model model;
+    
+    model.modelType = ModelType::Cylinder;
+
+    return model;
+}
+
 Model CreateLeaf(std::vector<Vector3>* leaf)
 {
     int size = leaf->size();
 
-    // !!! color 일단 블랙 고정
+    // !!! color 일단 그린 고정
     Vector4 green { 0.0f, 1.0f, 0.0f, 0.0f };
 
     Model model;
 
+    model.modelType = ModelType::Custom;
     model.vertexCount = size;
     model.vertexTypes = new VertexType[size];
     model.indexCount = (size - 1) * 3;

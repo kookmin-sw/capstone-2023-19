@@ -19,8 +19,15 @@ public:
     void Render(ID3D11DeviceContext*);
 
     void SetPosition(const float&, const float&, const float&);
+    void SetPosition(const Vector3&);
+    void SetRotation(const float&, const float&, const float&);
+    void SetRotation(const Vector3&);
+    void SetScale(const float&, const float&, const float&);
+    void SetScale(const Vector3&);
 
     int GetIndexCount();
+    bool IsRotated();
+    Vector3 GetRotation();
 
 protected:
     // ModelClass에서 재정의
@@ -35,6 +42,9 @@ protected:
     int vertexCount_ = 0;
     int indexCount_ = 0;
 
-    Vector3 position_ = { 0, 0, 0 };
-    DirectX::XMFLOAT4 color_ = { 0, 0, 0, 0 };
+    bool isRotated_ = false;
+    Vector3 position_ = { 0.0f, 0.0f, 0.0f };
+    Vector3 rotation_ = { 0.0f, 0.0f, 0.0f };
+    Vector3 scale_ = { 1.0f, 1.0f, 1.0f };
+    DirectX::XMFLOAT4 color_ = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
