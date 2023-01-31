@@ -27,6 +27,7 @@ public:
 
     int GetIndexCount();
     bool IsRotated();
+    Vector3 GetPosition();
     Vector3 GetRotation();
 
 protected:

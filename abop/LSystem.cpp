@@ -12,7 +12,7 @@
 // moveVector를 wantLength의 길이로 normalize
 void Normalized(Vector3& moveVector, float wantLength)
 {
-    float vectorLen = hypot(moveVector.x, moveVector.y);
+    float vectorLen = sqrt(moveVector.x * moveVector.x)
 
     // for only line
     moveVector.x = moveVector.x / vectorLen * wantLength;
@@ -26,6 +26,21 @@ Vector3 AddVector(const Vector3& a, const Vector3& b)
         a.x + b.x,
         a.y + b.y,
         a.z + a.z
+    };
+}
+
+float SqartMagnitude(const Vector3& vector)
+{
+    return 
+}
+
+Vector3 SubtractVector(const Vector3& a, const Vector3& b)
+{
+    return Vector3
+    {
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z
     };
 }
 
@@ -64,11 +79,25 @@ Model CreateLineModel(const Vector3& start, const Vector3& end)
     return model;
 }
 
-Model CreateTrunk(const Vector3& position, const Vector3& rotation)
+Model CreateTrunk(const Vector3& startPos, const Vector3& endPos, const Vector3& rotation)
 {
+    // !!! TEMP
+
     Model model;
-    
     model.modelType = ModelType::Cylinder;
+    model.dataCount = 4;
+    model.datas = new float[model.dataCount];
+    
+
+    model.datas[0] = position.x;
+    model.datas[0] = position.y;
+    model.datas[0] = position.z;
+    model.datas[0] = rotation.x;
+    model.datas[0] = rotation.y;
+    model.datas[0] = rotation.z;
+    model.datas[0] = 50;            // segment
+    model.datas[0] = 3;             // radius
+    model.datas[0] = height;
 
     return model;
 }

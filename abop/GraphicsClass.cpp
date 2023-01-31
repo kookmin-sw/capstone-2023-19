@@ -74,11 +74,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		this->lSystem_->GetResultVertex(models);
 
 		// Model 객체 초기화
-		// for (ModelClass* model : *(this->models_))
 		for (const Model& model : *models)
 		{
+			// !!! 임시
+			// Model -> ModelClass
 			ModelClass* modelClass = new ModelClass;
-			// !!! to be update
 			modelClass->Initialize(this->direct3D_->GetDevice(), model);
 			this->models_->push_back(modelClass);
 		}		
@@ -181,6 +181,15 @@ bool GraphicsClass::Render()
 			//DirectX::XMMatrixRotationX(rotation.x);
 			//DirectX::XMMatrixRotationY(rotation.y);
 		}
+
+		Vector3 translation = model->GetPosition();
+		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation
+		(
+			translation.x,
+			translation.y,
+			translation.z
+		);
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
 		if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
 			model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))

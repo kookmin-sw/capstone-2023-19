@@ -45,4 +45,8 @@ struct Model
     int indexCount;
     VertexType* vertexTypes;
     int* indices;
+
+    // temp
+    int dataCount;
+    float* datas;
 };

@@ -47,6 +47,11 @@ bool ModelClass::IsRotated()
     return this->isRotated_;
 }
 
+Vector3 ModelClass::GetPosition()
+{
+    return this->position_;
+}
+
 Vector3 ModelClass::GetRotation()
 {
     return this->rotation_;
@@ -78,12 +83,12 @@ void ModelClass::SetRotation(const Vector3& rotation)
 
 void ModelClass::SetScale(const float& x, const float& y, const float& z)
 {
-
+    // !!! to be update
 }
 
 void ModelClass::SetScale(const Vector3& scale)
 {
-
+    // !!! to be update
 }
 
 
