@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 
 class CameraClass : public AlignedAllocationPolicy<16>
 {

@@ -8,10 +8,19 @@ public:
         None,
         Forward = 'F',
         NoDrawForward = 'f',
-        Left    = '+',
-        Right   = '-',
+        NoDrawForward2 = 'G',
+        TurnLeft    = '+',
+        TurnRight   = '-',
+        PitchUp = '^',
+        PitchDown = '&',
+        RollLeft = '\\',
+        RollRight = '/',
+        TurnAround = '|',
         Push    = '[',
-        Pop     = ']'
+        Pop     = ']',
+        StartingPoint = '{',
+        EndingPoint = '}',
+        MarkingPoint = '.'
     };
 
 private:

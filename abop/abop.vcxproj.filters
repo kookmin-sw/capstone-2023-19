@@ -7,6 +7,12 @@
     <Filter Include="DX">
       <UniqueIdentifier>{42a3fff0-59fe-4b6d-8613-82c3a1698fca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DX\Models">
+      <UniqueIdentifier>{fd08c5be-71da-4193-b7eb-7dc1db1f11fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{0081bf59-3c4d-418a-84ed-35b4dce4e3e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LLetter.cpp">
@@ -42,10 +48,28 @@
     <ClCompile Include="CameraClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
-    <ClCompile Include="ModelClass.cpp">
-      <Filter>DX</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ModelClass.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Square.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -88,9 +112,35 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="ModelClass.hpp">
-      <Filter>DX</Filter>
+      <Filter>DX\Models</Filter>
     </ClInclude>
-    <ClInclude Include="CommonStructure.hpp" />
+    <ClInclude Include="Triangle.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Square.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelVariation.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonVariable.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonStructure.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">

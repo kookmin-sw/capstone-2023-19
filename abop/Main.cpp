@@ -14,38 +14,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	{
 		return -1;
 	}
-	
-	// 프랙탈
-	// Case 1
-	//lSystem->SetWord("F-F-F-F");
- //   lSystem->AddRule('F', "F-F+F+FF-F-F+F");
- //   lSystem->SetAngleChange(90.0);
- //   lSystem->Iterate(3);
-	
-	// Case 2
-	//lSystem->SetWord("-F");
- //   lSystem->AddRule('F', "F+F-F-F+F");
- //   lSystem->SetAngleChange(90.0);
- //   lSystem->Iterate(4);
 
-	// Case 3
-	//lSystem->SetWord("F-F-F-F");
- //   lSystem->AddRule('F', "F-FF--F-F");
- //   lSystem->SetAngleChange(90.0);
- //   lSystem->Iterate(5);
+	//lSystem->SetWord("A");
+	//lSystem->AddRule('A', "B - F + CFC + F - D & F^D - F + && CFC + F + B//");
+	//lSystem->AddRule('B', "A & F^CFB^F^D^^ - F - D^ | F^B | FC^F^A//");
+	//lSystem->AddRule('C', "D^ | F^B - F + C^F^A && FA & F^C + F + B^F^D//");
+	//lSystem->AddRule('D', "CFB - F + B | FA & F^A && FB - F + B | FC//");
+	//lSystem->SetDistance(2.0f);
+	//lSystem->SetAngleChange(90.0f);
+	//lSystem->Iterate(2);
+	//lSystem->GetWord();
+	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
-	// 브랜치
-	// Case 1
-	//lSystem->SetWord("F");
- //   lSystem->AddRule('F', "FF-[-F+F+F]+[+F-F-F]");
- //   lSystem->SetAngleChange(22.5);
- //   lSystem->Iterate(4);
 
-	// Case 2
-	lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[+F]F[-F][F]");
-    lSystem->SetAngleChange(20.0);
-    lSystem->Iterate(5);
+	//lSystem->SetDistance(3.0f);
+	//lSystem->SetAngleChange(22.5f);
+	//lSystem->Iterate(7);
+
+
+	//lSystem->SetWord("F&FFF^F--F--FFF^F");
+	//lSystem->SetAngleChange(45.0f);
+
+	lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
+	lSystem->SetAngleChange(30.0f);
 
 	SystemClass* system = new SystemClass;
 	if (!system)
@@ -57,7 +48,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	{
 		system->Run();
 	}
-
 
     delete lSystem;
     lSystem = nullptr;

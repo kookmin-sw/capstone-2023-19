@@ -3,53 +3,73 @@
 #include <stack>
 #include <cmath>
 #include "CommonStructure.hpp"
+#include "CommonVariable.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
-// moveVector를 wantLength의 길이로 normalize
-void Normalized(Vector3& moveVector, float wantLength)
+// TEMP
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& distance)
 {
-    float vectorLen = hypot(moveVector.x, moveVector.y);
+    // !!! TEMP
 
-    // for only line
-    moveVector.x = moveVector.x / vectorLen * wantLength;
-    moveVector.y = moveVector.y / vectorLen * wantLength;
+    Model model;
+    model.modelType = ModelType::CubeModel;
+    model.dataCount = 9;
+    model.data = new float[9];
+
+    Vector3 position = (startPos + endPos) / 2.0f;
+
+    //float angleX = atan2(rotation.y, rotation.z);
+    ////float angleY = atan2(rotation.z, rotation.x);
+    //float angleY = atan2(rotation.x, rotation.z);
+    //float angleZ = atan2(rotation.y, rotation.x);
+
+    model.data[0] = position.x;
+    model.data[1] = position.y;
+    model.data[2] = position.z;
+    model.data[3] = rotation.x * PI / 180.0f;     // pitch
+    model.data[4] = rotation.z * PI / 180.0f;     // roll
+    model.data[5] = rotation.y * PI / 180.0f;     // yaw
+    //model.data[3] = 0.0f * PI / 180.0f;     // pitch
+    //model.data[4] = 0.0f * PI / 180.0f;     // roll
+    //model.data[5] = 0.0f * PI / 180.0f;     // yaw
+    model.data[6] = 0.3f;       // size.x
+    model.data[7] = 0.3f;       // size.y
+    model.data[8] = distance;       // size.z (height)
+
+    return model;
 }
 
-Vector3 AddVector(const Vector3& a, const Vector3& b)
+Model CreateLeaf(std::vector<Vector3>* leaf)
 {
-    return Vector3
-    {
-        a.x + b.x,
-        a.y + b.y,
-        a.z + a.z
-    };
-}
+    int size = leaf->size();
 
-Model CreateLineModel(const Vector3& start, const Vector3& end)
-{
-    // xy 평면의 line
-    
-    float halfWidth = 0.2;
-    // !!! color 일단 블랙 고정
-    Vector4 black { 0, 0, 0, 0 };
+    // !!! color 일단 그린 고정
+    Vector4 green { 0.0f, 1.0f, 0.0f, 0.0f };
+
     Model model;
 
-    // 이동 벡터
-    Vector3 move { end.x - start.x, end.y - start.y, 0 };
-    // 수직 벡터
-    Vector3 left { -move.y, move.x, 0 };
-    Vector3 right { move.y, -move.x, 0 };
-    // 수직 벡터의 길이를 half width 만큼
-    Normalized(left, halfWidth);
-    Normalized(right, halfWidth);
-    
-    model.vertexCount = 4;
-    model.vertexTypes[0] = VertexType { AddVector(end, left), black };
-    model.vertexTypes[1] = VertexType { AddVector(end, right),  black };
-    model.vertexTypes[2] = VertexType { AddVector(start, right), black };
-    model.vertexTypes[3] = VertexType { AddVector(start, left), black };
+    model.vertexCount = size;
+    model.vertexTypes = new VertexType[size];
+    model.indexCount = (size - 1) * 3;
+    model.indices = new int[model.indexCount];
+
+    // TEMP
+    for (int i = 0; i < size; i++)
+    {
+        model.vertexTypes[i] = VertexType { (*leaf)[i], green };
+    }
+
+    int i = 0;
+    int vertex = 1;
+    while (i < (size - 1) * 3 - 1)
+    {
+        model.indices[i++] = 0;
+        model.indices[i++] = vertex++;
+        model.indices[i++] = vertex;
+    }
+    model.indices[--i] = 1;
 
     return model;
 }
@@ -60,7 +80,12 @@ LSystem::LSystem()
     rules_ = std::vector<LRule>();
     word_ = new std::vector<LLetter>();
 
-    this->state_ = { {0.0, 0.0, 0.0}, 0.0 };
+    this->state_ = 
+    { 
+        {0.0f, 0.0f, 0.0f}, 
+        {0.0f, 1.0f, 0.0f},
+        {90.0f, 0.0f, 0.0f}     // pitch yaw roll
+    };
 }
 
 LSystem::~LSystem()
@@ -153,13 +178,7 @@ void LSystem::Iterate()
             if (rule.GetBefore().IsEqual(letter.GetLetter()))
             {
                 std::vector<LLetter> letters = rule.GetAfter();
-                // #1
-                // for (const LLetter& letter : letters)
-                // {
-                //     v->push_back(letter);
-                // }
-                
-                // #2
+
                 v->insert(v->end(), letters.begin(), letters.end());    
 
                 changed = true;
@@ -184,7 +203,6 @@ void LSystem::Iterate(int n)
     }
 }
 
-
 void LSystem::GetResultVertex(std::vector<Model>* out)
 {
     // out -> jk,
@@ -195,11 +213,12 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
 
     float width = 0.5;
     std::stack<State> ss;
+    std::vector<Vector3>* leaf = nullptr;
 
-    Vector3 start;
-    Vector3 end;
+    Vector3 startPos;
+    Vector3 endPos;
 
-    start = this->state_.position;
+    startPos = this->state_.position;
     for (const LLetter& letter : *(this->word_))
     {
         // Move: 이동 후 현재 위치 end에 저장 후 push
@@ -209,26 +228,60 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 // Draw + Move forward
                 this->Move();
-                end = this->state_.position;
-                out->push_back(CreateLineModel(start, end));
-                start = this->state_.position;
+                endPos = this->state_.position;
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
+                startPos = this->state_.position;
                 break;
             }
             case LLetter::Type::NoDrawForward:
+            case LLetter::Type::NoDrawForward2:
             {
                 // No Draw + Move foward
+                this->Move();
+                endPos = this->state_.position;
+                //out->push_back(CreateLineModel(startPos, endPos));
                 break;
             }
-            case LLetter::Type::Left:
+            case LLetter::Type::RollLeft:
             {
-                // angleChange_ 만큼 turn left
-                this->Turn();
+                // angleChange_ 만큼 y축 회전
+                this->Rotate(1, angleChange_);
                 break;
             }
-            case LLetter::Type::Right:
+            case LLetter::Type::RollRight:
             {
-                // angleChange_ 만큼 turn right
-                this->Turn(false);
+                // -angleChange_ 만큼 y축 회전
+                this->Rotate(1, -angleChange_);
+                break;
+            }
+            case LLetter::Type::PitchUp:
+            {
+                // angleChange_ 만큼 x축 회전
+                this->Rotate(0, angleChange_);
+                break;
+            }
+            case LLetter::Type::PitchDown:
+            {
+                // -angleChange_ 만큼 x축 회전
+                this->Rotate(0, -angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnLeft:
+            {
+                // angleChange_ 만큼 z축 회전
+                this->Rotate(2, angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnRight:
+            {
+                // -angleChange_ 만큼 z축 회전
+                this->Rotate(2, -angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnAround:
+            {
+                // 180도 z축 회전
+                this->Rotate(2, 180.0f);
                 break;
             }
             case LLetter::Type::Push:
@@ -243,7 +296,25 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // 위치도 같이 옮겨지는 경우 No draw
                 this->state_ = ss.top();
                 ss.pop();
-                start = this->state_.position;
+                startPos = this->state_.position;
+                break;
+            }
+            case LLetter::Type::StartingPoint:
+            {
+                leaf = new std::vector<Vector3>();
+                
+                leaf->push_back(this->state_.position);
+                break;
+            }
+            case LLetter::Type::MarkingPoint:
+            {
+                leaf->push_back(this->state_.position);
+                break;
+            }
+            case LLetter::Type::EndingPoint:
+            {
+                out->push_back(CreateLeaf(leaf));
+                leaf = nullptr;
                 break;
             }
             case LLetter::Type::None:
@@ -257,21 +328,61 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
 // Private
 void LSystem::Move()
 {
-    // 현재 위치에서 y-up vector를 기준으로 얼마나 회전된 상태인지
-    float rad = this->state_.angle / 180.0 * pi;
-
-    this->state_.position.x += std::sin(rad) * this->distance_;
-    this->state_.position.y += std::cos(rad) * this->distance_;
+    // Heading Vector에 distance 곱해서 움직여주기
+    this->state_.position.x += this->state_.heading.x * this->distance_;
+    this->state_.position.y += this->state_.heading.y * this->distance_;
+    this->state_.position.z += this->state_.heading.z * this->distance_;
 }
 
-void LSystem::Turn(const bool& isLeft)
+// 현재 state를 기준으로 회전
+void LSystem::Rotate(const unsigned short& axis, const float& angle)
 {
-    if (isLeft)
+    // axis
+    // 0: Pitch, x, Left
+    // 1: Roll, y, Heading
+    // 2: yaw, z, Up
+    float rad = angle / 180.0f * PI;
+    float cos = std::cos(rad);
+    float sin = std::sin(rad);
+
+    float x = this->state_.heading.x;
+    float y = this->state_.heading.y;
+    float z = this->state_.heading.z;
+
+    switch (axis)
     {
-        this->state_.angle -= this->angleChange_;
-    }
-    else
-    {
-        this->state_.angle += this->angleChange_;
+		case 0:
+		{
+            // Pitch, x, Left
+            this->state_.rotation.x += angle;
+            float newY = cos * y - sin * z;
+			float newZ = sin * y + cos * z;
+            this->state_.heading.y = newY;
+            this->state_.heading.z = newZ;
+            
+			break;
+		}
+		case 1:
+		{
+            // Roll, y, Heading
+            this->state_.rotation.y += angle;
+			float newX = cos * x + sin * z;
+            float newZ = -1 * sin * x + cos * z;
+            this->state_.heading.x = newX;
+            this->state_.heading.z = newZ;
+
+			break;
+		}
+		case 2:
+		{
+            // Yaw, z, Up
+            this->state_.rotation.z += angle;
+            float newX = cos * x - sin * y;
+            float newY = sin * x + cos * y;
+
+            this->state_.heading.x = newX;
+            this->state_.heading.y = newY;
+			break;
+		}
     }
 }
