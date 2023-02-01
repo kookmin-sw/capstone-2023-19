@@ -42,11 +42,6 @@ int ModelClass::GetIndexCount()
     return this->indexCount_;
 }
 
-bool ModelClass::IsRotated()
-{
-    return this->isRotated_;
-}
-
 Vector3 ModelClass::GetPosition()
 {
     return this->position_;
@@ -69,21 +64,11 @@ void ModelClass::SetPosition(const Vector3& position)
 
 void ModelClass::SetRotation(const float& x, const float& y, const float& z)
 {
-    // !!! TEMP
-    this->isRotated_ = x == 0.0f && y == 1.0f && z == 0.0f
-        ? false
-        : true;
-
     this->rotation_ = { x, y, z };
 }
 
 void ModelClass::SetRotation(const Vector3& rotation)
 {
-    // !!! TEMP
-    this->isRotated_ = rotation.x == 0.0f && rotation.y == 1.0f && rotation.z == 0.0f
-        ? false
-        : true;
-
     this->rotation_ = rotation;
 }
 
@@ -187,6 +172,8 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, Model model)
         // Index Buffer 생성
         return false;
     }
+
+    delete[] model.vertexTypes;
 
     delete[] vertices;
     vertices = nullptr;

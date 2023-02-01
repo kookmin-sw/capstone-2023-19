@@ -26,7 +26,6 @@ public:
     void SetScale(const Vector3&);
 
     int GetIndexCount();
-    bool IsRotated();
     Vector3 GetPosition();
     Vector3 GetRotation();
 
@@ -43,7 +42,6 @@ protected:
     int vertexCount_ = 0;
     int indexCount_ = 0;
 
-    bool isRotated_ = false;
     Vector3 position_ = { 0.0f, 0.0f, 0.0f };
     Vector3 rotation_ = { 0.0f, 0.0f, 0.0f };
     Vector3 scale_ = { 1.0f, 1.0f, 1.0f };

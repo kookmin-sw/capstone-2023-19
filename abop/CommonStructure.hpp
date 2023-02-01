@@ -13,7 +13,8 @@ struct Vector4      // !!! Vector4는 아직 struct임
 struct State
 {
     Vector3 position;
-    Vector3 heading;
+    Vector3 heading;    // 방향 단위 벡터
+    Vector3 rotation;
 };
 
 struct VertexType

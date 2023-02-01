@@ -52,8 +52,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -60.0f);
-	//this->camera_->SetRotation(-45.0f, 0.0f, 0.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -20.0f);
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -81,9 +80,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 			{
 				ModelClass* modelClass = new ModelClass;
 				modelClass->Initialize(this->direct3D_->GetDevice(), model);
-
-				delete[] model.vertexTypes;
-				delete[] model.indices;
 
 				this->models_->push_back(modelClass);
 			}
@@ -186,21 +182,26 @@ bool GraphicsClass::Render()
 
 		model->Render(this->direct3D_->GetDeviceContext());
 
-		if (model->IsRotated())
-		{
-			Vector3 rotation = model->GetRotation();
-			DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw
-			(
-				rotation.x,
-				rotation.y,
-				rotation.z
-			);
-			worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, rotationMatrix);
-			//DirectX::XMMatrixRotationZ(rotation.z);
-			//DirectX::XMMatrixRotationX(rotation.x);
-			//DirectX::XMMatrixRotationY(rotation.y);
-		}
+		// 스케일 변환
+		// !!! to be update
+
+		// 회전 변환
+		Vector3 rotation = model->GetRotation();
+		//DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw
+		//(
+		//	rotation.x,
+		//	rotation.y,
+		//	rotation.z
+		//);
+		DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
+		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
+		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
+
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
 		
+		// 이동 변환
 		Vector3 translation = model->GetPosition();
 		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation
 		(

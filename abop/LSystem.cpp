@@ -9,7 +9,7 @@
 #include "LSystem.hpp"
 
 // TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, const Vector3& rotation, const float& distance)
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& distance)
 {
     // !!! TEMP
 
@@ -20,15 +20,23 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, const Vector3& rotation, con
 
     Vector3 position = (startPos + endPos) / 2.0f;
 
+    //float angleX = atan2(rotation.y, rotation.z);
+    ////float angleY = atan2(rotation.z, rotation.x);
+    //float angleY = atan2(rotation.x, rotation.z);
+    //float angleZ = atan2(rotation.y, rotation.x);
+
     model.data[0] = position.x;
     model.data[1] = position.y;
     model.data[2] = position.z;
-    model.data[3] = rotation.x;
-    model.data[4] = rotation.y;
-    model.data[5] = rotation.z;
-    model.data[6] = 1.0f;       // size.x
-    model.data[7] = distance;   // size.y
-    model.data[8] = 1.0f;       // size.z (height)
+    model.data[3] = rotation.x * PI / 180.0f;     // pitch
+    model.data[4] = rotation.z * PI / 180.0f;     // roll
+    model.data[5] = rotation.y * PI / 180.0f;     // yaw
+    //model.data[3] = 0.0f * PI / 180.0f;     // pitch
+    //model.data[4] = 0.0f * PI / 180.0f;     // roll
+    //model.data[5] = 0.0f * PI / 180.0f;     // yaw
+    model.data[6] = 0.3f;       // size.x
+    model.data[7] = 0.3f;       // size.y
+    model.data[8] = distance;       // size.z (height)
 
     return model;
 }
@@ -75,7 +83,8 @@ LSystem::LSystem()
     this->state_ = 
     { 
         {0.0f, 0.0f, 0.0f}, 
-        {0.0f, 1.0f, 0.0f}
+        {0.0f, 1.0f, 0.0f},
+        {90.0f, 0.0f, 0.0f}     // pitch yaw roll
     };
 }
 
@@ -220,7 +229,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.heading, this->distance_));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -345,6 +354,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 		case 0:
 		{
             // Pitch, x, Left
+            this->state_.rotation.x += angle;
             float newY = cos * y - sin * z;
 			float newZ = sin * y + cos * z;
             this->state_.heading.y = newY;
@@ -355,6 +365,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 		case 1:
 		{
             // Roll, y, Heading
+            this->state_.rotation.y += angle;
 			float newX = cos * x + sin * z;
             float newZ = -1 * sin * x + cos * z;
             this->state_.heading.x = newX;
@@ -365,6 +376,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 		case 2:
 		{
             // Yaw, z, Up
+            this->state_.rotation.z += angle;
             float newX = cos * x - sin * y;
             float newY = sin * x + cos * y;
 
