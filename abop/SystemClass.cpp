@@ -36,7 +36,11 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
-	this->input_->Initialize();
+	if (!this->input_->Initialize(this->hInstance_, this->hwnd_, screenWidth, screenHeight))
+	{
+		MessageBox(this->hwnd_, L"Could not initialize the input object.", L"Error", MB_OK);
+		return false;
+	}
 
 	this->graphics_ = new GraphicsClass;
 	if (!this->graphics_)
@@ -44,7 +48,6 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
-	// GraphicsClass에도 LSystem 포인터 할당
 	return this->graphics_->Initialize(screenWidth, screenHeight, this->hwnd_);
 }
 
@@ -68,7 +71,11 @@ bool SystemClass::Initialize(LSystem* lSystem)
 		return false;
 	}
 
-	this->input_->Initialize();
+	if (!this->input_->Initialize(this->hInstance_, this->hwnd_, screenWidth, screenHeight))
+	{
+		MessageBox(this->hwnd_, L"Could not initialize the input object.", L"Error", MB_OK);
+		return false;
+	}
 	
 	this->graphics_ = new GraphicsClass;
 	if (!this->graphics_)
@@ -120,8 +127,15 @@ void SystemClass::Run()
 			if (!Frame())
 			{
 				// 메시지 입력 외에는 Frame 함수 처리
+				MessageBox(this->hwnd_, L"Frame Processing Failed.", L"Error", MB_OK);
 				break;
 			}
+		}
+
+		if (this->input_->IsEscapePressed())
+		{
+			// ESC 누르면 종료
+			break;
 		}
 	}
 }
@@ -129,35 +143,33 @@ void SystemClass::Run()
 LRESULT CALLBACK SystemClass::MessageHandler(
 	HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch (umsg)
-	{
-		case WM_KEYDOWN:
-		{
-			this->input_->KeyDown((unsigned int)wparam);
-			return 0;
-		}
-		case WM_KEYUP:
-		{
-			this->input_->KeyUp((unsigned int)wparam);
-		}
-		default:
-		{
-			// 이 외 메시지들은 기본 메시지 처리로 전달
-			return DefWindowProc(hwnd, umsg, wparam, lparam);
-		}
-	}
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 // Private
 bool SystemClass::Frame()
 {
-	if (this->input_->IsKeyDown(VK_ESCAPE))
+	int mouseX = 0, mouseY = 0;
+	int forward = 0, right = 0;
+	int pitchUp = 0, rotationRight = 0;
+
+	if (!this->input_->Frame())
 	{
-		// ESC 입력 시
 		return false;
 	}
 
-	return this->graphics_->Frame();
+	// mouseX, mouseY로 마우스 위치 가져옴
+	this->input_->GetMouseLocation(mouseX, mouseY);
+
+	this->input_->GetCameraMove(forward, right, pitchUp, rotationRight);
+
+	// 그래픽 Frame 처리
+	if (!this->graphics_->Frame(mouseX, mouseY, forward, right, pitchUp, rotationRight))
+	{
+		return false;
+	}
+
+	return this->graphics_->Render();
 }
 
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
@@ -168,7 +180,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	// 이 프로그램의 인스턴스
 	this->hInstance_ = GetModuleHandle(NULL);
 
-	this->applicationName_ = L"Dx11Demo_02";
+	this->applicationName_ = L"abop";
 
 	// window 클래스 설정
 	WNDCLASSEX wc;

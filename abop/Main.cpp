@@ -32,11 +32,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->Iterate(7);
 
 
-	//lSystem->SetWord("F&FFF^F--F--FFF^F");
-	//lSystem->SetAngleChange(45.0f);
+	lSystem->SetWord("F&FFF^F--F--FFF^F");
+	lSystem->SetAngleChange(45.0f);
 
-	lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
-	lSystem->SetAngleChange(30.0f);
+	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
+	//lSystem->SetAngleChange(30.0f);
 
 	SystemClass* system = new SystemClass;
 	if (!system)
