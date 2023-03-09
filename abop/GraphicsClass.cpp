@@ -177,7 +177,8 @@ bool GraphicsClass::Render()
 	for (ModelClass* model : *(this->models_))
 	{
 		this->direct3D_->GetWorldMatrix(worldMatrix);
-		this->camera_->GetViewMatrix(viewMatrix);
+		//this->camera_->GetViewMatrix(viewMatrix);
+		viewMatrix = this->camera_->View();
 		this->direct3D_->GetProjectionMatrix(projectionMatrix);
 
 		model->Render(this->direct3D_->GetDeviceContext());
