@@ -21,9 +21,7 @@ public:
 
 	bool Initialize(int, int, HWND, LSystem* = nullptr);
 	void Shutdown();
-	bool Frame();
-	
-private:
+	bool Frame(int, int, int, int, int, int);		// !!! 나중에 키 입력 파라미터 조정
 	bool Render();
 
 private:

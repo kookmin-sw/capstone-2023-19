@@ -157,9 +157,20 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame()
+bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight)
 {
-	return this->Render();
+	// !!! mouse 위치 text 업데이트
+
+	// !!! 키 입력 여부 수정 예정
+	float tempCameraSpeed = 0.3f;
+	this->camera_->Walk(forward * tempCameraSpeed);
+	this->camera_->Strafe(right * tempCameraSpeed);
+
+	float tempRotationSpeed = 0.01f;
+	this->camera_->Pitch(pitchUp * tempRotationSpeed);
+	this->camera_->RotateY(rotationRight * tempRotationSpeed);
+
+	return true;
 }
 
 // Private
@@ -177,7 +188,8 @@ bool GraphicsClass::Render()
 	for (ModelClass* model : *(this->models_))
 	{
 		this->direct3D_->GetWorldMatrix(worldMatrix);
-		this->camera_->GetViewMatrix(viewMatrix);
+		//this->camera_->GetViewMatrix(viewMatrix);
+		viewMatrix = this->camera_->View();
 		this->direct3D_->GetProjectionMatrix(projectionMatrix);
 
 		model->Render(this->direct3D_->GetDeviceContext());
