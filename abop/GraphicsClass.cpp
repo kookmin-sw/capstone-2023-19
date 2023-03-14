@@ -7,6 +7,7 @@
 #include "ModelClass.hpp"
 #include "ModelVariation.hpp"
 #include "ColorShaderClass.hpp"
+#include "TextureShaderClass.hpp"
 #include "LSystem.hpp"
 #include "GraphicsClass.hpp"
 
@@ -102,6 +103,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	else
 	{
 		// !!! FOR TEST
+		ModelClass* model = new ModelClass;
+		model->Initialize(this->direct3D_->GetDevice(), this->direct3D_->GetDeviceContext(),
+			(char*)"data/stone01.tga");
+
+		this->models_->push_back(model);
+
+		//Triangle* cube = new Triangle;
+
+		//cube->Initialize(this->direct3D_->GetDevice());
+		//this->models_->push_back((ModelClass*)cube);
+
 		// ---------------------
 	}
 
@@ -119,11 +131,32 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		return false;
 	}
 
+	// TextureShader 객체 생성
+	this->textureShader_ = new TextureShaderClass;
+	if (!this->textureShader_)
+	{
+		return false;
+	}
+
+	// TextureShader 객체 초기화
+	if (!this->textureShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 void GraphicsClass::Shutdown()
 {
+	if (this->textureShader_)
+	{
+		this->textureShader_->Shutdown();
+		delete this->textureShader_;
+		this->textureShader_ = nullptr;
+	}
+
 	if (this->colorShader_)
 	{
 		this->colorShader_->Shutdown();

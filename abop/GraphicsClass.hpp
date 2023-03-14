@@ -10,6 +10,7 @@ class D3DClass;
 class CameraClass;
 class ModelClass;
 class ColorShaderClass;
+class TextureShaderClass;
 class LSystem;
 
 class GraphicsClass
@@ -21,7 +22,7 @@ public:
 
 	bool Initialize(int, int, HWND, LSystem* = nullptr);
 	void Shutdown();
-	bool Frame(int, int, int, int, int, int);		// !!! ³ªÁß¿¡ Å° ÀÔ·Â ÆÄ¶ó¹ÌÅÍ Á¶Á¤
+	bool Frame(int, int, int, int, int, int);		// !!! ë‚˜ì¤‘ì— í‚¤ ì…ë ¥ íŒŒë¼ë¯¸í„° ì¡°ì •
 	bool Render();
 
 private:
@@ -29,6 +30,7 @@ private:
 	CameraClass* camera_ = nullptr;
 	std::vector<ModelClass*>* models_ = nullptr;
 	ColorShaderClass* colorShader_ = nullptr;
+	TextureShaderClass* textureShader_ = nullptr;
 
 	LSystem* lSystem_ = nullptr;
 };

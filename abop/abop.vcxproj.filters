@@ -70,6 +70,12 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="TextureShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -141,12 +147,27 @@
     <ClInclude Include="CommonStructure.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="TextureShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">
       <Filter>DX</Filter>
     </None>
     <None Include="Color.vs">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="Texture.vs">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="Texture.ps">
       <Filter>DX</Filter>
     </None>
   </ItemGroup>
