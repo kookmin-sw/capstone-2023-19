@@ -256,10 +256,17 @@ bool GraphicsClass::Render()
 		);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
-		if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-			model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+		//if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
+		//	model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+		//{
+		//	// ColorShader를 통해 렌더링
+		//	return false;
+		//}
+
+		// 텍스쳐 쉐이더를 사용하여 모델을 렌더링합니다.
+		if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(), 
+			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
 		{
-			// ColorShader를 통해 렌더링
 			return false;
 		}
 	}
