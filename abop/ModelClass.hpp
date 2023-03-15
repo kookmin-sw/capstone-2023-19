@@ -9,6 +9,7 @@ protected:
     {
         DirectX::XMFLOAT3 position;
         DirectX::XMFLOAT2 texture;
+        DirectX::XMFLOAT3 normal;
         DirectX::XMFLOAT4 color;
     };
 
