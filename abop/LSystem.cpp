@@ -214,6 +214,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     float width = 0.5;
     std::stack<State> ss;
     std::vector<Vector3>* leaf = nullptr;
+    std::stack<std::vector<Vector3>*> leafstack;
 
     Vector3 startPos;
     Vector3 endPos;
@@ -303,6 +304,8 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 leaf = new std::vector<Vector3>();
                 
+                leafstack.push(leaf);
+                
                 leaf->push_back(this->state_.position);
                 break;
             }
@@ -314,7 +317,15 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::EndingPoint:
             {
                 out->push_back(CreateLeaf(leaf));
-                leaf = nullptr;
+                
+                if (!leafstack.empty()) {
+                    leaf = leafstack.top();
+                    leafstack.pop();
+                }
+                else {
+                    leaf = nullptr;
+                }
+                
                 break;
             }
             case LLetter::Type::None:

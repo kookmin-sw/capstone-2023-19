@@ -38,6 +38,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 	//lSystem->SetAngleChange(30.0f);
 
+	lSystem->SetWord("[{+.G.{.&G.{.&G.][-G[&G[&G.].}.].}.}]");
+	lSystem->SetAngleChange(30.0f);
+
 	SystemClass* system = new SystemClass;
 	if (!system)
 	{
