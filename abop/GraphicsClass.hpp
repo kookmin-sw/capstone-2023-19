@@ -9,8 +9,10 @@ const float SCREEN_NEAR = 0.1f;
 class D3DClass;
 class CameraClass;
 class ModelClass;
-class ColorShaderClass;
-class TextureShaderClass;
+class ColorShaderClass;		// !!! TEMP
+class TextureShaderClass;	// !!! TEMP
+class LightShaderClass;
+class LightClass;
 class LSystem;
 
 class GraphicsClass
@@ -29,8 +31,13 @@ private:
 	D3DClass* direct3D_ = nullptr;
 	CameraClass* camera_ = nullptr;
 	std::vector<ModelClass*>* models_ = nullptr;
-	ColorShaderClass* colorShader_ = nullptr;
-	TextureShaderClass* textureShader_ = nullptr;
+	ColorShaderClass* colorShader_ = nullptr;		// !!! TEMP
+	TextureShaderClass* textureShader_ = nullptr;	// !!! TEMP
+	LightShaderClass* lightShader_ = nullptr;
+
+	LightClass* light_ = nullptr;
 
 	LSystem* lSystem_ = nullptr;
+
+	float rotation_ = 0.0f;
 };

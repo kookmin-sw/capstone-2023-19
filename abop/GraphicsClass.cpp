@@ -6,8 +6,10 @@
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
 #include "ModelVariation.hpp"
-#include "ColorShaderClass.hpp"
-#include "TextureShaderClass.hpp"
+#include "ColorShaderClass.hpp"		// !!! TEMP
+#include "TextureShaderClass.hpp"	// !!! TEMP
+#include "LightShaderClass.hpp"
+#include "LightClass.hpp"
 #include "LSystem.hpp"
 #include "GraphicsClass.hpp"
 
@@ -117,6 +119,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		// ---------------------
 	}
 
+	// !!! TEMP  ---------------------------------------
 	// ColorShader 객체 생성
 	this->colorShader_ = new ColorShaderClass;
 	if (!this->colorShader_)
@@ -144,12 +147,49 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
 		return false;
 	}
+	// !!! ---------------------------------------------
+
+	// LightShader 초기화
+	this->lightShader_ = new LightShaderClass;
+	if (!this->lightShader_)
+	{
+		return false;
+	}
+
+	if (!this->lightShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	// Light 객체 초기화
+	this->light_ = new LightClass;
+	if (!this->light_)
+	{
+		return false;
+	}
+
+	this->light_->SetDiffuseColor(1.0f, 0.0f, 1.0f, 1.0f);
+	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
 
 	return true;
 }
 
 void GraphicsClass::Shutdown()
 {
+	if (this->light_)
+	{
+		delete this->light_;
+		this->light_ = nullptr;
+	}
+
+	if (this->lightShader_)
+	{
+		this->lightShader_->Shutdown();
+		delete this->lightShader_;
+		this->lightShader_ = nullptr;
+	}
+
 	if (this->textureShader_)
 	{
 		this->textureShader_->Shutdown();
@@ -192,6 +232,13 @@ void GraphicsClass::Shutdown()
 
 bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight)
 {
+	// light rotation 업데이트
+	this->rotation_ += (float)DirectX::XM_PI * 0.001f;
+	if (this->rotation_ > 360.0f)
+	{
+		this->rotation_ -= 360.0f;
+	}
+
 	// !!! mouse 위치 text 업데이트
 
 	// !!! 키 입력 여부 수정 예정
@@ -256,6 +303,10 @@ bool GraphicsClass::Render()
 		);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
+		// world 회전
+		worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
+
+		// 텍스쳐 셰이더를 사용하여 모델을 렌더링합니다.
 		//if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
 		//	model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
 		//{
@@ -263,9 +314,15 @@ bool GraphicsClass::Render()
 		//	return false;
 		//}
 
-		// 텍스쳐 쉐이더를 사용하여 모델을 렌더링합니다.
-		if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(), 
-			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
+		//if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(), 
+		//	worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
+		//{
+		//	return false;
+		//}
+		// Light 셰이더를 사용해서 모델 렌더링
+		if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
+			this->light_->GetDirection(), this->light_->GetDiffuseColor()))
 		{
 			return false;
 		}

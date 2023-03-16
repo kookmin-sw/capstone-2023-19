@@ -16,7 +16,7 @@ private:
         DirectX::XMFLOAT3 lightDirection;
         // CreateBuffer 입력 조건(16 배수)을 위해 여분의 패딩
         float padding;
-    }
+    };
 
 public:
     LightShaderClass();

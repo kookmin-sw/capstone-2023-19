@@ -76,6 +76,8 @@
     <ClCompile Include="TextureClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
+    <ClCompile Include="LightClass.cpp" />
+    <ClCompile Include="LightShaderClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -153,6 +155,8 @@
     <ClInclude Include="TextureClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
+    <ClInclude Include="LightShaderClass.hpp" />
+    <ClInclude Include="LightClass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">
@@ -161,14 +165,13 @@
     <None Include="Color.vs">
       <Filter>DX</Filter>
     </None>
-    <None Include="Light.vs">
-      <Filter>DX</Filter>
-    </None>
     <None Include="Texture.vs">
       <Filter>DX</Filter>
     </None>
     <None Include="Texture.ps">
       <Filter>DX</Filter>
     </None>
+    <None Include="Light.vs" />
+    <None Include="Light.ps" />
   </ItemGroup>
 </Project>
