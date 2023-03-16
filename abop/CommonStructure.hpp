@@ -14,7 +14,7 @@ struct State
 {
     Vector3 position;
     Vector3 heading;    // 방향 단위 벡터
-    Vector3 rotation;
+    Vector3 right; // 방향 단위 벡터
 };
 
 struct VertexType

@@ -15,6 +15,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
+	// Hilbert Curve 3D
 	//lSystem->SetWord("A");
 	//lSystem->AddRule('A', "B - F + CFC + F - D & F^D - F + && CFC + F + B//");
 	//lSystem->AddRule('B', "A & F^CFB^F^D^^ - F - D^ | F^B | FC^F^A//");
@@ -26,15 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->GetWord();
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
-
-	//lSystem->SetDistance(3.0f);
-	//lSystem->SetAngleChange(22.5f);
-	//lSystem->Iterate(7);
-
-
-	lSystem->SetWord("F&FFF^F--F--FFF^F");
-	lSystem->SetAngleChange(45.0f);
-
+	// Leaf
 	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 	//lSystem->SetAngleChange(30.0f);
 
@@ -45,6 +38,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	if (system->Initialize(lSystem))
+	//if (system->Initialize())
 	{
 		system->Run();
 	}

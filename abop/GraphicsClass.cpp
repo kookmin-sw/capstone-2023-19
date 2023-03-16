@@ -102,6 +102,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	else
 	{
 		// !!! FOR TEST
+		Cube *cube = new Cube();
+		cube->SetPosition(0.0f, 0.0f, 0.0f);
+		cube->SetSize(1.0f, 2.0f, 1.0f);
+		cube->Initialize(this->direct3D_->GetDevice());
+
+		this->models_->push_back((ModelClass*)cube);
+
+		Cube* cube2 = new Cube();
+		cube2->SetPosition(0.0f, 2.0f, 0.0f);
+		cube2->SetRotation(135.0f, 45.0f, -90.0f);
+		cube2->SetSize(1.0f, 2.0f, 1.0f);
+		cube2->Initialize(this->direct3D_->GetDevice());
+
+		this->models_->push_back((ModelClass*)cube2);
+
 		// ---------------------
 	}
 

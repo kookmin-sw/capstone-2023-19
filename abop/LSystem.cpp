@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <cassert>
 #include <cmath>
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
@@ -8,8 +9,26 @@
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
+
 // TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& distance)
+float Dot(const Vector3& vec1, const Vector3& vec2) {
+    float ret = vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
+    return ret;
+}
+
+float Distance(const Vector3& vec) {
+    return sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+}
+
+void Cross(Vector3& vec1, const Vector3& vec2) {
+    float newX = (vec1.y * vec2.z) - (vec1.z * vec2.y);
+    float newY = (vec1.z * vec2.x) - (vec1.x * vec2.z);
+    float newZ = (vec1.x * vec2.y) - (vec1.y * vec2.x);
+    vec1.x = newX, vec1.y = newY, vec1.z = newZ;
+}
+
+// TEMP
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 heading, Vector3 right, const float& distance)
 {
     // !!! TEMP
 
@@ -19,6 +38,9 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const floa
     model.data = new float[9];
 
     Vector3 position = (startPos + endPos) / 2.0f;
+    Vector3 axisX = { 1.0f, 0.0f, 0.0f };
+    Vector3 axisY = { 0.0f, 1.0f, 0.0f };
+    Vector3 axisZ = { 0.0f, 0.0f, 1.0f };
 
     //float angleX = atan2(rotation.y, rotation.z);
     ////float angleY = atan2(rotation.z, rotation.x);
@@ -28,10 +50,17 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const floa
     model.data[0] = position.x;
     model.data[1] = position.y;
     model.data[2] = position.z;
-    model.data[3] = rotation.x * PI / 180.0f;     // pitch
-    model.data[4] = rotation.z * PI / 180.0f;     // roll
-    model.data[5] = rotation.y * PI / 180.0f;     // yaw
-    //model.data[3] = 0.0f * PI / 180.0f;     // pitch
+    Vector3 cross = heading;
+    Cross(cross, right);
+    cross.Normalized();
+
+    model.data[3] = acosf(Dot(cross, axisX));
+    model.data[4] = acosf(Dot(cross, axisZ));
+    model.data[5] = acosf(Dot(cross, axisY));
+    //model.data[3] = rotation.x * PI / 180.0f;     // pitch
+    //model.data[4] = rotation.z * PI / 180.0f;     // roll
+    //model.data[5] = rotation.y * PI / 180.0f;     // yaw
+    //model.data[3] = 90.0f * PI / 180.0f;     // pitch
     //model.data[4] = 0.0f * PI / 180.0f;     // roll
     //model.data[5] = 0.0f * PI / 180.0f;     // yaw
     model.data[6] = 0.3f;       // size.x
@@ -84,7 +113,7 @@ LSystem::LSystem()
     { 
         {0.0f, 0.0f, 0.0f}, 
         {0.0f, 1.0f, 0.0f},
-        {90.0f, 0.0f, 0.0f}     // pitch yaw roll
+        {1.0f, 0.0f, 0.0f}   
     };
 }
 
@@ -211,7 +240,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         throw "No word";
     }
 
-    float width = 0.5;
+    float width = 0.5f;
     std::stack<State> ss;
     std::vector<Vector3>* leaf = nullptr;
 
@@ -229,7 +258,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.heading, this->state_.right,  this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -245,13 +274,13 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::RollLeft:
             {
                 // angleChange_ 만큼 y축 회전
-                this->Rotate(1, angleChange_);
+                this->Rotate(1, -angleChange_);
                 break;
             }
             case LLetter::Type::RollRight:
             {
                 // -angleChange_ 만큼 y축 회전
-                this->Rotate(1, -angleChange_);
+                this->Rotate(1, angleChange_);
                 break;
             }
             case LLetter::Type::PitchUp:
@@ -269,13 +298,13 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::TurnLeft:
             {
                 // angleChange_ 만큼 z축 회전
-                this->Rotate(2, angleChange_);
+                this->Rotate(2, -angleChange_);
                 break;
             }
             case LLetter::Type::TurnRight:
             {
                 // -angleChange_ 만큼 z축 회전
-                this->Rotate(2, -angleChange_);
+                this->Rotate(2, angleChange_);
                 break;
             }
             case LLetter::Type::TurnAround:
@@ -354,35 +383,51 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 		case 0:
 		{
             // Pitch, x, Left
-            this->state_.rotation.x += angle;
-            float newY = cos * y - sin * z;
-			float newZ = sin * y + cos * z;
-            this->state_.heading.y = newY;
-            this->state_.heading.z = newZ;
-            
+            float dot = Dot(this->state_.heading, this->state_.right);
+            Vector3 cross = this->state_.heading;
+            Cross(cross, this->state_.right);
+            this->state_.heading = this->state_.heading * cos;
+            this->state_.heading = this->state_.heading + this->state_.right * dot * (1 - cos);
+            this->state_.heading = this->state_.heading - cross * sin;
 			break;
 		}
 		case 1:
 		{
             // Roll, y, Heading
-            this->state_.rotation.y += angle;
-			float newX = cos * x + sin * z;
-            float newZ = -1 * sin * x + cos * z;
-            this->state_.heading.x = newX;
-            this->state_.heading.z = newZ;
-
+            float dot = Dot(this->state_.right, this->state_.heading);
+            Vector3 cross = this->state_.right;
+            Cross(cross, this->state_.heading);
+            this->state_.right = this->state_.right * cos;
+            this->state_.right = this->state_.right + this->state_.heading * dot * (1 - cos);
+            this->state_.right = this->state_.right - cross * sin;
 			break;
 		}
 		case 2:
 		{
             // Yaw, z, Up
-            this->state_.rotation.z += angle;
-            float newX = cos * x - sin * y;
-            float newY = sin * x + cos * y;
+            Vector3 axis = this->state_.heading;
+            Cross(axis, this->state_.right);
 
-            this->state_.heading.x = newX;
-            this->state_.heading.y = newY;
+            // direction.Rotate(axis, angle);
+            float dot1 = Dot(this->state_.heading, axis);
+            Vector3 cross1 = this->state_.heading;
+            Cross(cross1, axis);
+            this->state_.heading = this->state_.heading * cos;
+            this->state_.heading = this->state_.heading + axis * dot1 * (1 - cos);
+            this->state_.heading = this->state_.heading - cross1 * sin;
+
+            // right.Rotate(axis, angle);
+            float dot2 = Dot(this->state_.right, axis);
+            Vector3 cross2 = this->state_.right;
+            Cross(cross2, axis);
+            this->state_.right = this->state_.right * cos;
+            this->state_.right = this->state_.right + axis * dot2 * (1 - cos);
+            this->state_.right = this->state_.right - cross2 * sin;
+
 			break;
 		}
     }
+
+    this->state_.heading.Normalized();
+    this->state_.right.Normalized();
 }
