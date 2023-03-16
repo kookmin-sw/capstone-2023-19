@@ -13,6 +13,13 @@ protected:
         DirectX::XMFLOAT4 color;
     };
 
+    struct ModelType
+    {
+        float x, y, z;
+        float tu, tv;
+        float nx, ny, nz;
+    };
+
 public:
     ModelClass();
     ModelClass(const ModelClass&);
@@ -21,7 +28,7 @@ public:
     // Custom model
     bool Initialize(ID3D11Device*, Model);
     // Texture
-    bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
+    bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*, char*);
     void Shutdown();
     void Render(ID3D11DeviceContext*);
 
@@ -48,6 +55,9 @@ protected:
     bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, char*);
     void ReleaseTexture();
 
+    bool LoadModel(char*);
+    void ReleaseModel();
+
 protected:
     ID3D11Buffer* vertexBuffer_ = nullptr;
     ID3D11Buffer* indexBuffer_ = nullptr;
@@ -58,5 +68,7 @@ protected:
     Vector3 rotation_ = { 0.0f, 0.0f, 0.0f };
     Vector3 scale_ = { 1.0f, 1.0f, 1.0f };
     DirectX::XMFLOAT4 color_ = { 0.0f, 0.0f, 0.0f, 0.0f };
+
     TextureClass* texture_ = nullptr;
+    ModelType* model_ = nullptr;
 };

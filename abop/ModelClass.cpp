@@ -3,6 +3,8 @@
 #include "TextureClass.hpp"
 #include "ModelClass.hpp"
 
+#include <fstream>
+
 ModelClass::ModelClass()
 {
 
@@ -26,14 +28,29 @@ bool ModelClass::Initialize(ID3D11Device* device, Model model)
     return this->InitializeBuffers(device, model);
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
+//bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
+//{
+//    if (!InitializeBuffers(device))
+//    {
+//        return false;
+//    }
+//
+//    return LoadTexture(device, deviceContext, textureFilename);
+//}
+
+bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* modelFilename, char* textureFilename)
 {
-    if (!InitializeBuffers(device))
+    if (!this->LoadModel(modelFilename))
     {
         return false;
     }
 
-    return LoadTexture(device, deviceContext, textureFilename);
+    if (!this->InitializeBuffers(device))
+    {
+        return false;
+    }
+
+    return this->LoadTexture(device, deviceContext, textureFilename);
 }
 
 void ModelClass::Shutdown()
@@ -41,6 +58,8 @@ void ModelClass::Shutdown()
     this->ReleaseTexture();
 
     this->ShutdownBuffers();
+
+    this->ReleaseModel();
 }
 
 void ModelClass::Render(ID3D11DeviceContext* deviceContext)
@@ -100,15 +119,8 @@ void ModelClass::SetScale(const Vector3& scale)
     // !!! to be update
 }
 
-
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
-    // 자식 클래스에서 오버라이드
-
-    // !!! Texture test
-    this->vertexCount_ = 3;
-    this->indexCount_ = 3;
-
     VertexType* vertices = new VertexType[this->vertexCount_];
     if (!vertices)
     {
@@ -121,22 +133,14 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
         return false;
     }
     
-    vertices[0].position = DirectX::XMFLOAT3(-20.0f, -20.0f, 0.0f);
-    vertices[0].texture = DirectX::XMFLOAT2(0.0f, 1.0f);
-    // vertices[0].normal = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
+    for (int i = 0; i < this->vertexCount_; i++)
+    {
+        vertices[i].position = DirectX::XMFLOAT3(this->model_[i].x, this->model_[i].y, this->model_[i].z);
+        vertices[i].texture = DirectX::XMFLOAT2(this->model_[i].tu, this->model_[i].tv);
+        vertices[i].normal = DirectX::XMFLOAT3(this->model_[i].nx, this->model_[i].ny, this->model_[i].nz);
 
-    vertices[1].position = DirectX::XMFLOAT3(0.0f, 20.0f, 0.0f);
-    vertices[1].texture = DirectX::XMFLOAT2(0.5f, 0.0f);
-    // vertices[1].normal = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
-
-    vertices[2].position = DirectX::XMFLOAT3(20.0f, -20.0f, 0.0f);
-    vertices[2].texture = DirectX::XMFLOAT2(1.0f, 1.0f);
-    // vertices[2].normal = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
-
-    indices[0] = 0;
-    indices[1] = 1;
-    indices[2] = 2;
-
+        indices[i] = i;
+    }
 
     // 정적 vertex buffer 생성
     D3D11_BUFFER_DESC vertexBufferDesc;
@@ -328,5 +332,62 @@ void ModelClass::ReleaseTexture()
         this->texture_->Shutdown();
         delete this->texture_;
         this->texture_ = nullptr;
+    }
+}
+
+bool ModelClass::LoadModel(char* filename)
+{
+    // 파일 형식에 맞게 다시 수정 가능
+    std::ifstream fin;
+    fin.open(filename);
+
+    if (fin.fail())
+    {
+        return false;
+    }
+
+    char input = 0;
+    fin.get(input);
+    while (input != ':')
+    {
+        fin.get(input);
+    }
+
+    fin >> this->vertexCount_;
+
+    this->indexCount_ = this->vertexCount_;
+
+    this->model_ = new ModelType[this->vertexCount_];
+    if (!this->model_)
+    {
+        return false;
+    }
+
+    fin.get(input);
+    while (input != ':')
+    {
+        fin.get(input);
+    }
+    fin.get(input);
+    fin.get(input);
+
+    for (int i = 0; i < this->vertexCount_; i++)
+    {
+        fin >> this->model_[i].x >> this->model_[i].y >> this->model_[i].z;
+        fin >> this->model_[i].tu >> this->model_[i].tv;
+        fin >> this->model_[i].nx >> this->model_[i].ny >> this->model_[i].nz;
+    }
+
+    fin.close();
+
+    return true;
+}
+
+void ModelClass::ReleaseModel()
+{
+    if (this->model_)
+    {
+        delete[] this->model_;
+        this->model_ = nullptr;
     }
 }

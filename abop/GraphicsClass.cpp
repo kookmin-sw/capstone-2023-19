@@ -106,17 +106,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		// !!! FOR TEST
 		ModelClass* model = new ModelClass;
+		if (!model)
+		{
+			return false;
+		}
+
 		model->Initialize(this->direct3D_->GetDevice(), this->direct3D_->GetDeviceContext(),
-			(char*)"data/stone01.tga");
+			(char*)"data/cube.txt", (char*)"data/stone01.tga");
 
 		this->models_->push_back(model);
-
-		//Triangle* cube = new Triangle;
-
-		//cube->Initialize(this->direct3D_->GetDevice());
-		//this->models_->push_back((ModelClass*)cube);
-
-		// ---------------------
 	}
 
 	// !!! TEMP  ---------------------------------------
@@ -279,12 +277,7 @@ bool GraphicsClass::Render()
 
 		// 회전 변환
 		Vector3 rotation = model->GetRotation();
-		//DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw
-		//(
-		//	rotation.x,
-		//	rotation.y,
-		//	rotation.z
-		//);
+
 		DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
 		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
 		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
