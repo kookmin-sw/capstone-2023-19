@@ -31,10 +31,11 @@ void LightShaderClass::Shutdown()
 
 bool LightShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount,
     DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix,
-    ID3D11ShaderResourceView* texture, DirectX::XMFLOAT3 lightDirection, DirectX::XMFLOAT4 diffuseColor)
+    ID3D11ShaderResourceView* texture, DirectX::XMFLOAT3 lightDirection, DirectX::XMFLOAT4 ambientColor,
+    DirectX::XMFLOAT4 diffuseColor)
 {
     if (!this->SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix,
-        texture, lightDirection, diffuseColor))
+        texture, lightDirection, ambientColor, diffuseColor))
     {
         // 렌더링에 사용될 매개변수 설정
         return false;
@@ -255,7 +256,8 @@ void LightShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 
 bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
     DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix,
-    ID3D11ShaderResourceView* texture, DirectX::XMFLOAT3 lightDirection, DirectX::XMFLOAT4 diffuseColor)
+    ID3D11ShaderResourceView* texture, DirectX::XMFLOAT3 lightDirection, DirectX::XMFLOAT4 ambientColor,
+    DirectX::XMFLOAT4 diffuseColor)
 {
     // 셰이더에서 사용할 수 있도록 matrix를 transpose
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -296,6 +298,7 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
     LightBufferType* dataPtr2 = (LightBufferType*)mappedResource.pData;
 
     // light 변수를 상수 버퍼에 복사
+    dataPtr2->ambientColor = ambientColor;
     dataPtr2->diffuseColor = diffuseColor;
     dataPtr2->lightDirection = lightDirection;
     dataPtr2->padding = 0.0f;

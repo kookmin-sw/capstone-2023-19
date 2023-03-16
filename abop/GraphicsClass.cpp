@@ -142,7 +142,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	// TextureShader 객체 초기화
 	if (!this->textureShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
 		return false;
 	}
 	// !!! ---------------------------------------------
@@ -156,7 +156,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 
 	if (!this->lightShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
 		return false;
 	}
 
@@ -167,6 +167,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		return false;
 	}
 
+	this->light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	this->light_->SetDiffuseColor(1.0f, 0.0f, 1.0f, 1.0f);
 	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
 
@@ -315,7 +316,7 @@ bool GraphicsClass::Render()
 		// Light 셰이더를 사용해서 모델 렌더링
 		if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
 			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
-			this->light_->GetDirection(), this->light_->GetDiffuseColor()))
+			this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
 		{
 			return false;
 		}
