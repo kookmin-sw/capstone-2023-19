@@ -44,7 +44,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
-	if (system->Initialize(lSystem))
+	//if (system->Initialize(lSystem))
+	if (system->Initialize())
 	{
 		system->Run();
 	}

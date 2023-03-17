@@ -6,7 +6,10 @@
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
 #include "ModelVariation.hpp"
-#include "ColorShaderClass.hpp"
+#include "ColorShaderClass.hpp"		// !!! TEMP
+#include "TextureShaderClass.hpp"	// !!! TEMP
+#include "LightShaderClass.hpp"
+#include "LightClass.hpp"
 #include "LSystem.hpp"
 #include "GraphicsClass.hpp"
 #include "TextClass.hpp"
@@ -103,9 +106,19 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	else
 	{
 		// !!! FOR TEST
-		// ---------------------
+		ModelClass* model = new ModelClass;
+		if (!model)
+		{
+			return false;
+		}
+
+		model->Initialize(this->direct3D_->GetDevice(), this->direct3D_->GetDeviceContext(),
+			(char*)"data/cube.txt", (char*)"data/stone01.tga");
+
+		this->models_->push_back(model);
 	}
 
+	// !!! TEMP  ---------------------------------------
 	// ColorShader 객체 생성
 	this->colorShader_ = new ColorShaderClass;
 	if (!this->colorShader_)
@@ -123,6 +136,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	// Text 객체 생성
 	this->text_ = new TextClass;
 	if (!this->text_)
+	// TextureShader 객체 생성
+	this->textureShader_ = new TextureShaderClass;
+	if (!this->textureShader_)
 	{
 		return false;
 	}
@@ -134,13 +150,64 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		return false;
 	}
 
-
 	
+	// TextureShader 객체 초기화
+	if (!this->textureShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
+		return false;
+	}
+	// !!! ---------------------------------------------
+
+	// LightShader 초기화
+	this->lightShader_ = new LightShaderClass;
+	if (!this->lightShader_)
+	{
+		return false;
+	}
+
+	if (!this->lightShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	// Light 객체 초기화
+	this->light_ = new LightClass;
+	if (!this->light_)
+	{
+		return false;
+	}
+
+	this->light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	this->light_->SetDiffuseColor(1.0f, 0.0f, 1.0f, 1.0f);
+	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
+
 	return true;
 }
 
 void GraphicsClass::Shutdown()
 {
+	if (this->light_)
+	{
+		delete this->light_;
+		this->light_ = nullptr;
+	}
+
+	if (this->lightShader_)
+	{
+		this->lightShader_->Shutdown();
+		delete this->lightShader_;
+		this->lightShader_ = nullptr;
+	}
+
+	if (this->textureShader_)
+	{
+		this->textureShader_->Shutdown();
+		delete this->textureShader_;
+		this->textureShader_ = nullptr;
+	}
+
 	if (this->colorShader_)
 	{
 		this->colorShader_->Shutdown();
@@ -176,6 +243,13 @@ void GraphicsClass::Shutdown()
 
 bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight)
 {
+	// light rotation 업데이트
+	this->rotation_ += (float)DirectX::XM_PI * 0.001f;
+	if (this->rotation_ > 360.0f)
+	{
+		this->rotation_ -= 360.0f;
+	}
+
 	// !!! mouse 위치 text 업데이트
 
 	// !!! 키 입력 여부 수정 예정
@@ -216,12 +290,7 @@ bool GraphicsClass::Render()
 
 		// 회전 변환
 		Vector3 rotation = model->GetRotation();
-		//DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw
-		//(
-		//	rotation.x,
-		//	rotation.y,
-		//	rotation.z
-		//);
+
 		DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
 		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
 		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
@@ -240,10 +309,27 @@ bool GraphicsClass::Render()
 		);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
-		if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-			model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+		// world 회전
+		worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
+
+		// 텍스쳐 셰이더를 사용하여 모델을 렌더링합니다.
+		//if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
+		//	model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+		//{
+		//	// ColorShader를 통해 렌더링
+		//	return false;
+		//}
+
+		//if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(), 
+		//	worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
+		//{
+		//	return false;
+		//}
+		// Light 셰이더를 사용해서 모델 렌더링
+		if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
+			this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
 		{
-			// ColorShader를 통해 렌더링
 			return false;
 		}
 	}

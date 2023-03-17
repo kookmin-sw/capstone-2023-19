@@ -9,7 +9,10 @@ const float SCREEN_NEAR = 0.1f;
 class D3DClass;
 class CameraClass;
 class ModelClass;
-class ColorShaderClass;
+class ColorShaderClass;		// !!! TEMP
+class TextureShaderClass;	// !!! TEMP
+class LightShaderClass;
+class LightClass;
 class LSystem;
 class TextClass;
 
@@ -22,7 +25,7 @@ public:
 
 	bool Initialize(int, int, HWND, LSystem* = nullptr);
 	void Shutdown();
-	bool Frame(int, int, int, int, int, int);		// !!! ³ªÁß¿¡ Å° ÀÔ·Â ÆÄ¶ó¹ÌÅÍ Á¶Á¤
+	bool Frame(int, int, int, int, int, int);		// !!! ë‚˜ì¤‘ì— í‚¤ ì…ë ¥ íŒŒë¼ë¯¸í„° ì¡°ì •
 	bool Render();
 	
 private:
@@ -31,7 +34,13 @@ private:
 	TextClass* text_ = nullptr;
 
 	std::vector<ModelClass*>* models_ = nullptr;
-	ColorShaderClass* colorShader_ = nullptr;
+	ColorShaderClass* colorShader_ = nullptr;		// !!! TEMP
+	TextureShaderClass* textureShader_ = nullptr;	// !!! TEMP
+	LightShaderClass* lightShader_ = nullptr;
+
+	LightClass* light_ = nullptr;
 
 	LSystem* lSystem_ = nullptr;
+
+	float rotation_ = 0.0f;
 };
