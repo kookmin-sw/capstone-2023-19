@@ -9,7 +9,7 @@
 #include "ColorShaderClass.hpp"
 #include "LSystem.hpp"
 #include "GraphicsClass.hpp"
-#include "TextClass.h"
+#include "TextClass.hpp"
 
 // Public
 GraphicsClass::GraphicsClass()
@@ -128,7 +128,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	}
 
 	// Text 객체 초기화
-	if (!this->text_->Initialize(this->direct3D_->GetDevice(),this->direct3D_->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix))
+	if (!this->text_->Initialize(this->direct3D_->GetDevice(),this->direct3D_->GetDeviceContext(), hwnd, screenWidth, screenHeight, this->camera_->View()))
 	{
 		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
 		return false;

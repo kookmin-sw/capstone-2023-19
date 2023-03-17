@@ -1,5 +1,7 @@
 #pragma once
 
+class TextureClass;
+
 class FontClass
 {
 private:
@@ -11,8 +13,8 @@ private:
 
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-	    D3DXVECTOR2 texture;
+		DirectX::XMFLOAT3 position;
+	    DirectX::XMFLOAT2 texture;
 	};
 
 public:
@@ -20,7 +22,7 @@ public:
 	FontClass(const FontClass&);
 	~FontClass();
 
-	bool Initialize(ID3D11Device*, char*, WCHAR*);
+	bool Initialize(ID3D11Device*, char*, char*);
 	void Shutdown();
 
 	ID3D11ShaderResourceView* GetTexture();
@@ -30,7 +32,7 @@ public:
 private:
 	bool LoadFontData(char*);
 	void ReleaseFontData();
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	bool LoadTexture(ID3D11Device*, char*);
 	void ReleaseTexture();
 
 private:

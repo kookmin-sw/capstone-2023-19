@@ -153,16 +153,16 @@
     <ClInclude Include="CommonStructure.hpp">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="TextClass.h">
+    <ClInclude Include="TextClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
-    <ClInclude Include="TextureClass.h">
+    <ClInclude Include="TextureClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
-    <ClInclude Include="FontClass.h">
+    <ClInclude Include="FontClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
-    <ClInclude Include="FontshaderClass.h">
+    <ClInclude Include="FontshaderClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
   </ItemGroup>

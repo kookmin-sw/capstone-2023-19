@@ -1,8 +1,7 @@
-#include <d3d11.h>
-#include <d3dx10math.h>
+ï»¿#include "Stdafx.h"
 #include <fstream>
-#include "FontClass.h"
-#include "TextureClass.h"
+#include "FontClass.hpp"
+#include "TextureClass.hpp"
 using namespace std;
 
 FontClass::FontClass()
@@ -21,19 +20,19 @@ FontClass::~FontClass()
 }
 
 
-bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* textureFilename)
+bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, char* textureFilename)
 {
 	bool result;
 
 
-	// ±Û²Ã µ¥ÀÌÅÍ¸¦ ºÒ·¯¿É´Ï´Ù
+	// ê¸€ê¼´ ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜µë‹ˆë‹¤
 	result = LoadFontData(fontFilename);
 	if(!result)
 	{
 		return false;
 	}
 
-	// ±Û²Ã ÅØ½ºÃ³¸¦ ºÒ·¯¿É´Ï´Ù
+	// ê¸€ê¼´ í…ìŠ¤ì²˜ë¥¼ ë¶ˆëŸ¬ì˜µë‹ˆë‹¤
 	result = LoadTexture(device, textureFilename);
 	if(!result)
 	{
@@ -46,16 +45,16 @@ bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* text
 
 void FontClass::Shutdown()
 {
-	// ±Û²Ã ÅØ½ºÃ³ ÇØÁ¦
+	// ê¸€ê¼´ í…ìŠ¤ì²˜ í•´ì œ
 	ReleaseTexture();
 
-	// ±Û²Ã µ¥ÀÌÅÍ ÇØÁ¦
+	// ê¸€ê¼´ ë°ì´í„° í•´ì œ
 	ReleaseFontData();
 
 	return;
 }
 
-// ÅØ½ºÃ³¿¡¼­ÀÇ ±ÛÀÚ À§Ä¡ Á¤º¸¸¦ ´ã°í ÀÖ´Â fontdata.txt¸¦ ºÒ·¯¿É´Ï´Ù
+// í…ìŠ¤ì²˜ì—ì„œì˜ ê¸€ì ìœ„ì¹˜ ì •ë³´ë¥¼ ë‹´ê³  ìˆëŠ” fontdata.txtë¥¼ ë¶ˆëŸ¬ì˜µë‹ˆë‹¤
 bool FontClass::LoadFontData(char* filename)
 {
 	ifstream fin;
@@ -63,21 +62,21 @@ bool FontClass::LoadFontData(char* filename)
 	char temp;
 
 
-	// FontTypeÇüÀÇ ¹è¿­À» ¸¸µì´Ï´Ù
+	// FontTypeí˜•ì˜ ë°°ì—´ì„ ë§Œë“­ë‹ˆë‹¤
 	font_ = new FontType[95];
 	if(!font_)
 	{
 		return false;
 	}
 
-	// ÆÄÀÏÀ» ¿­°í °¢ ¶óÀÎÀ» ÀĞ¾î ¹è¿­¿¡ ÀúÀåÇÕ´Ï´Ù
+	// íŒŒì¼ì„ ì—´ê³  ê° ë¼ì¸ì„ ì½ì–´ ë°°ì—´ì— ì €ì¥í•©ë‹ˆë‹¤
 	fin.open(filename);
 	if(fin.fail())
 	{
 		return false;
 	}
 
-	// ÅØ½ºÆ®ÀÇ ASCll¹®ÀÚ, left, right, ¹®ÀÚ ÇÈ¼¿ ³Êºñ¸¦ ÀĞ¾î¿É´Ï´Ù
+	// í…ìŠ¤íŠ¸ì˜ ASCllë¬¸ì, left, right, ë¬¸ì í”½ì…€ ë„ˆë¹„ë¥¼ ì½ì–´ì˜µë‹ˆë‹¤
 	for(i=0; i<95; i++)
 	{
 		fin.get(temp);
@@ -104,7 +103,7 @@ bool FontClass::LoadFontData(char* filename)
 
 void FontClass::ReleaseFontData()
 {
-	// ÀĞ¾î¿Â ¹è¿­ µ¥ÀÌÅÍ ÇØÁ¦
+	// ì½ì–´ì˜¨ ë°°ì—´ ë°ì´í„° í•´ì œ
 	if(font_)
 	{
 		delete [] font_;
@@ -114,21 +113,21 @@ void FontClass::ReleaseFontData()
 	return;
 }
 
-//font.dds ÆÄÀÏÀ» ÀĞ¾î ÅØ½ºÃÄ ¼ÎÀÌ´õ¿¡ Àü´ŞÇÕ´Ï´Ù
-// ÅØ½ºÃÄ ¼ÎÀÌ´õ¿¡¼­ ±ÛÀÚ¸¦ »Ì¾Æ³» °¢°¢ÀÇ »ç°¢Çü¿¡ ÀÔÇô È­¸é¿¡ ±×¸®°Ô µË´Ï´Ù
-bool FontClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
+//font.dds íŒŒì¼ì„ ì½ì–´ í…ìŠ¤ì³ ì…°ì´ë”ì— ì „ë‹¬í•©ë‹ˆë‹¤
+// í…ìŠ¤ì³ ì…°ì´ë”ì—ì„œ ê¸€ìë¥¼ ë½‘ì•„ë‚´ ê°ê°ì˜ ì‚¬ê°í˜•ì— ì…í˜€ í™”ë©´ì— ê·¸ë¦¬ê²Œ ë©ë‹ˆë‹¤
+bool FontClass::LoadTexture(ID3D11Device* device, char* filename)
 {
 	bool result;
 
 
-	// Texture °´Ã¼ »ı¼º
+	// Texture ê°ì²´ ìƒì„±
 	texture_ = new TextureClass;
 	if(!texture_)
 	{
 		return false;
 	}
 
-	// Texture °´Ã¼ ÃÊ±âÈ­
+	// Texture ê°ì²´ ì´ˆê¸°í™”
 	result = texture_->Initialize(device, filename);
 	if(!result)
 	{
@@ -141,7 +140,7 @@ bool FontClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 
 void FontClass::ReleaseTexture()
 {
-	// Texture °´Ã¼ ÇØÁ¦
+	// Texture ê°ì²´ í•´ì œ
 	if(texture_)
 	{
 		texture_->Shutdown();
@@ -155,7 +154,7 @@ void FontClass::ReleaseTexture()
 
 ID3D11ShaderResourceView* FontClass::GetTexture()
 {
-	//±Û²ÃÀÌ ½ÇÁ¦·Î ±×·ÁÁú ¼ö ÀÖµµ·Ï ±Û²Ã ÅØ½ºÃ³ÀÇ ÀÎÅÍÆäÀÌ½º¸¦ ¸®ÅÏÇÕ´Ï´Ù
+	//ê¸€ê¼´ì´ ì‹¤ì œë¡œ ê·¸ë ¤ì§ˆ ìˆ˜ ìˆë„ë¡ ê¸€ê¼´ í…ìŠ¤ì²˜ì˜ ì¸í„°í˜ì´ìŠ¤ë¥¼ ë¦¬í„´í•©ë‹ˆë‹¤
 	return texture_->GetTexture();
 }
 
@@ -166,16 +165,16 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 	int numLetters, index, i, letter;
 
 
-	// Á¤Á¡ ¹öÆÛ·Î ¸¸µé¾î³À´Ï´Ù
+	// ì •ì  ë²„í¼ë¡œ ë§Œë“¤ì–´ëƒ…ë‹ˆë‹¤
 	vertexPtr = (VertexType*)vertices;
 
-	// ¹®ÀåÀÇ ±æÀÌ¸¦ °¡Á®¿É´Ï´Ù
+	// ë¬¸ì¥ì˜ ê¸¸ì´ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤
 	numLetters = (int)strlen(sentence);
 
-	// ÀÎµ¦½º¸¦ Á¤Á¡ ¹è¿­·Î ÃÊ±âÈ­ÇÕ´Ï´Ù
+	// ì¸ë±ìŠ¤ë¥¼ ì •ì  ë°°ì—´ë¡œ ì´ˆê¸°í™”í•©ë‹ˆë‹¤
 	index = 0;
 
-	// ¹İº¹¹®À» µ¹¸é¼­ Á¤Á¡/ÀÎµ¦½º ¹è¿­À» ¸¸µì´Ï´Ù
+	// ë°˜ë³µë¬¸ì„ ëŒë©´ì„œ ì •ì /ì¸ë±ìŠ¤ ë°°ì—´ì„ ë§Œë“­ë‹ˆë‹¤
 	for(i=0; i<numLetters; i++)
 	{
 		letter = ((int)sentence[i]) - 32;
@@ -187,35 +186,35 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 		}
 		else
 		{
-			// ¹®ÀÚ´ç µÎ°³ÀÇ »ï°¢ÇüÀ» ¸¸µé¾î left, rightÁÂÇ¥¿Í ÇÈ¼¿ ³Êºñ¸¦ ¸ÅÇÎ½ÃÅµ´Ï´Ù
+			// ë¬¸ìë‹¹ ë‘ê°œì˜ ì‚¼ê°í˜•ì„ ë§Œë“¤ì–´ left, rightì¢Œí‘œì™€ í”½ì…€ ë„ˆë¹„ë¥¼ ë§¤í•‘ì‹œí‚µë‹ˆë‹¤
 			
-			// Ã¹¹øÂ° »ï°¢Çü
-			vertexPtr[index].position = D3DXVECTOR3(drawX, drawY, 0.0f);  // Top left.
-			vertexPtr[index].texture = D3DXVECTOR2(font_[letter].left, 0.0f);
+			// ì²«ë²ˆì§¸ ì‚¼ê°í˜•
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, drawY, 0.0f);  // Top left.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(font_[letter].left, 0.0f);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3((drawX + font_[letter].size), (drawY - 16), 0.0f);  // Bottom right.
-			vertexPtr[index].texture = D3DXVECTOR2(font_[letter].right, 1.0f);
+			vertexPtr[index].position = DirectX::XMFLOAT3((drawX + font_[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(font_[letter].right, 1.0f);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3(drawX, (drawY - 16), 0.0f);  // Bottom left.
-			vertexPtr[index].texture = D3DXVECTOR2(font_[letter].left, 1.0f);
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, (drawY - 16), 0.0f);  // Bottom left.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(font_[letter].left, 1.0f);
 			index++;
 
-			// µÎ¹øÂ° »ï°¢Çü
-			vertexPtr[index].position = D3DXVECTOR3(drawX, drawY, 0.0f);  // Top left.
-			vertexPtr[index].texture = D3DXVECTOR2(font_[letter].left, 0.0f);
+			// ë‘ë²ˆì§¸ ì‚¼ê°í˜•
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX, drawY, 0.0f);  // Top left.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(font_[letter].left, 0.0f);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3(drawX + font_[letter].size, drawY, 0.0f);  // Top right.
-			vertexPtr[index].texture = D3DXVECTOR2(font_[letter].right, 0.0f);
+			vertexPtr[index].position = DirectX::XMFLOAT3(drawX + font_[letter].size, drawY, 0.0f);  // Top right.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(font_[letter].right, 0.0f);
 			index++;
 
-			vertexPtr[index].position = D3DXVECTOR3((drawX + font_[letter].size), (drawY - 16), 0.0f);  // Bottom right.
-			vertexPtr[index].texture = D3DXVECTOR2(font_[letter].right, 1.0f);
+			vertexPtr[index].position = DirectX::XMFLOAT3((drawX + font_[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+			vertexPtr[index].texture = DirectX::XMFLOAT2(font_[letter].right, 1.0f);
 			index++;
 
-			// ±ÛÀÚ¿¡ ÇØ´çÇÏ´Â µµÇüÀÌ »ı±â¸é xÁÂÇ¥¸¦ ¾÷µ¥ÀÌÆ®ÇÏ¿© ±ÛÀÚ°¡ ±×·ÁÁú À§Ä¡¸¦ Àâ½À´Ï´Ù
+			// ê¸€ìì— í•´ë‹¹í•˜ëŠ” ë„í˜•ì´ ìƒê¸°ë©´ xì¢Œí‘œë¥¼ ì—…ë°ì´íŠ¸í•˜ì—¬ ê¸€ìê°€ ê·¸ë ¤ì§ˆ ìœ„ì¹˜ë¥¼ ì¡ìŠµë‹ˆë‹¤
 			drawX = drawX + font_[letter].size + 1.0f;
 		}
 	}
