@@ -11,6 +11,7 @@ class CameraClass;
 class ModelClass;
 class ColorShaderClass;
 class LSystem;
+class TextClass;
 
 class GraphicsClass
 {
@@ -23,10 +24,12 @@ public:
 	void Shutdown();
 	bool Frame(int, int, int, int, int, int);		// !!! 나중에 키 입력 파라미터 조정
 	bool Render();
-
+	
 private:
 	D3DClass* direct3D_ = nullptr;
 	CameraClass* camera_ = nullptr;
+	TextClass* text_ = nullptr;
+
 	std::vector<ModelClass*>* models_ = nullptr;
 	ColorShaderClass* colorShader_ = nullptr;
 

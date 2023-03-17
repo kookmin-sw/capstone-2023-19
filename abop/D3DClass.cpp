@@ -1,6 +1,6 @@
+#include <DirectXMath.h>
 #include "Stdafx.h"
 #include "D3DClass.hpp"
-#include <DirectXMath.h>
 
 D3DClass::D3DClass()
 {
@@ -302,6 +302,62 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	// 2D 렌더링을위한 직교 투영 행렬을 만듭니다
 	this->orthoMatrix_ = DirectX::XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
+	// Clear the second depth stencil state before setting the parameters.
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
+
+	// 2D렌더링을 위해 z버퍼를 끄는 두번째 깊이의 스텐실(stenciㅣ) 상태를 만듭니다
+	// 유일한 차이점은 DepthEnable이 false로 설정되고, 다른 모든 매개변수는 다른 깊이 스텐실 상태와 동일한 점입니다
+	depthDisabledStencilDesc.DepthEnable = false;
+	depthDisabledStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable = true;
+	depthDisabledStencilDesc.StencilReadMask = 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask = 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// 디바이스를 사용하여 상태를 만듭니다
+	if (FAILED(device_->CreateDepthStencilState(&depthDisabledStencilDesc, &depthDisabledStencilState_)))
+	{
+		return false;
+	}
+
+	// 블렌딩 상태의 description을 초기화합니다
+	D3D11_BLEND_DESC blendStateDescription;
+	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
+
+	// 알파값이 적용된 블렌딩 상태를 만들기 위해 상태를 수정합니다
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+	// description을 이용하여 알파값이 켜진 블렌딩 상태를 생성합니다
+	if (FAILED(device_->CreateBlendState(&blendStateDescription, &alphaEnableBlendingState_)))
+	{
+		return false;
+	}
+
+	// 알파값을 사용하지 않는 상태를 만듭니다
+	blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
+
+	// 바뀐 description을 사용하여 알파값이 꺼진 블렌딩 상태를 생성합니다
+	if (FAILED(device_->CreateBlendState(&blendStateDescription, &alphaDisableBlendingState_)))
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -311,6 +367,19 @@ void D3DClass::Shutdown()
 	{
 		// 종료 전 윈도우 모드로 설정(swap chain 해제 시 예외 발생)
 		this->swapChain_->SetFullscreenState(false, NULL);
+	}
+
+	//블렌딩 상태 해제
+	if (alphaEnableBlendingState_)
+	{
+		alphaEnableBlendingState_->Release();
+		alphaEnableBlendingState_ = 0;
+	}
+	//블렌딩 상태 해제
+	if (alphaDisableBlendingState_)
+	{
+		alphaDisableBlendingState_->Release();
+		alphaDisableBlendingState_ = 0;
 	}
 
 	if (this->rasterState_)
@@ -422,4 +491,49 @@ void D3DClass::GetVideoCardInfo(char* cardName, int& memory)
 {
 	strcpy_s(cardName, 128, this->videoCardDescription_);
 	memory = this->videoCardMemory_;
+}
+
+void D3DClass::TurnZBufferOn()
+{
+	deviceContext_->OMSetDepthStencilState(depthStencilState_, 1);
+	return;
+}
+
+
+void D3DClass::TurnZBufferOff()
+{
+	deviceContext_->OMSetDepthStencilState(depthDisabledStencilState_, 1);
+	return;
+}
+
+
+void D3DClass::TurnOnAlphaBlending()
+{
+	float blendFactor[4];
+
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
+
+	// 알파 블렌딩을 켭니다
+	deviceContext_->OMSetBlendState(alphaEnableBlendingState_, blendFactor, 0xffffffff);
+
+	return;
+}
+
+
+void D3DClass::TurnOffAlphaBlending()
+{
+	float blendFactor[4];
+
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
+
+	// 알파 블렌딩을 끕니다
+	deviceContext_->OMSetBlendState(alphaDisableBlendingState_, blendFactor, 0xffffffff);
+
+	return;
 }

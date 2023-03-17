@@ -70,6 +70,18 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FontshaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -141,6 +153,18 @@
     <ClInclude Include="CommonStructure.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="TextClass.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureClass.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FontClass.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FontshaderClass.h">
+      <Filter>DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.ps">
@@ -149,5 +173,21 @@
     <None Include="Color.vs">
       <Filter>DX</Filter>
     </None>
+    <None Include="font.ps">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="font.vs">
+      <Filter>DX</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\font.dds">
+      <Filter>DX</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\fontdata.txt">
+      <Filter>DX</Filter>
+    </Text>
   </ItemGroup>
 </Project>
