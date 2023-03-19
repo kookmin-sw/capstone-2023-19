@@ -48,7 +48,6 @@
     <ClCompile Include="CameraClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ModelClass.cpp">
       <Filter>DX\Models</Filter>
     </ClCompile>
@@ -70,6 +69,7 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">

@@ -23,16 +23,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->AddRule('D', "CFB - F + B | FA & F^A && FB - F + B | FC//");
 	//lSystem->SetDistance(2.0f);
 	//lSystem->SetAngleChange(90.0f);
-	//lSystem->Iterate(2);
+	//lSystem->Iterate(1);
 	//lSystem->GetWord();
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
+
 
 	// Leaf
 	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 	//lSystem->SetAngleChange(30.0f);
-
-	lSystem->SetWord("F+F");
-	lSystem->SetAngleChange(45.0f);
+	
+	// TODO - -+ Fix needed!
+	//lSystem->SetWord("F-F");
+	//lSystem->SetAngleChange(90.0f);
+	//lSystem->SetDistance(1.0f);
 
 	SystemClass* system = new SystemClass;
 	if (!system)

@@ -1,7 +1,9 @@
 #include <vector>
 #include <string>
 #include "Stdafx.h"
+#include "DirectXMath.h"
 #include "CommonStructure.hpp"
+#include "CommonVariable.hpp"
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
@@ -111,7 +113,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 
 		Cube* cube2 = new Cube();
 		cube2->SetPosition(0.0f, 2.0f, 0.0f);
-		cube2->SetRotation(135.0f, 45.0f, -90.0f);
+		cube2->SetRotation(45.0f, 45.0f, 45.0f);
 		cube2->SetSize(1.0f, 2.0f, 1.0f);
 		cube2->Initialize(this->direct3D_->GetDevice());
 
@@ -220,14 +222,15 @@ bool GraphicsClass::Render()
 		//	rotation.y,
 		//	rotation.z
 		//);
-		DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
-		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
-		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
 
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
-		
+		// 회전 변환
+		// Euler -> Quaternion(Z->X->Y) -> Rotation Matrix
+		DirectX::XMVECTOR quat = DirectX::XMQuaternionRotationRollPitchYaw(
+			rotation.x, rotation.y, rotation.z);
+		DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationQuaternion(quat);
+
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, rotMatrix);
+
 		// 이동 변환
 		Vector3 translation = model->GetPosition();
 		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation
@@ -243,7 +246,7 @@ bool GraphicsClass::Render()
 		{
 			// ColorShader를 통해 렌더링
 			return false;
-		}
+		} 
 	}
 
 	this->direct3D_->EndScene();
