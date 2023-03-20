@@ -119,6 +119,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	}
 
 	// !!! TEMP  ---------------------------------------
+	/*
 	// ColorShader 객체 생성
 	this->colorShader_ = new ColorShaderClass;
 	if (!this->colorShader_)
@@ -132,17 +133,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		MessageBox(hwnd, L"Could not initialize the color shader object", L"Error", MB_OK);
 		return false;
 	}
+	*/
 
 	// Text 객체 생성
 	this->text_ = new TextClass;
 	if (!this->text_)
-	// TextureShader 객체 생성
-	this->textureShader_ = new TextureShaderClass;
-	if (!this->textureShader_)
 	{
 		return false;
 	}
-
+	
 	// Text 객체 초기화
 	if (!this->text_->Initialize(this->direct3D_->GetDevice(),this->direct3D_->GetDeviceContext(), hwnd, screenWidth, screenHeight, this->camera_->View()))
 	{
@@ -150,6 +149,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 		return false;
 	}
 
+
+	// TextureShader 객체 생성
+	this->textureShader_ = new TextureShaderClass;
+	if (!this->textureShader_)
+	{
+		return false;
+	}
 	
 	// TextureShader 객체 초기화
 	if (!this->textureShader_->Initialize(this->direct3D_->GetDevice(), hwnd))
@@ -201,19 +207,28 @@ void GraphicsClass::Shutdown()
 		this->lightShader_ = nullptr;
 	}
 
+	if (this->text_)
+	{
+		this->text_->Shutdown();
+		delete this->text_;
+		this->text_ = nullptr;
+	}
+
 	if (this->textureShader_)
 	{
 		this->textureShader_->Shutdown();
 		delete this->textureShader_;
 		this->textureShader_ = nullptr;
 	}
-
+	/*
 	if (this->colorShader_)
 	{
 		this->colorShader_->Shutdown();
 		delete this->colorShader_;
 		this->colorShader_ = nullptr;
 	}
+	*/
+	
 
 	if (this->models_)
 	{
@@ -273,7 +288,7 @@ bool GraphicsClass::Render()
 	// 카메라 위치에 따라 뷰 행렬 생성
 	this->camera_->Render();
 
-	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
 	// Vertex, Index buffer를 그래픽 파이프라인에 배치
 	for (ModelClass* model : *(this->models_))
@@ -333,6 +348,23 @@ bool GraphicsClass::Render()
 			return false;
 		}
 	}
+	this->direct3D_->GetWorldMatrix(worldMatrix);
+	this->direct3D_->GetOrthoMatrix(orthoMatrix);
+
+	this->direct3D_->TurnZBufferOff();
+
+	this->direct3D_->TurnOnAlphaBlending();
+
+	// 텍스트 문자열을 렌더링합니다
+	if (!this->text_->Render(direct3D_->GetDeviceContext(), worldMatrix, orthoMatrix))
+	{
+		return false;
+	}
+
+	this->direct3D_->TurnOffAlphaBlending();
+
+	this->direct3D_->TurnZBufferOn();
+
 
 	this->direct3D_->EndScene();
 

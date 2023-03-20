@@ -21,10 +21,12 @@ TextureClass::~TextureClass()
 
 bool TextureClass::Initialize(ID3D11Device* device, char* filename)
 {
-	if (FAILED(CreateDDSTextureFromFile(device, (WCHAR*)filename, nullptr, &this->texture_)))
+	/*
+	if (FAILED(CreateDDSTextureFromFile(device, (WCHAR*)filename, nullptr, &this->texture_))) //CreateDDSTextureFromFile, D3DX11CreateShaderResourceViewFromFile
 	{
 		return false;
 	}
+	*/
 
 	return true;
 }

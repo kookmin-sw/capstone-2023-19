@@ -22,8 +22,8 @@ FontShaderClass::~FontShaderClass()
 
 bool FontShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
-	WCHAR vs[] = L"./font.vs";
-	WCHAR ps[] = L"./font.ps";
+	WCHAR vs[] = L"./fontVS.hlsl";
+	WCHAR ps[] = L"./fontPS.hlsl";
 
 	return this->InitializeShader(device, hwnd, vs, ps);
 }
@@ -76,17 +76,17 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	vertexShaderBuffer = 0;
 	pixelShaderBuffer = 0;
 
-    // Compile the vertex shader code.
+    // 버텍스 쉐이더 코드 컴파일
 	result = D3DCompileFromFile(vsFilename, NULL, NULL, "FontVertexShader", "vs_5_0", 
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if(FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
+		// 셰이더 컴파일 실패시 오류 메세지 출력
 		if(errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
+		// 컴파일 오류가 아니라면 셰이더 파일을 찾을 수 없는 경우임
 		else
 		{
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
@@ -95,17 +95,17 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		return false;
 	}
 
-    // Compile the pixel shader code.
-	result = D3DCompileFromFile(vsFilename, NULL, NULL, "FontPixelShader", "ps_5_0",
+    // 픽셀 쉐이더 코드 컴파일
+	result = D3DCompileFromFile(psFilename, NULL, NULL, "FontPixelShader", "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
 	if(FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
+		// 셰이더 컴파일 실패시 오류 메세지 출력
 		if(errorMessage)
 		{
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
 		}
-		// If there was  nothing in the error message then it simply could not find the file itself.
+		// 컴파일 오류가 아니라면 셰이더 파일을 찾을 수 없는 경우임
 		else
 		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
@@ -114,7 +114,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		return false;
 	}
 
-    // Create the vertex shader from the buffer.
+    // 버퍼로부터 정점 셰이더 생성
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, 
 										&vertexShader_);
 	if(FAILED(result))
@@ -122,7 +122,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		return false;
 	}
 
-    // Create the vertex shader from the buffer.
+    // 버퍼로부터 픽셀 셰이더 생성
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, 
 									   &pixelShader_);
 	if(FAILED(result))
@@ -130,8 +130,8 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		return false;
 	}
 
-	// Create the vertex input layout description.
-	// This setup needs to match the VertexType stucture in the ModelClass and in the shader.
+	// 정점 입력 레이아웃 구조체 설정
+	// ModelClass와 셰이더의 VertextType 구조와 일치 해야한다
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -148,10 +148,10 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
 
-	// Get a count of the elements in the layout.
+	// 레이아웃의 요소 수
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	// Create the vertex input layout.
+	// 정점 입력 레이아웃 생성
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), 
 									   vertexShaderBuffer->GetBufferSize(), &layout_);
 	if(FAILED(result))
@@ -159,14 +159,14 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 		return false;
 	}
 
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
+	// 사용되지 않는 정점 셰이더 버퍼와 픽셀 셰이더 버퍼 해제
 	vertexShaderBuffer->Release();
 	vertexShaderBuffer = 0;
 
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-    // Setup the description of the dynamic constant buffer that is in the vertex shader.
+    // 정점 셰이더에 있는 행렬 상수 버퍼의 구조체 작성
     constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	constantBufferDesc.ByteWidth = sizeof(ConstantBufferType);
     constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -174,14 +174,14 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     constantBufferDesc.MiscFlags = 0;
 	constantBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	// 상수 버퍼 포인터를 만들어 이 클래스에서 정점 셰이더 상수 버퍼에 접근할 수 있게 한다
 	result = device->CreateBuffer(&constantBufferDesc, NULL, &constantBuffer_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 
-	// Create a texture sampler state description.
+	// 텍스처 샘플러 상태 구조체 생성 및 설정
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -196,7 +196,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create the texture sampler state.
+	//텍스처 샘플러 상태
     result = device->CreateSamplerState(&samplerDesc, &sampleState_);
 	if(FAILED(result))
 	{

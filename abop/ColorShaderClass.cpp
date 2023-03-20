@@ -18,8 +18,8 @@ ColorShaderClass::~ColorShaderClass()
 
 bool ColorShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
-    WCHAR vs[] = L"./Color.vs";
-    WCHAR ps[] = L"./Color.ps";
+    WCHAR vs[] = L"./colorVS.hlsl";
+    WCHAR ps[] = L"./colorPS.hlsl";
 
     return this->InitializeShader(device, hwnd, vs, ps);
 }

@@ -46,7 +46,7 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 		MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);
 		return false;
 	}
-
+	
 	// Create the font shader object.
 	fontShader_ = new FontShaderClass;
 	if(!fontShader_)
@@ -61,7 +61,7 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
 		return false;
 	}
-
+	
 	// Initialize the first sentence.
 	result = InitializeSentence(&sentence1_, 16, device);
 	if(!result)
@@ -373,6 +373,38 @@ bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*
 	if(!result)
 	{
 		false;
+	}
+
+	return true;
+}
+
+bool TextClass::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* deviceContext)
+{
+	// mouseX 정수를 문자열 형식으로 변환
+	char tempString[16] = { 0, };
+	_itoa_s(mouseX, tempString, 10);
+
+	// mouseX 문자열 설정
+	char mouseString[16] = { 0, };
+	strcpy_s(mouseString, "Mouse X: ");
+	strcpy_s(mouseString, tempString);
+
+	// 문자 정점 버퍼를 새 문자열 정보로 업데이트
+	if (!UpdateSentence(sentence1_, mouseString, 20, 20, 1.0f, 1.0f, 1.0f, deviceContext))
+	{
+		return false;
+	}
+
+	// mouseY 정수를 문자열 형식으로 변환
+	_itoa_s(mouseY, tempString, 10);
+
+	strcpy_s(mouseString, "Mouse Y: ");
+	strcpy_s(mouseString, tempString);
+
+	// 문장 정점 버퍼를 새 문자열 정보로 업데이트
+	if (!UpdateSentence(sentence2_, mouseString, 20, 40, 1.0f, 1.0f, 1.0f, deviceContext))
+	{
+		return false;
 	}
 
 	return true;
