@@ -26,6 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->GetWord();
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
+	//lSystem->SetAngleChange(90.0f);
 
 	//lSystem->SetDistance(3.0f);
 	//lSystem->SetAngleChange(22.5f);
@@ -44,8 +45,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
-	//if (system->Initialize(lSystem))
-	if (system->Initialize())
+	if (system->Initialize(lSystem))
+	//if (system->Initialize())
 	{
 		system->Run();
 	}

@@ -232,11 +232,11 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight)
 {
 	// light rotation 업데이트
-	this->rotation_ += (float)DirectX::XM_PI * 0.001f;
-	if (this->rotation_ > 360.0f)
-	{
-		this->rotation_ -= 360.0f;
-	}
+	//this->rotation_ += (float)DirectX::XM_PI * 0.001f;
+	//if (this->rotation_ > 360.0f)
+	//{
+	//	this->rotation_ -= 360.0f;
+	//}
 
 	// !!! mouse 위치 text 업데이트
 
@@ -297,8 +297,8 @@ bool GraphicsClass::Render()
 		);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
-		// world 회전
-		worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
+		// !!! world 회전
+		//worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
 
 		if (!model->GetTexture())
 		{
