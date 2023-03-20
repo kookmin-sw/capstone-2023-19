@@ -86,7 +86,12 @@ Vector3 ModelClass::GetRotation()
 
 ID3D11ShaderResourceView* ModelClass::GetTexture()
 {
-    return this->texture_->GetTexture();
+    if (this->texture_)
+    {
+        return this->texture_->GetTexture();
+    }
+
+    return NULL;
 }
 
 void ModelClass::SetPosition(const float& x, const float& y, const float& z)

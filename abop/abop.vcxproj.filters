@@ -171,7 +171,11 @@
     <None Include="Texture.ps">
       <Filter>DX</Filter>
     </None>
-    <None Include="Light.vs" />
-    <None Include="Light.ps" />
+    <None Include="Light.ps">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>DX</Filter>
+    </None>
   </ItemGroup>
 </Project>

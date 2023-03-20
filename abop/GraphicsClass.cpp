@@ -168,7 +168,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	}
 
 	this->light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-	this->light_->SetDiffuseColor(1.0f, 0.0f, 1.0f, 1.0f);
+	this->light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
 
 	return true;
@@ -300,25 +300,32 @@ bool GraphicsClass::Render()
 		// world 회전
 		worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
 
-		// 텍스쳐 셰이더를 사용하여 모델을 렌더링합니다.
-		//if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-		//	model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
-		//{
-		//	// ColorShader를 통해 렌더링
-		//	return false;
-		//}
-
-		//if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(), 
-		//	worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
-		//{
-		//	return false;
-		//}
-		// Light 셰이더를 사용해서 모델 렌더링
-		if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
-			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
-			this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
+		if (!model->GetTexture())
 		{
-			return false;
+			// ColorShader를 통해 렌더링
+			if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
+				model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+			{
+				return false;
+			}
+		}
+		else
+		{
+			// 텍스처가 있는 경우
+			// 텍스쳐 셰이더를 사용하여 모델을 렌더링합니다. (Texture only)
+			//if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+			//	worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
+			//{
+			//	return false;
+			//}
+
+			// Light 셰이더를 사용해서 모델 렌더링 (Texture + Light)
+			if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
+				this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
+			{
+				return false;
+			}
 		}
 	}
 
