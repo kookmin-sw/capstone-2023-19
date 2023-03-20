@@ -1,20 +1,33 @@
 #include "Stdafx.h"
 #include <stdio.h>
 #include "TextureClass.hpp"
+//#include "DDSTextureLoader.h"
 
 TextureClass::TextureClass()
 {
 
 }
 
+
 TextureClass::TextureClass(const TextureClass& other)
 {
 
 }
 
+
 TextureClass::~TextureClass()
 {
 
+}
+
+bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
+{
+	if (FAILED(DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &this->textureView_)))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool TextureClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
@@ -27,7 +40,7 @@ bool TextureClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceC
 	{
 		return false;
 	}
-
+	
 	// Texture 구조체 설정
 	D3D11_TEXTURE2D_DESC textureDesc;
 	textureDesc.Width = width;

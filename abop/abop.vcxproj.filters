@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="LSystem">
@@ -12,6 +12,9 @@
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{0081bf59-3c4d-418a-84ed-35b4dce4e3e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\Shader">
+      <UniqueIdentifier>{6d6e72c2-5a27-4bbf-a739-cf909ede7ad2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,8 +79,22 @@
     <ClCompile Include="TextureClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
-    <ClCompile Include="LightClass.cpp" />
-    <ClCompile Include="LightShaderClass.cpp" />
+    <ClCompile Include="FontClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FontShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -155,21 +172,35 @@
     <ClInclude Include="TextureClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
-    <ClInclude Include="LightShaderClass.hpp" />
-    <ClInclude Include="LightClass.hpp" />
+    <ClInclude Include="FontClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FontShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TextClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Color.ps">
-      <Filter>DX</Filter>
+    <None Include="Light.ps">
+      <Filter>DX\Shader</Filter>
     </None>
-    <None Include="Color.vs">
-      <Filter>DX</Filter>
+    <None Include="Light.vs">
+      <Filter>DX\Shader</Filter>
     </None>
     <None Include="Texture.vs">
-      <Filter>DX</Filter>
+      <Filter>DX\Shader</Filter>
     </None>
     <None Include="Texture.ps">
-      <Filter>DX</Filter>
+      <Filter>DX\Shader</Filter>
     </None>
     <None Include="Light.ps">
       <Filter>DX</Filter>
@@ -177,5 +208,19 @@
     <None Include="Light.vs">
       <Filter>DX</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Font.vs">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Font.ps">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Color.vs">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Color.ps">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

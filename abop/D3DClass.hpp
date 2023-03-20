@@ -22,6 +22,12 @@ public:
 
 	void GetVideoCardInfo(char*, int&);
 
+	void TurnZBufferOn();
+	void TurnZBufferOff();
+
+	void TurnOnAlphaBlending();
+	void TurnOffAlphaBlending();
+
 private:
 	bool vsyncEnabled_ = false;
 	int videoCardMemory_ = 0;
@@ -34,7 +40,14 @@ private:
 	ID3D11DepthStencilState* depthStencilState_ = nullptr;
 	ID3D11DepthStencilView* depthStencilView_ = nullptr;
 	ID3D11RasterizerState* rasterState_ = nullptr;
+
 	DirectX::XMMATRIX projectionMatrix_;
 	DirectX::XMMATRIX worldMatrix_;
 	DirectX::XMMATRIX orthoMatrix_;
+
+	ID3D11DepthStencilState* depthDisabledStencilState_ = nullptr;
+
+	// 두개의 블렌딩 상태를 표현하는 변수
+	ID3D11BlendState* alphaEnableBlendingState_ = nullptr;
+	ID3D11BlendState* alphaDisableBlendingState_ = nullptr;
 };
