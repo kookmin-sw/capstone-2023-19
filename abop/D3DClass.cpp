@@ -1,4 +1,3 @@
-#include <DirectXMath.h>
 #include "Stdafx.h"
 #include "D3DClass.hpp"
 
@@ -98,16 +97,16 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	}
 
 	delete[] displayModeList;
-	displayModeList = 0;
+	displayModeList = nullptr;
 
 	adapterOutput->Release();
-	adapterOutput = 0;
+	adapterOutput = nullptr;
 
 	adapter->Release();
-	adapter = 0;
+	adapter = nullptr;
 
 	factory->Release();
-	factory = 0;
+	factory = nullptr;
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
@@ -178,7 +177,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	}
 
 	backBufferPtr->Release();
-	backBufferPtr = 0;
+	backBufferPtr = nullptr;
 
 	// 깊이 버퍼 구조체 초기화
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
@@ -262,8 +261,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
-	//rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	//rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
@@ -370,18 +369,23 @@ void D3DClass::Shutdown()
 		this->swapChain_->SetFullscreenState(false, NULL);
 	}
 
-	//블렌딩 상태 해제
-	if (alphaEnableBlendingState_)
+	if (this->depthDisabledStencilState_)
 	{
-		alphaEnableBlendingState_->Release();
-		alphaEnableBlendingState_ = 0;
+		this->depthDisabledStencilState_->Release();
+		this->depthDisabledStencilState_ = nullptr;
 	}
-	//블렌딩 상태 해제
-	if (alphaDisableBlendingState_)
-	{
-		alphaDisableBlendingState_->Release();
-		alphaDisableBlendingState_ = 0;
-	}
+	////블렌딩 상태 해제
+	//if (alphaEnableBlendingState_)
+	//{
+	//	alphaEnableBlendingState_->Release();
+	//	alphaEnableBlendingState_ = nullptr;
+	//}
+	////블렌딩 상태 해제
+	//if (alphaDisableBlendingState_)
+	//{
+	//	alphaDisableBlendingState_->Release();
+	//	alphaDisableBlendingState_ = nullptr;
+	//}
 
 	if (this->rasterState_)
 	{
@@ -500,13 +504,11 @@ void D3DClass::TurnZBufferOn()
 	return;
 }
 
-
 void D3DClass::TurnZBufferOff()
 {
 	deviceContext_->OMSetDepthStencilState(depthDisabledStencilState_, 1);
 	return;
 }
-
 
 void D3DClass::TurnOnAlphaBlending()
 {
@@ -522,7 +524,6 @@ void D3DClass::TurnOnAlphaBlending()
 
 	return;
 }
-
 
 void D3DClass::TurnOffAlphaBlending()
 {

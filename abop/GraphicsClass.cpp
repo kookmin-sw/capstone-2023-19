@@ -6,6 +6,7 @@
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
 #include "ModelVariation.hpp"
+#include "BitmapClass.hpp"
 #include "ColorShaderClass.hpp"		// !!! TEMP
 #include "TextureShaderClass.hpp"	// !!! TEMP
 #include "LightShaderClass.hpp"
@@ -192,22 +193,36 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	this->light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
 
+	this->bitmap_ = new BitmapClass;
+	if (!this->bitmap_)
+	{
+		return false;
+	}
+
+	WCHAR tex[] = L"./data/seafloor.dds";
+	if (!this->bitmap_->Initialize(this->direct3D_->GetDevice(), screenWidth, screenHeight,
+		tex, 256, 256))
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 void GraphicsClass::Shutdown()
 {
+	if (this->bitmap_)
+	{
+		this->bitmap_->Shutdown();
+		delete this->bitmap_;
+		this->bitmap_ = nullptr;
+	}
+
 	if (this->light_)
 	{
 		delete this->light_;
 		this->light_ = nullptr;
-	}
-
-	if (this->lightShader_)
-	{
-		this->lightShader_->Shutdown();
-		delete this->lightShader_;
-		this->lightShader_ = nullptr;
 	}
 
 	if (this->text_)
@@ -215,6 +230,13 @@ void GraphicsClass::Shutdown()
 		this->text_->Shutdown();
 		delete this->text_;
 		this->text_ = nullptr;
+	}
+
+	if (this->lightShader_)
+	{
+		this->lightShader_->Shutdown();
+		delete this->lightShader_;
+		this->lightShader_ = nullptr;
 	}
 
 	if (this->textureShader_)
@@ -231,8 +253,6 @@ void GraphicsClass::Shutdown()
 		this->colorShader_ = nullptr;
 	}
 	
-	
-
 	if (this->models_)
 	{
 		for (ModelClass* model : *(this->models_))
@@ -299,85 +319,98 @@ bool GraphicsClass::Render()
 	this->direct3D_->GetOrthoMatrix(orthoMatrix);
 
 	// Vertex, Index buffer를 그래픽 파이프라인에 배치
-	for (ModelClass* model : *(this->models_))
-	{
-		this->direct3D_->GetWorldMatrix(worldMatrix);
-		//this->camera_->GetViewMatrix(viewMatrix);
-		//viewMatrix = this->camera_->View();
-		//this->direct3D_->GetProjectionMatrix(projectionMatrix);
+	//for (ModelClass* model : *(this->models_))
+	//{
+	//	this->direct3D_->GetWorldMatrix(worldMatrix);
+	//	//this->camera_->GetViewMatrix(viewMatrix);
+	//	//viewMatrix = this->camera_->View();
+	//	//this->direct3D_->GetProjectionMatrix(projectionMatrix);
 
-		model->Render(this->direct3D_->GetDeviceContext());
+	//	model->Render(this->direct3D_->GetDeviceContext());
 
-		// 스케일 변환
-		// !!! to be update
+	//	// 스케일 변환
+	//	// !!! to be update
 
-		// 회전 변환
-		Vector3 rotation = model->GetRotation();
+	//	// 회전 변환
+	//	Vector3 rotation = model->GetRotation();
 
-		DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
-		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
-		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
+	//	DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
+	//	DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
+	//	DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
 
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
-		
-		// 이동 변환
-		Vector3 translation = model->GetPosition();
-		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation
-		(
-			translation.x,
-			translation.y,
-			translation.z
-		);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
+	//	worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
+	//	worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
+	//	worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
+	//	
+	//	// 이동 변환
+	//	Vector3 translation = model->GetPosition();
+	//	DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation
+	//	(
+	//		translation.x,
+	//		translation.y,
+	//		translation.z
+	//	);
+	//	worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
-		// !!! world 회전
-		//worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
+	//	// !!! world 회전
+	//	//worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
 
-		if (!model->GetTexture())
-		{
-			// ColorShader를 통해 렌더링
-			if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-				model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
-			{
-				return false;
-			}
-		}
-		else
-		{
-			// 텍스처가 있는 경우
-			// 텍스쳐 셰이더를 사용하여 모델을 렌더링합니다. (Texture only)
-			//if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
-			//	worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
-			//{
-			//	return false;
-			//}
+	//	if (!model->GetTexture())
+	//	{
+	//		// ColorShader를 통해 렌더링
+	//		if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
+	//			model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+	//		{
+	//			return false;
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// 텍스처가 있는 경우
+	//		// 텍스쳐 셰이더를 사용하여 모델을 렌더링합니다. (Texture only)
+	//		//if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+	//		//	worldMatrix, viewMatrix, projectionMatrix, model->GetTexture()))
+	//		//{
+	//		//	return false;
+	//		//}
 
-			// Light 셰이더를 사용해서 모델 렌더링 (Texture + Light)
-			if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
-				worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
-				this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
-			{
-				return false;
-			}
-		}
-	}
+	//		// Light 셰이더를 사용해서 모델 렌더링 (Texture + Light)
+	//		if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+	//			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
+	//			this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
+	//		{
+	//			return false;
+	//		}
+	//	}
+	//}
 
-	this->direct3D_->GetWorldMatrix(worldMatrix);
-	this->direct3D_->GetOrthoMatrix(orthoMatrix);
+	//this->direct3D_->GetWorldMatrix(worldMatrix);
+	//this->direct3D_->GetOrthoMatrix(orthoMatrix);
 
+	// 2D 렌더링을 시작하기 전에 Z 버퍼 끄기
 	this->direct3D_->TurnZBufferOff();
 
-	this->direct3D_->TurnOnAlphaBlending();
-
-	// 텍스트 문자열을 렌더링합니다
-	if (!this->text_->Render(direct3D_->GetDeviceContext(), worldMatrix, orthoMatrix))
+	// 2D 렌더링
+	if (!this->bitmap_->Render(this->direct3D_->GetDeviceContext(), 100, 100))
 	{
 		return false;
 	}
 
-	this->direct3D_->TurnOffAlphaBlending();
+	if (!this->textureShader_->Render(this->direct3D_->GetDeviceContext(),
+		this->bitmap_->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+		this->bitmap_->GetTexture()))
+	{
+		return false;
+	}
+	//this->direct3D_->TurnOnAlphaBlending();
+
+	// 텍스트 문자열을 렌더링합니다
+	//if (!this->text_->Render(direct3D_->GetDeviceContext(), worldMatrix, orthoMatrix))
+	//{
+	//	return false;
+	//}
+
+	//this->direct3D_->TurnOffAlphaBlending();
 
 	this->direct3D_->TurnZBufferOn();
 

@@ -11,6 +11,7 @@ class CameraClass;
 class ModelClass;
 class ColorShaderClass;		// !!! TEMP
 class TextureShaderClass;	// !!! TEMP
+class BitmapClass;
 class LightShaderClass;
 class LightClass;
 class LSystem;
@@ -37,6 +38,7 @@ private:
 	ColorShaderClass* colorShader_ = nullptr;		// !!! TEMP
 	TextureShaderClass* textureShader_ = nullptr;	// !!! TEMP
 	LightShaderClass* lightShader_ = nullptr;
+	BitmapClass* bitmap_ = nullptr;
 
 	LightClass* light_ = nullptr;
 

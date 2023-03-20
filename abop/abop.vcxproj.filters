@@ -95,6 +95,9 @@
       <Filter>DX</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="BitmapClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -188,6 +191,9 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="BitmapClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">
@@ -208,6 +214,7 @@
     <None Include="Light.vs">
       <Filter>DX</Filter>
     </None>
+    <None Include="DirectXTK\include\SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Font.vs">

@@ -1,6 +1,6 @@
 #pragma once
 
-class D3DClass
+class D3DClass : public AlignedAllocationPolicy<16>
 {
 public:
 	D3DClass();
@@ -47,7 +47,7 @@ private:
 
 	ID3D11DepthStencilState* depthDisabledStencilState_ = nullptr;
 
-	// µÎ°³ÀÇ ºí·»µù »óÅÂ¸¦ Ç¥ÇöÇÏ´Â º¯¼ö
+	// ë‘ê°œì˜ ë¸”ë Œë”© ìƒíƒœë¥¼ í‘œí˜„í•˜ëŠ” ë³€ìˆ˜
 	ID3D11BlendState* alphaEnableBlendingState_ = nullptr;
 	ID3D11BlendState* alphaDisableBlendingState_ = nullptr;
 };
