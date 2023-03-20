@@ -3,7 +3,7 @@
 class FontClass;
 class FontShaderClass;
 
-class TextClass
+class TextClass : public AlignedAllocationPolicy<16>
 {
 private:
 	struct SentenceType
@@ -39,7 +39,8 @@ private:
 private:
 	FontClass* font_ = nullptr;
 	FontShaderClass* fontShader_ = nullptr;
-	int screenWidth_, screenHeight_;
+	int screenWidth_ = 0;
+	int screenHeight_ = 0;
 	DirectX::XMMATRIX baseViewMatrix_;
 	SentenceType* sentence1_ = nullptr;
 	SentenceType* sentence2_ = nullptr;

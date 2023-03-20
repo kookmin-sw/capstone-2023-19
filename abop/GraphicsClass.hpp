@@ -34,7 +34,7 @@ private:
 	TextClass* text_ = nullptr;
 
 	std::vector<ModelClass*>* models_ = nullptr;
-	//ColorShaderClass* colorShader_ = nullptr;		// !!! TEMP
+	ColorShaderClass* colorShader_ = nullptr;		// !!! TEMP
 	TextureShaderClass* textureShader_ = nullptr;	// !!! TEMP
 	LightShaderClass* lightShader_ = nullptr;
 

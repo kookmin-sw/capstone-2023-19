@@ -1,7 +1,7 @@
 #include "Stdafx.h"
-#include "TextClass.hpp"
 #include "FontClass.hpp"
 #include "FontshaderClass.hpp"
+#include "TextClass.hpp"
 
 TextClass::TextClass()
 {
@@ -40,7 +40,8 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 	}
 
 	// Initialize the font object.
-	result = font_->Initialize(device, (char*)"./data/fontdata.txt", (char*)". /data/font.dds");
+	WCHAR dds[] = L"./data/font.dds";
+	result = font_->Initialize(device, (char*)"./data/fontdata.txt", dds);
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);
@@ -70,7 +71,7 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 	}
 
 	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(sentence1_, (char*)"Hello", 100, 100, 1.0f, 1.0f, 1.0f, deviceContext);
+	result = UpdateSentence(sentence1_, (char*)"Hello", 100, 100, 0.0f, 0.0f, 0.0f, deviceContext);
 	if(!result)
 	{
 		return false;
@@ -84,7 +85,7 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 	}
 
 	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(sentence2_, (char*)"Goodbye", 100, 200, 1.0f, 1.0f, 0.0f, deviceContext);
+	result = UpdateSentence(sentence2_, (char*)"Goodbye", 100, 200, 1.0f, 0.0f, 0.0f, deviceContext);
 	if(!result)
 	{
 		return false;

@@ -1,6 +1,7 @@
 #include "Stdafx.h"
 #include <stdio.h>
 #include "TextureClass.hpp"
+//#include "DDSTextureLoader.h"
 
 TextureClass::TextureClass()
 {
@@ -19,14 +20,12 @@ TextureClass::~TextureClass()
 
 }
 
-bool TextureClass::Initialize(ID3D11Device* device, char* filename)
+bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
 {
-	/*
-	if (FAILED(CreateDDSTextureFromFile(device, (WCHAR*)filename, nullptr, &this->texture_))) //CreateDDSTextureFromFile, D3DX11CreateShaderResourceViewFromFile
+	if (FAILED(DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &this->textureView_)))
 	{
 		return false;
 	}
-	*/
 
 	return true;
 }

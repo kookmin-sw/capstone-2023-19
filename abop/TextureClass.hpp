@@ -17,7 +17,7 @@ public:
 	TextureClass(const TextureClass&);
 	~TextureClass();
 
-	bool Initialize(ID3D11Device*, char*);
+	bool Initialize(ID3D11Device*, WCHAR*);
 	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, char*);
 	
 	void Shutdown();

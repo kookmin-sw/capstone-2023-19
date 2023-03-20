@@ -56,7 +56,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	{
 		return false;
 	}
-	this->camera_->SetPosition(0.0f, 0.0f, -20.0f);
+
+	DirectX::XMMATRIX baseViewMatrix;
+	this->camera_->SetPosition(0.0f, 0.0f, -1.0f);
+	this->camera_->Render();
+	baseViewMatrix = this->camera_->View();
 
 	// Model 객체 생성
 	this->models_ = new std::vector<ModelClass*>();
@@ -220,14 +224,14 @@ void GraphicsClass::Shutdown()
 		delete this->textureShader_;
 		this->textureShader_ = nullptr;
 	}
-	/*
+	
 	if (this->colorShader_)
 	{
 		this->colorShader_->Shutdown();
 		delete this->colorShader_;
 		this->colorShader_ = nullptr;
 	}
-	*/
+	
 	
 
 	if (this->models_)
@@ -259,11 +263,11 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight)
 {
 	// light rotation 업데이트
-	this->rotation_ += (float)DirectX::XM_PI * 0.001f;
-	if (this->rotation_ > 360.0f)
-	{
-		this->rotation_ -= 360.0f;
-	}
+	//this->rotation_ += (float)DirectX::XM_PI * 0.001f;
+	//if (this->rotation_ > 360.0f)
+	//{
+	//	this->rotation_ -= 360.0f;
+	//}
 
 	// !!! mouse 위치 text 업데이트
 
@@ -290,6 +294,9 @@ bool GraphicsClass::Render()
 
 	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
+	viewMatrix = this->camera_->View();
+	this->direct3D_->GetWorldMatrix(worldMatrix);
+	this->direct3D_->GetProjectionMatrix(projectionMatrix);
 	// Vertex, Index buffer를 그래픽 파이프라인에 배치
 	for (ModelClass* model : *(this->models_))
 	{
@@ -341,14 +348,14 @@ bool GraphicsClass::Render()
 		//	return false;
 		//}
 		// Light 셰이더를 사용해서 모델 렌더링
-		if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+		/*if (!this->lightShader_->Render(this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
 			worldMatrix, viewMatrix, projectionMatrix, model->GetTexture(),
 			this->light_->GetDirection(), this->light_->GetAmbientColor(), this->light_->GetDiffuseColor()))
 		{
 			return false;
-		}
+		}*/
 	}
-	this->direct3D_->GetWorldMatrix(worldMatrix);
+	//this->direct3D_->GetWorldMatrix(worldMatrix);
 	this->direct3D_->GetOrthoMatrix(orthoMatrix);
 
 	this->direct3D_->TurnZBufferOff();

@@ -1,8 +1,5 @@
 #include "Stdafx.h"
 #include "FontshaderClass.hpp"
-#include <fstream>
-
-using namespace std;
 
 FontShaderClass::FontShaderClass()
 {
@@ -22,8 +19,8 @@ FontShaderClass::~FontShaderClass()
 
 bool FontShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
-	WCHAR vs[] = L"./fontVS.hlsl";
-	WCHAR ps[] = L"./fontPS.hlsl";
+	WCHAR vs[] = L"./Font.vs";
+	WCHAR ps[] = L"./Font.ps";
 
 	return this->InitializeShader(device, hwnd, vs, ps);
 }
@@ -70,7 +67,6 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC pixelBufferDesc;
 
-
 	// Initialize the pointers this function will use to null.
 	errorMessage = 0;
 	vertexShaderBuffer = 0;
@@ -97,7 +93,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 
     // 픽셀 쉐이더 코드 컴파일
 	result = D3DCompileFromFile(psFilename, NULL, NULL, "FontPixelShader", "ps_5_0",
-		D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
+		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 	if(FAILED(result))
 	{
 		// 셰이더 컴파일 실패시 오류 메세지 출력
@@ -272,37 +268,12 @@ void FontShaderClass::ShutdownShader()
 
 void FontShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
-	char* compileErrors;
-	unsigned long bufferSize, i;
-	ofstream fout;
+	OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
 
-
-	// Get a pointer to the error message text buffer.
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
-
-	// Get the length of the message.
-	bufferSize = errorMessage->GetBufferSize();
-
-	// Open a file to write the error message to.
-	fout.open("shader-error.txt");
-
-	// Write out the error message.
-	for(i=0; i<bufferSize; i++)
-	{
-		fout << compileErrors[i];
-	}
-
-	// Close the file.
-	fout.close();
-
-	// Release the error message.
 	errorMessage->Release();
-	errorMessage = 0;
+	errorMessage = nullptr;
 
-	// Pop a message up on the screen to notify the user to check the text file for compile errors.
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
-
-	return;
+	MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
 }
 
 

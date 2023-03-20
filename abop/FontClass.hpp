@@ -22,7 +22,7 @@ public:
 	FontClass(const FontClass&);
 	~FontClass();
 
-	bool Initialize(ID3D11Device*, char*, char*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*);
 	void Shutdown();
 
 	ID3D11ShaderResourceView* GetTexture();
@@ -32,7 +32,7 @@ public:
 private:
 	bool LoadFontData(char*);
 	void ReleaseFontData();
-	bool LoadTexture(ID3D11Device*, char*);
+	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
 
 private:

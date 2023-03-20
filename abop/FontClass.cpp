@@ -1,8 +1,8 @@
-﻿#include "Stdafx.h"
-#include <fstream>
-#include "FontClass.hpp"
+#include "Stdafx.h"
 #include "TextureClass.hpp"
-using namespace std;
+#include "FontClass.hpp"
+
+#include <fstream>
 
 FontClass::FontClass()
 {
@@ -20,10 +20,9 @@ FontClass::~FontClass()
 }
 
 
-bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, char* textureFilename)
+bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* textureFilename)
 {
 	bool result;
-
 
 	// 글꼴 데이터를 불러옵니다
 	result = LoadFontData(fontFilename);
@@ -57,14 +56,14 @@ void FontClass::Shutdown()
 // 텍스처에서의 글자 위치 정보를 담고 있는 fontdata.txt를 불러옵니다
 bool FontClass::LoadFontData(char* filename)
 {
-	ifstream fin;
+	std::ifstream fin;
 	int i;
 	char temp;
 
 
 	// FontType형의 배열을 만듭니다
-	font_ = new FontType[95];
-	if(!font_)
+	this->font_ = new FontType[95];
+	if(!this->font_)
 	{
 		return false;
 	}
@@ -77,7 +76,7 @@ bool FontClass::LoadFontData(char* filename)
 	}
 
 	// 텍스트의 ASCll문자, left, right, 문자 픽셀 너비를 읽어옵니다
-	for(i=0; i<95; i++)
+	for(i = 0; i < 95; i++)
 	{
 		fin.get(temp);
 		while(temp != ' ')
@@ -90,9 +89,9 @@ bool FontClass::LoadFontData(char* filename)
 			fin.get(temp);
 		}
 
-		fin >> font_[i].left;
-		fin >> font_[i].right;
-		fin >> font_[i].size;
+		fin >> this->font_[i].left;
+		fin >> this->font_[i].right;
+		fin >> this->font_[i].size;
 	}
 
 	fin.close();
@@ -104,31 +103,30 @@ bool FontClass::LoadFontData(char* filename)
 void FontClass::ReleaseFontData()
 {
 	// 읽어온 배열 데이터 해제
-	if(font_)
+	if(this->font_)
 	{
-		delete [] font_;
-		font_ = 0;
+		delete [] this->font_;
+		this->font_ = nullptr;
 	}
 
 	return;
 }
 
-//font.dds 파일을 읽어 텍스쳐 셰이더에 전달합니다
+// font.dds 파일을 읽어 텍스쳐 셰이더에 전달합니다
 // 텍스쳐 셰이더에서 글자를 뽑아내 각각의 사각형에 입혀 화면에 그리게 됩니다
-bool FontClass::LoadTexture(ID3D11Device* device, char* filename)
+bool FontClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	bool result;
 
-
 	// Texture 객체 생성
-	texture_ = new TextureClass;
-	if(!texture_)
+	this->texture_ = new TextureClass;
+	if(!this->texture_)
 	{
 		return false;
 	}
 
 	// Texture 객체 초기화
-	result = texture_->Initialize(device, filename);
+	result = this->texture_->Initialize(device, filename);
 	if(!result)
 	{
 		return false;
@@ -141,11 +139,11 @@ bool FontClass::LoadTexture(ID3D11Device* device, char* filename)
 void FontClass::ReleaseTexture()
 {
 	// Texture 객체 해제
-	if(texture_)
+	if (this->texture_)
 	{
-		texture_->Shutdown();
-		delete texture_;
-		texture_ = 0;
+		this->texture_->Shutdown();
+		delete this->texture_;
+		this->texture_ = nullptr;
 	}
 
 	return;
