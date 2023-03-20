@@ -13,6 +13,6 @@
 #include <directxmath.h>
 //#include <DirectXMath.h>
 #include <dinput.h>
-//#include <DDSTextureLoder.h>    // DDS 파일 처리
+#include "DDSTextureLoader.h"    // DDS 파일 처리
 
 #include "AlignedAllocationPolicy.h"
