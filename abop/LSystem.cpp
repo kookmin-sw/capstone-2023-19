@@ -28,9 +28,9 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const floa
     model.data[0] = position.x;
     model.data[1] = position.y;
     model.data[2] = position.z;
-    model.data[3] = rotation.x * PI / 180.0f;     // pitch
-    model.data[4] = rotation.z * PI / 180.0f;     // roll
-    model.data[5] = rotation.y * PI / 180.0f;     // yaw
+    model.data[3] = rotation.x * PI / 180.0f;     
+    model.data[4] = rotation.y * PI / 180.0f;     
+    model.data[5] = rotation.z * PI / 180.0f;   
     //model.data[3] = 0.0f * PI / 180.0f;     // pitch
     //model.data[4] = 0.0f * PI / 180.0f;     // roll
     //model.data[5] = 0.0f * PI / 180.0f;     // yaw
@@ -84,7 +84,7 @@ LSystem::LSystem()
     {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
-        {90.0f, 0.0f, 0.0f}     // pitch yaw roll
+        {90.0f, 0.0f, 0.0f}     // X Y Z
     };
 }
 
@@ -243,48 +243,46 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             //out->push_back(CreateLineModel(startPos, endPos));
             break;
         }
-        case LLetter::Type::RollLeft:
-        case LLetter::Type::RollLeft2:
+        case LLetter::Type::PitchDown:
         {
-            // angleChange_ 만큼 y축 회전
-            this->Rotate(1, angleChange_);
+            // -angleChange_ 만큼 x축 회전
+            this->Rotate(0, -angleChange_);
             break;
-        }
-        case LLetter::Type::RollRight:
-        case LLetter::Type::RollRight2:
-        {
-            // -angleChange_ 만큼 y축 회전
-            this->Rotate(1, -angleChange_);
-            break;  
         }
         case LLetter::Type::PitchUp:
         {
             // angleChange_ 만큼 x축 회전
-            this->Rotate(0, -angleChange_);
-            break;
-        }
-        case LLetter::Type::PitchDown:
-        {
-            // -angleChange_ 만큼 x축 회전
             this->Rotate(0, angleChange_);
             break;
         }
         case LLetter::Type::TurnLeft:
         {
-            // angleChange_ 만큼 z축 회전
-            this->Rotate(2, angleChange_);
+            // angleChange_ 만큼 y축 회전
+            this->Rotate(1, angleChange_);
             break;
         }
         case LLetter::Type::TurnRight:
         {
-            // -angleChange_ 만큼 z축 회전
-            this->Rotate(2, -angleChange_);
+            // -angleChange_ 만큼 y축 회전
+            this->Rotate(1, -angleChange_);
             break;
         }
         case LLetter::Type::TurnAround:
         {
-            // 180도 z축 회전
-            this->Rotate(0, 180.0f);
+            // 180도 y축 회전
+            this->Rotate(1, 180.0f);
+            break;
+        }
+        case LLetter::Type::RollLeft:
+        {
+            // angleChange_ 만큼 z축 회전
+            this->Rotate(2, angleChange_);
+            break;
+        }
+        case LLetter::Type::RollRight:
+        {
+            // -angleChange_ 만큼 z축 회전
+            this->Rotate(2, -angleChange_);
             break;
         }
         case LLetter::Type::Push:
@@ -351,12 +349,12 @@ void LSystem::Move()
 void LSystem::Rotate(const unsigned short& axis, const float& angle)
 {
     // axis
-    // 0: Pitch, x, Left
-    // 1: Roll, y, Heading
-    // 2: yaw, z, Up
+    // 0: Roll, X
+    // 1: Turn, Y
+    // 2: Pitch, Z
     float rad = angle / 180.0f * PI;
-    float cos = std::cos(rad);
-    float sin = std::sin(rad);
+    float cos = std::cosf(rad);
+    float sin = std::sinf(rad);
 
     float x = this->state_.direction.x;
     float y = this->state_.direction.y;
@@ -379,7 +377,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
             // Roll, y, Heading
             this->state_.rotation.y += angle;
             float newX = cos * x + sin * z;
-            float newZ = -1 * sin * x + cos * z;
+            float newZ = -sin * x + cos * z;
             this->state_.direction.x = newX;
             this->state_.direction.z = newZ;
             break;
