@@ -20,11 +20,6 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const floa
 
     Vector3 position = (startPos + endPos) / 2.0f;
 
-    //float angleX = atan2(rotation.y, rotation.z);
-    ////float angleY = atan2(rotation.z, rotation.x);
-    //float angleY = atan2(rotation.x, rotation.z);
-    //float angleZ = atan2(rotation.y, rotation.x);
-
     model.data[0] = position.x;
     model.data[1] = position.y;
     model.data[2] = position.z;
@@ -225,114 +220,114 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         // Move: 이동 후 현재 위치 end에 저장 후 push
         switch (letter.GetType())
         {
-        case LLetter::Type::Forward:
-        {
-            // Draw + Move forward
-            this->Move();
-            endPos = this->state_.position;
-            out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
-            startPos = this->state_.position;
-            break;
-        }
-        case LLetter::Type::NoDrawForward:
-        case LLetter::Type::NoDrawForward2:
-        {
-            // No Draw + Move foward
-            this->Move();
-            startPos = this->state_.position;
-            //out->push_back(CreateLineModel(startPos, endPos));
-            break;
-        }
-        case LLetter::Type::PitchDown:
-        {
-            // -angleChange_ 만큼 x축 회전
-            this->Rotate(0, -angleChange_);
-            break;
-        }
-        case LLetter::Type::PitchUp:
-        {
-            // angleChange_ 만큼 x축 회전
-            this->Rotate(0, angleChange_);
-            break;
-        }
-        case LLetter::Type::TurnLeft:
-        {
-            // angleChange_ 만큼 y축 회전
-            this->Rotate(1, angleChange_);
-            break;
-        }
-        case LLetter::Type::TurnRight:
-        {
-            // -angleChange_ 만큼 y축 회전
-            this->Rotate(1, -angleChange_);
-            break;
-        }
-        case LLetter::Type::TurnAround:
-        {
-            // 180도 y축 회전
-            this->Rotate(1, 180.0f);
-            break;
-        }
-        case LLetter::Type::RollLeft:
-        {
-            // angleChange_ 만큼 z축 회전
-            this->Rotate(2, angleChange_);
-            break;
-        }
-        case LLetter::Type::RollRight:
-        {
-            // -angleChange_ 만큼 z축 회전
-            this->Rotate(2, -angleChange_);
-            break;
-        }
-        case LLetter::Type::Push:
-        {
-            // 현재 State 저장
-            ss.push(this->state_);
-            break;
-        }
-        case LLetter::Type::Pop:
-        {
-            // 이전 State 복원
-            // 위치도 같이 옮겨지는 경우 No draw
-            this->state_ = ss.top();
-            ss.pop();
-            startPos = this->state_.position;
-            break;
-        }
-        case LLetter::Type::StartingPoint:
-        {
-            leaf = new std::vector<Vector3>();
-
-            leafstack.push(leaf);
-
-            leaf->push_back(this->state_.position);
-            break;
-        }
-        case LLetter::Type::MarkingPoint:
-        {
-            leaf->push_back(this->state_.position);
-            break;
-        }
-        case LLetter::Type::EndingPoint:
-        {
-            out->push_back(CreateLeaf(leaf));
-
-            if (!leafstack.empty()) {
-                leaf = leafstack.top();
-                leafstack.pop();
+            case LLetter::Type::Forward:
+            {
+                // Draw + Move forward
+                this->Move();
+                endPos = this->state_.position;
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
+                startPos = this->state_.position;
+                break;
             }
-            else {
-                leaf = nullptr;
+            case LLetter::Type::NoDrawForward:
+            case LLetter::Type::NoDrawForward2:
+            {
+                // No Draw + Move foward
+                this->Move();
+                startPos = this->state_.position;
+                //out->push_back(CreateLineModel(startPos, endPos));
+                break;
             }
+            case LLetter::Type::RollLeft:
+            {
+                // angleChange_ 만큼 x축 회전
+                this->Rotate(0, angleChange_);
+                break;
+            }
+            case LLetter::Type::RollRight:
+            {
+                // -angleChange_ 만큼 x축 회전
+                this->Rotate(0, -angleChange_);
+                break;
+            }
+            case LLetter::Type::PitchUp:
+            {
+                // angleChange_ 만큼 y축 회전
+                this->Rotate(1, angleChange_);
+                break;
+            }
+            case LLetter::Type::PitchDown:
+            {
+                // -angleChange_ 만큼 y축 회전
+                this->Rotate(1, -angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnLeft:
+            {
+                // angleChange_ 만큼 z축 회전
+                this->Rotate(2, angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnRight:
+            {
+                // -angleChange_ 만큼 z축 회전
+                this->Rotate(2, -angleChange_);
+                break;
+            }
+            case LLetter::Type::TurnAround:
+            {
+                // 180도 z축 회전
+                this->Rotate(2, 180.f);
+                break;
+            }
+            case LLetter::Type::Push:
+            {
+                // 현재 State 저장
+                ss.push(this->state_);
+                break;
+            }
+            case LLetter::Type::Pop:
+            {
+                // 이전 State 복원
+                // 위치도 같이 옮겨지는 경우 No draw
+                this->state_ = ss.top();
+                ss.pop();
+                startPos = this->state_.position;
+                break;
+            }
+            case LLetter::Type::StartingPoint:
+            {
+                leaf = new std::vector<Vector3>();
 
-            break;
-        }
-        case LLetter::Type::None:
-        {
-            break;
-        }
-        }
+                leafstack.push(leaf);
+
+                leaf->push_back(this->state_.position);
+                break;
+            }
+            case LLetter::Type::MarkingPoint:
+            {
+                leaf->push_back(this->state_.position);
+                break;
+            }
+            case LLetter::Type::EndingPoint:
+            {
+                out->push_back(CreateLeaf(leaf));
+
+                if (!leafstack.empty()) {
+                    leaf = leafstack.top();
+                    leafstack.pop();
+                }
+                else {
+                    leaf = nullptr;
+                }
+
+                break;
+            }
+            case LLetter::Type::None:
+            {
+                break;
+            }
+         }
     }
 }
 
@@ -364,7 +359,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
     {
         case 0:
         {
-            // Pitch, x, Left
+            // Pitch, x
             this->state_.rotation.x += angle;
             float newY = cos * y - sin * z;
             float newZ = sin * y + cos * z;
@@ -374,7 +369,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         }
         case 1:
         {
-            // Roll, y, Heading
+            // Roll, y
             this->state_.rotation.y += angle;
             float newX = cos * x + sin * z;
             float newZ = -sin * x + cos * z;
@@ -384,7 +379,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         }
         case 2:
         {
-             // Yaw, z, Up
+             // Yaw, z
             this->state_.rotation.z += angle;
             float newX = cos * x - sin * y;
             float newY = sin * x + cos * y;

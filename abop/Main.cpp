@@ -23,23 +23,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->AddRule('D', "CFB - F + B | FA & F^A && FB - F + B | FC//");
 	//lSystem->SetDistance(2.0f);
 	//lSystem->SetAngleChange(90.0f);
-	//lSystem->Iterate(2);
+	//lSystem->Iterate(2);W
 	//lSystem->GetWord();
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
-	//lSystem->SetAngleChange(45.0f);
-	//lSystem->SetDistance(1.0f);
-	//lSystem->SetWord("F+F");
-
-	//lSystem->SetDistance(1.0f);
-	//lSystem->SetAngleChange(20.0f);
-	//lSystem->SetWord("F");
-	//lSystem->AddRule('F', "FF-[&F^F^F]+[^F&F&F]>[^f^f&f]");
-	//lSystem->Iterate(3);
-
-	// Leaf - 2D (CANNOT USE!!)
+	// Leaf - 2D (CANNOT USE)
 	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 	//lSystem->SetAngleChange(30.0f);
+
+	// Simple Tree - Turn Around¸¦ Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) ·Î Ä¿½ºÅÒ
+	//lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
+	//lSystem->SetWord("F");
+	//lSystem->SetAngleChange(20.f);
+	//lSystem->SetDistance(1.0f);
+	//lSystem->Iterate(4);
 
 	SystemClass* system = new SystemClass;
 	if (!system)

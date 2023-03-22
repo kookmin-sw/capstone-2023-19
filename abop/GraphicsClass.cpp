@@ -113,7 +113,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 
 		Cube* cube2 = new Cube();
 		cube2->SetPosition(0.0f, 2.0f, 0.0f);
-		cube2->SetRotation(0.0f, 20.0f, 0.0f);
+		cube2->SetRotation(45.0f, 0.0f, 0.0f);
 		cube2->SetSize(1.0f, 2.0f, 1.0f);
 		cube2->Initialize(this->direct3D_->GetDevice());
 
