@@ -7,7 +7,8 @@ class LSystem
 {
 private:
     float angleChange_ = 90;
-    float distance_ = 1.0;
+    float distance_ = 1.0f;
+    float deltaThickness_ = 1.0f;
     State state_;
 
     std::vector<LRule> rules_;
@@ -26,6 +27,8 @@ public:
     void SetAngleChange(const float&);
     void SetDistance(const float&);
     void SetWord(const std::string&);
+    void SetThickness(const float&);
+    void SetDeltaThickness(const float&);
     
     // Rule
     void AddRule(const std::string&);

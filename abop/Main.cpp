@@ -36,6 +36,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->SetWord("F");
 	//lSystem->SetAngleChange(20.f);
 	//lSystem->SetDistance(1.0f);
+	//lSystem->SetThickness(0.5f);
+	//lSystem->SetDeltaThickness(0.8f);
 	//lSystem->Iterate(4);
 
 	SystemClass* system = new SystemClass;

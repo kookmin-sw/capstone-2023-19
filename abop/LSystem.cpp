@@ -9,7 +9,7 @@
 #include "LSystem.hpp"
 
 // TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& distance)
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& thickness, const float& distance)
 {
     // !!! TEMP
 
@@ -29,8 +29,8 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const floa
     //model.data[3] = 0.0f * PI / 180.0f;     // pitch
     //model.data[4] = 0.0f * PI / 180.0f;     // roll
     //model.data[5] = 0.0f * PI / 180.0f;     // yaw
-    model.data[6] = 0.3f;       // size.x
-    model.data[7] = 0.3f;       // size.y
+    model.data[6] = thickness;       // size.x
+    model.data[7] = thickness;       // size.y
     model.data[8] = distance;       // size.z (height)
 
     return model;
@@ -79,7 +79,8 @@ LSystem::LSystem()
     {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
-        {90.0f, 0.0f, 0.0f}     // X Y Z
+        {90.0f, 0.0f, 0.0f},     // X Y Z
+        0.3f
     };
 }
 
@@ -140,6 +141,16 @@ void LSystem::SetWord(const std::string& word)
     {
         this->word_->push_back(LLetter(letter));
     }
+}
+
+void LSystem::SetThickness(const float& val)
+{
+    this->state_.thickness = val;
+}
+
+void LSystem::SetDeltaThickness(const float& val)
+{
+    this->deltaThickness_ = val;
 }
 
 // Rule
@@ -225,7 +236,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->state_.thickness, this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -338,6 +349,7 @@ void LSystem::Move()
     this->state_.position.x += this->state_.direction.x * this->distance_;
     this->state_.position.y += this->state_.direction.y * this->distance_;
     this->state_.position.z += this->state_.direction.z * this->distance_;
+    this->state_.thickness *= this->deltaThickness_;
 }
 
 // 현재 state를 기준으로 회전
@@ -345,8 +357,8 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 {
     // axis
     // 0: Roll, X
-    // 1: Turn, Y
-    // 2: Pitch, Z
+    // 1: Pitch, Y
+    // 2: Turn, Z
     float rad = angle / 180.0f * PI;
     float cos = std::cosf(rad);
     float sin = std::sinf(rad);
@@ -359,7 +371,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
     {
         case 0:
         {
-            // Pitch, x
+            // Roll, x
             this->state_.rotation.x += angle;
             float newY = cos * y - sin * z;
             float newZ = sin * y + cos * z;
@@ -369,7 +381,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         }
         case 1:
         {
-            // Roll, y
+            // Pitch, y
             this->state_.rotation.y += angle;
             float newX = cos * x + sin * z;
             float newZ = -sin * x + cos * z;
@@ -379,7 +391,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         }
         case 2:
         {
-             // Yaw, z
+             // Turn, z
             this->state_.rotation.z += angle;
             float newX = cos * x - sin * y;
             float newY = sin * x + cos * y;
