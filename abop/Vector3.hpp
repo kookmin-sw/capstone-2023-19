@@ -11,6 +11,9 @@ public:
     void SetY(const float&);
     void SetZ(const float&);
 
+    float Dot(const Vector3& vec) const;
+    void Cross(const Vector3& vec);
+
     void Normalized();
     float SqrtMagnitude();
     Vector3& operator+(const Vector3&);

@@ -1,7 +1,9 @@
 #include <vector>
 #include <string>
 #include "Stdafx.h"
+#include "DirectXMath.h"
 #include "CommonStructure.hpp"
+#include "CommonVariable.hpp"
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
 #include "ModelClass.hpp"
@@ -356,10 +358,12 @@ bool GraphicsClass::Render()
 		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
 		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
 
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
+		// 당장 짐벌락 발생하지 않는 X->Y->Z 순으로 회전변환 적용
+		// TODO - 짐벌락 해결 위해서는 Quaternion으로 변환 필요
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
-		
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
+
 		// 이동 변환
 		Vector3 translation = model->GetPosition();
 		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation

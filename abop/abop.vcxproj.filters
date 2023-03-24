@@ -51,7 +51,6 @@
     <ClCompile Include="CameraClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ModelClass.cpp">
       <Filter>DX\Models</Filter>
     </ClCompile>
@@ -97,6 +96,7 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="BitmapClass.cpp" />
     <ClCompile Include="FpsClass.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">

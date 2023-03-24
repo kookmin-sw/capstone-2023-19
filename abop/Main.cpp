@@ -15,6 +15,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
+	// Hilbert Curve 3D
 	//lSystem->SetWord("A");
 	//lSystem->AddRule('A', "B - F + CFC + F - D & F^D - F + && CFC + F + B//");
 	//lSystem->AddRule('B', "A & F^CFB^F^D^^ - F - D^ | F^B | FC^F^A//");
@@ -22,22 +23,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->AddRule('D', "CFB - F + B | FA & F^A && FB - F + B | FC//");
 	//lSystem->SetDistance(2.0f);
 	//lSystem->SetAngleChange(90.0f);
-	//lSystem->Iterate(2);
+	//lSystem->Iterate(2);W
 	//lSystem->GetWord();
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
-	//lSystem->SetAngleChange(90.0f);
-
-	//lSystem->SetDistance(3.0f);
-	//lSystem->SetAngleChange(22.5f);
-	//lSystem->Iterate(7);
-
-
-	lSystem->SetWord("F&FFF^F--F--FFF^F");
-	lSystem->SetAngleChange(45.0f);
-
+	// Leaf - 2D (CANNOT USE)
 	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 	//lSystem->SetAngleChange(30.0f);
+
+	// Simple Tree - Turn Around�� Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) �� Ŀ����
+	//lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
+	//lSystem->SetAngleChange(20.f);
+	//lSystem->SetDistance(1.0f);
+	//lSystem->SetThickness(0.5f);
+	//lSystem->SetDeltaThickness(0.8f);
+	//lSystem->Iterate(4);
+
+	lSystem->SetWord("X"); // LSystem 초기화
+	lSystem->AddRule('X', "F-[[X]+X]+F[+FX]-X"); // LRule 1 추가
+	lSystem->AddRule('F', "FF"); // LRule 2 추가
+	lSystem->SetAngleChange(22.5f); // δ = 22.5º, 각도는 22.5도
+	lSystem->Iterate(5); // n = 5, 5회 반복 연산
 
 	SystemClass* system = new SystemClass;
 	if (!system)
