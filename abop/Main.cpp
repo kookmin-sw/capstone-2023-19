@@ -31,14 +31,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
 	//lSystem->SetAngleChange(30.0f);
 
-	// Simple Tree - Turn Around�� Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) �� Ŀ����
+	// Simple Tree - Turn Around�� Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) �� Ŀ����
 	//lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
-	//lSystem->SetWord("F");
 	//lSystem->SetAngleChange(20.f);
 	//lSystem->SetDistance(1.0f);
 	//lSystem->SetThickness(0.5f);
 	//lSystem->SetDeltaThickness(0.8f);
 	//lSystem->Iterate(4);
+
+	lSystem->SetWord("X"); // LSystem 초기화
+	lSystem->AddRule('X', "F-[[X]+X]+F[+FX]-X"); // LRule 1 추가
+	lSystem->AddRule('F', "FF"); // LRule 2 추가
+	lSystem->SetAngleChange(22.5f); // δ = 22.5º, 각도는 22.5도
+	lSystem->Iterate(5); // n = 5, 5회 반복 연산
 
 	SystemClass* system = new SystemClass;
 	if (!system)

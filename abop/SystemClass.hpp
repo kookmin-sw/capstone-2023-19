@@ -3,6 +3,7 @@
 class InputClass;
 class GraphicsClass;
 class LSystem;
+class FpsClass;
 
 class SystemClass
 {
@@ -30,9 +31,13 @@ private:
 
 	InputClass* input_ = nullptr;
 	GraphicsClass* graphics_ = nullptr;
+	FpsClass* fps_ = nullptr;
 
 	LSystem* lSystem_ = nullptr;
 };
 
 static LRESULT CALLBACK SWndProc(HWND, UINT, WPARAM, LPARAM);
 static SystemClass* sApplicationHandle = nullptr;
+
+//static HIMC sImeID = nullptr;
+//static std::wstring sStr;

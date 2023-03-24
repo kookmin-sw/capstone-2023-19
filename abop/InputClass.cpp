@@ -1,4 +1,4 @@
-﻿#include "Stdafx.h"
+#include "Stdafx.h"
 #include "InputClass.hpp"
 
 InputClass::InputClass()
@@ -197,10 +197,11 @@ void InputClass::GetMouseLocation(int& mouseX, int& mouseY)
 	mouseY = this->mouseY_;
 }
 
-void InputClass::GetCameraMove(int& forward, int& right, int& pitchUp, int& rotationRight)
+void InputClass::GetCameraMove(int& forward, int& right, int& pitchUp, int& rotationRight, int& up)
 {
 	// forward, right, pitch up, rotate right
 	int f = 0, r = 0, pu = 0, rr = 0;
+	int u = 0;
 
 	if (this->keyboardState_[DIK_W] & 0x80)
 	{
@@ -225,12 +226,12 @@ void InputClass::GetCameraMove(int& forward, int& right, int& pitchUp, int& rota
 	// !!! TEMP
 	if (this->keyboardState_[DIK_UP] & 0x80)
 	{
-		pu += 1;
+		pu -= 1;
 	}
 
 	if (this->keyboardState_[DIK_DOWN] & 0x80)
 	{
-		pu -= 1;
+		pu += 1;
 	}
 	if (this->keyboardState_[DIK_RIGHT] & 0x80)
 	{
@@ -241,12 +242,24 @@ void InputClass::GetCameraMove(int& forward, int& right, int& pitchUp, int& rota
 	{
 		rr -= 1;
 	}
+	
+	// up, down
+	if (this->keyboardState_[DIK_LCONTROL] & 0x80)
+	{
+		u -= 1;
+	}
+
+	if (this->keyboardState_[DIK_LSHIFT] & 0x80)
+	{
+		u += 1;
+	}
 
 	// !!! 단위 벡터로 바꿔야 함
 	forward = f;
 	right = r;
 	pitchUp = pu;
 	rotationRight = rr;
+	up = u;
 }
 
 //void InputClass::KeyDown(const unsigned int& input)
