@@ -260,7 +260,7 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight)
+bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight, int fps)
 {
 	// light rotation 업데이트
 	//this->rotation_ += (float)DirectX::XM_PI * 0.001f;
@@ -269,7 +269,22 @@ bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pi
 	//	this->rotation_ -= 360.0f;
 	//}
 
-	// !!! mouse 위치 text 업데이트
+	bool result;
+	
+	// fps 업데이트
+	result = this->text_->SetFps(fps, this->direct3D_->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+	
+	// mouse 위치 text 업데이트
+	result = this->text_->SetMousePosition(mouseX, mouseY, this->direct3D_->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+	
 
 	// !!! 키 입력 여부 수정 예정
 	float tempCameraSpeed = 0.3f;

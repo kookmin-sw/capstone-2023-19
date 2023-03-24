@@ -3,6 +3,7 @@
 #include "Stdafx.h"
 #include "InputClass.hpp"
 #include "GraphicsClass.hpp"
+#include "FpsClass.hpp"
 #include "SystemClass.hpp"
 #include "LSystem.hpp"
 
@@ -48,6 +49,14 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
+	this->fps_ = new FpsClass;
+	if (!this->fps_)
+	{
+		return false;
+	}
+
+	this->fps_->Initialize();
+
 	return this->graphics_->Initialize(screenWidth, screenHeight, this->hwnd_);
 }
 
@@ -76,6 +85,14 @@ bool SystemClass::Initialize(LSystem* lSystem)
 		MessageBox(this->hwnd_, L"Could not initialize the input object.", L"Error", MB_OK);
 		return false;
 	}
+
+	this->fps_ = new FpsClass;
+	if (!this->fps_)
+	{
+		return false;
+	}
+
+	this->fps_->Initialize();
 	
 	this->graphics_ = new GraphicsClass;
 	if (!this->graphics_)
@@ -89,6 +106,12 @@ bool SystemClass::Initialize(LSystem* lSystem)
 
 void SystemClass::Shutdown()
 {
+	if (this->fps_)
+	{
+		delete this->fps_;
+		this->fps_ = 0;
+	}
+	
 	if (this->graphics_)
 	{
 		this->graphics_->Shutdown();
@@ -152,6 +175,9 @@ bool SystemClass::Frame()
 	int mouseX = 0, mouseY = 0;
 	int forward = 0, right = 0;
 	int pitchUp = 0, rotationRight = 0;
+	
+	// fps 통계 업데이트
+	this->fps_->Frame();
 
 	if (!this->input_->Frame())
 	{
@@ -164,7 +190,7 @@ bool SystemClass::Frame()
 	this->input_->GetCameraMove(forward, right, pitchUp, rotationRight);
 
 	// 그래픽 Frame 처리
-	if (!this->graphics_->Frame(mouseX, mouseY, forward, right, pitchUp, rotationRight))
+	if (!this->graphics_->Frame(mouseX, mouseY, forward, right, pitchUp, rotationRight, this->fps_->GetFps()))
 	{
 		return false;
 	}
@@ -262,6 +288,9 @@ void SystemClass::ShutdownWindows()
 
 LRESULT CALLBACK SWndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
+	char szText[100];
+	static HWND hEditbox;
+
 	switch (umsg)
 	{
 		case WM_DESTROY:

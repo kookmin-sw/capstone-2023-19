@@ -95,6 +95,9 @@
       <Filter>DX</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="FpsClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -188,6 +191,9 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="FpsClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">

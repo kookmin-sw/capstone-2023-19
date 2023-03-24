@@ -29,6 +29,7 @@ public:
 	bool Render(ID3D11DeviceContext*, DirectX::XMMATRIX, DirectX::XMMATRIX);
 
 	bool SetMousePosition(int, int, ID3D11DeviceContext*);
+	bool SetFps(int, ID3D11DeviceContext*);
 
 private:
 	bool InitializeSentence(SentenceType**, int, ID3D11Device*);
@@ -42,6 +43,8 @@ private:
 	int screenWidth_ = 0;
 	int screenHeight_ = 0;
 	DirectX::XMMATRIX baseViewMatrix_;
-	SentenceType* sentence1_ = nullptr;
-	SentenceType* sentence2_ = nullptr;
+	SentenceType* sentence1_intro_ = nullptr;
+	SentenceType* sentence2_fps_ = nullptr;
+	SentenceType* sentence3_mouseX_ = nullptr;
+	SentenceType* sentence4_mouseY_ = nullptr;
 };
