@@ -63,30 +63,50 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 		return false;
 	}
 	
-	// Initialize the first sentence.
-	result = InitializeSentence(&sentence1_, 16, device);
+	// intro 문장 초기화
+	result = InitializeSentence(&sentence1_intro_, 16, device);
+	if(!result)
+	{
+		return false;
+	}
+	result = UpdateSentence(sentence1_intro_, (char*)"Hello, DX World!", 80, 50, 0.0f, 0.0f, 0.0f, deviceContext);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(sentence1_, (char*)"Hello", 100, 100, 0.0f, 0.0f, 0.0f, deviceContext);
+	// fps 문장 초기화
+	result = InitializeSentence(&sentence2_fps_, 16, device);
+	if(!result)
+	{
+		return false;
+	}
+	result = UpdateSentence(sentence2_fps_, (char*)"temp", 650, 50, 0.0f, 0.0f, 0.0f, deviceContext);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Initialize the first sentence.
-	result = InitializeSentence(&sentence2_, 16, device);
-	if(!result)
+	// mouseX 문장 초기화
+	result = InitializeSentence(&sentence3_mouseX_, 16, device);
+	if (!result)
+	{
+		return false;
+	}
+	result = UpdateSentence(sentence3_mouseX_, (char*)"temp", 650, 100, 0.0f, 0.0f, 0.0f, deviceContext);
+	if (!result)
 	{
 		return false;
 	}
 
-	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(sentence2_, (char*)"Goodbye", 100, 200, 1.0f, 0.0f, 0.0f, deviceContext);
-	if(!result)
+	// mouseY 문장 초기화
+	result = InitializeSentence(&sentence4_mouseY_, 16, device);
+	if (!result)
+	{
+		return false;
+	}
+	result = UpdateSentence(sentence4_mouseY_, (char*)"temp", 650, 120, 0.0f, 0.0f, 0.0f, deviceContext);
+	if (!result)
 	{
 		return false;
 	}
@@ -98,10 +118,16 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 void TextClass::Shutdown()
 {
 	// Release the first sentence.
-	ReleaseSentence(&sentence1_);
+	ReleaseSentence(&sentence1_intro_);
 
 	// Release the second sentence.
-	ReleaseSentence(&sentence2_);
+	ReleaseSentence(&sentence2_fps_);
+
+	// Release the second sentence.
+	ReleaseSentence(&sentence3_mouseX_);
+
+	// Release the second sentence.
+	ReleaseSentence(&sentence4_mouseY_);
 
 	// Release the font shader object.
 	if(fontShader_)
@@ -127,17 +153,26 @@ bool TextClass::Render(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX wor
 {
 	bool result;
 
-
-	// Draw the first sentence.
-	result = RenderSentence(deviceContext, sentence1_, worldMatrix, orthoMatrix);
+	result = RenderSentence(deviceContext, sentence1_intro_, worldMatrix, orthoMatrix);
 	if(!result)
 	{
 		return false;
 	}
 
-	// Draw the second sentence.
-	result = RenderSentence(deviceContext, sentence2_, worldMatrix, orthoMatrix);
+	result = RenderSentence(deviceContext, sentence2_fps_, worldMatrix, orthoMatrix);
 	if(!result)
+	{
+		return false;
+	}
+
+	result = RenderSentence(deviceContext, sentence3_mouseX_, worldMatrix, orthoMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	result = RenderSentence(deviceContext, sentence4_mouseY_, worldMatrix, orthoMatrix);
+	if (!result)
 	{
 		return false;
 	}
@@ -380,18 +415,20 @@ bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*
 }
 
 bool TextClass::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* deviceContext)
-{
-	// mouseX 정수를 문자열 형식으로 변환
-	char tempString[16] = { 0, };
+{	
+	char tempString[16];
+	char mouseString[16];
+	//float red, green, blue;
+	bool result;
+	
+
 	_itoa_s(mouseX, tempString, 10);
 
-	// mouseX 문자열 설정
-	char mouseString[16] = { 0, };
 	strcpy_s(mouseString, "Mouse X: ");
-	strcpy_s(mouseString, tempString);
+	strcat_s(mouseString, tempString);
 
-	// 문자 정점 버퍼를 새 문자열 정보로 업데이트
-	if (!UpdateSentence(sentence1_, mouseString, 20, 20, 1.0f, 1.0f, 1.0f, deviceContext))
+	result = UpdateSentence(sentence3_mouseX_, mouseString, 650, 80, 0.0f, 0.0f, 0.0f, deviceContext);
+	if (!result)
 	{
 		return false;
 	}
@@ -400,10 +437,59 @@ bool TextClass::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* de
 	_itoa_s(mouseY, tempString, 10);
 
 	strcpy_s(mouseString, "Mouse Y: ");
-	strcpy_s(mouseString, tempString);
+	strcat_s(mouseString, tempString);
 
 	// 문장 정점 버퍼를 새 문자열 정보로 업데이트
-	if (!UpdateSentence(sentence2_, mouseString, 20, 40, 1.0f, 1.0f, 1.0f, deviceContext))
+	result = UpdateSentence(sentence4_mouseY_, mouseString, 650, 100, 0.0f, 0.0f, 0.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool TextClass::SetFps(int fps, ID3D11DeviceContext* deviceContext) 
+{
+	char tempString[16];
+	char fpsString[16];
+	float red, green, blue;
+	bool result;
+
+	if (fps > 9999)
+	{
+		fps = 9999;
+	}
+
+	_itoa_s(fps, tempString, 10);
+
+	strcpy_s(fpsString, "FPS : ");
+	strcat_s(fpsString, tempString);
+
+	// Green
+	if (fps >= 60)
+	{
+		red = 0.0f;
+		green = 1.0f;
+		blue = 0.0f;
+	}
+	// Pink
+	else if (30 < fps && fps < 60)
+	{
+		red = 1.0f;
+		green = 0.0f;
+		blue = 1.0f;
+	}
+	// Red
+	else
+	{
+		red = 1.0f;
+		green = 1.0f;
+		blue = 0.0f;
+	}
+
+	result = UpdateSentence(sentence2_fps_, fpsString, 650, 50, red, green, blue, deviceContext);
+	if (!result)
 	{
 		return false;
 	}

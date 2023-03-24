@@ -95,9 +95,8 @@
       <Filter>DX</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader.cpp" />
-    <ClCompile Include="BitmapClass.cpp">
-      <Filter>DX</Filter>
-    </ClCompile>
+    <ClCompile Include="BitmapClass.cpp" />
+    <ClCompile Include="FpsClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -191,9 +190,8 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader.h" />
-    <ClInclude Include="BitmapClass.hpp">
-      <Filter>DX</Filter>
-    </ClInclude>
+    <ClInclude Include="BitmapClass.hpp" />
+    <ClInclude Include="FpsClass.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">

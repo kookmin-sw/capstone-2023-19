@@ -16,6 +16,7 @@ class LightShaderClass;
 class LightClass;
 class LSystem;
 class TextClass;
+//class TextConsoleClass;
 
 class GraphicsClass
 {
@@ -26,13 +27,14 @@ public:
 
 	bool Initialize(int, int, HWND, LSystem* = nullptr);
 	void Shutdown();
-	bool Frame(int, int, int, int, int, int);		// !!! 나중에 키 입력 파라미터 조정
+	bool Frame(int, int, int, int, int, int, int);		// !!! 나중에 키 입력 파라미터 조정
 	bool Render();
 	
 private:
 	D3DClass* direct3D_ = nullptr;
 	CameraClass* camera_ = nullptr;
 	TextClass* text_ = nullptr;
+	LightClass* light_ = nullptr;
 
 	std::vector<ModelClass*>* models_ = nullptr;
 	ColorShaderClass* colorShader_ = nullptr;		// !!! TEMP
@@ -40,7 +42,7 @@ private:
 	LightShaderClass* lightShader_ = nullptr;
 	BitmapClass* bitmap_ = nullptr;
 
-	LightClass* light_ = nullptr;
+	//TextConsoleClass* console_;
 
 	LSystem* lSystem_ = nullptr;
 
