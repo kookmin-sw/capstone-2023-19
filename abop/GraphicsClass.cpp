@@ -279,7 +279,7 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight, int fps)
+bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pitchUp, int rotationRight, int up, int fps)
 {
 	// light rotation 업데이트
 	//this->rotation_ += (float)DirectX::XM_PI * 0.001f;
@@ -313,6 +313,9 @@ bool GraphicsClass::Frame(int mouseX, int mouseY, int forward, int right, int pi
 	float tempRotationSpeed = 0.01f;
 	this->camera_->Pitch(pitchUp * tempRotationSpeed);
 	this->camera_->RotateY(rotationRight * tempRotationSpeed);
+
+	float tempUpSpeed = 0.1f;
+	this->camera_->Up(up * tempUpSpeed);
 
 	return true;
 }

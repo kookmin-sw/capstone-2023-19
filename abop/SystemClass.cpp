@@ -175,6 +175,7 @@ bool SystemClass::Frame()
 	int mouseX = 0, mouseY = 0;
 	int forward = 0, right = 0;
 	int pitchUp = 0, rotationRight = 0;
+	int up = 0;
 	
 	// fps 통계 업데이트
 	this->fps_->Frame();
@@ -187,10 +188,13 @@ bool SystemClass::Frame()
 	// mouseX, mouseY로 마우스 위치 가져옴
 	this->input_->GetMouseLocation(mouseX, mouseY);
 
-	this->input_->GetCameraMove(forward, right, pitchUp, rotationRight);
+	this->input_->GetCameraMove(forward, right, pitchUp, rotationRight, up);
 
 	// 그래픽 Frame 처리
-	if (!this->graphics_->Frame(mouseX, mouseY, forward, right, pitchUp, rotationRight, this->fps_->GetFps()))
+	if (!this->graphics_->Frame(
+		mouseX, mouseY, 
+		forward, right, pitchUp, rotationRight, up, 
+		this->fps_->GetFps()))
 	{
 		return false;
 	}
