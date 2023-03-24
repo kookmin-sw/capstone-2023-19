@@ -260,9 +260,14 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	// 윈도우 생성 후 핸들 저장
+	//this->hwnd_ = CreateWindowEx(
+	//	WS_EX_APPWINDOW, this->applicationName_, this->applicationName_,
+	//	WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+	//	posX, posY, screenWidth, screenHeight, NULL, NULL, this->hInstance_, NULL);
+
 	this->hwnd_ = CreateWindowEx(
 		WS_EX_APPWINDOW, this->applicationName_, this->applicationName_,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		posX, posY, screenWidth, screenHeight, NULL, NULL, this->hInstance_, NULL);
 
 	// 윈도우 표시 및 포커스 지정
