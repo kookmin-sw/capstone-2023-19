@@ -16,6 +16,15 @@
     <Filter Include="DX\Shader">
       <UniqueIdentifier>{6d6e72c2-5a27-4bbf-a739-cf909ede7ad2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DX\ImGui">
+      <UniqueIdentifier>{1a4b715c-6133-46ee-9ecb-b2fccfa63000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\ImGui\imgui">
+      <UniqueIdentifier>{61c2e6fa-3341-48e0-8620-0cc8b6a5967f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\ImGui\source">
+      <UniqueIdentifier>{66d951f1-07dd-48ae-8541-32fd127606e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LLetter.cpp">
@@ -97,6 +106,14 @@
     <ClCompile Include="BitmapClass.cpp" />
     <ClCompile Include="FpsClass.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="imgui\imguiMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -192,6 +209,14 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="BitmapClass.hpp" />
     <ClInclude Include="FpsClass.hpp" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="imgui\imgui_impl_win32.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">
@@ -213,6 +238,7 @@
       <Filter>DX</Filter>
     </None>
     <None Include="DirectXTK\include\SimpleMath.inl" />
+    <None Include="imgui\imgui.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Font.vs">
@@ -227,5 +253,8 @@
     <FxCompile Include="Color.ps">
       <Filter>DX\Shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="imgui\imgui.natvis" />
   </ItemGroup>
 </Project>
