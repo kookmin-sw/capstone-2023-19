@@ -24,23 +24,37 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // Main code
 int main(int, char**)
 {
-    // Create application window
-    //ImGui_ImplWin32_EnableDpiAwareness();
-    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"ImGui Example", NULL };
-    ::RegisterClassExW(&wc);
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
+    // (1) System.InitializeWindows()
+    // window 클래스 설정
+    WNDCLASSEXW wc =
+    { 
+        sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
+        GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
+        L"ImGui Example", NULL 
+    };
+    
+    RegisterClassExW(&wc);
 
-    // Initialize Direct3D
+    // posX, posY 100 100
+    // width, height 1200 800
+    HWND hwnd = CreateWindowW
+    (
+        wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW,
+        100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL
+    );
+
+    // (2) Graphics.Initialize()
+    // D3DClass.Initialize()
     if (!CreateDeviceD3D(hwnd))
     {
         CleanupDeviceD3D();
-        ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+        UnregisterClassW(wc.lpszClassName, wc.hInstance);
         return 1;
     }
 
     // Show the window
-    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-    ::UpdateWindow(hwnd);
+    ShowWindow(hwnd, SW_SHOWDEFAULT);
+    UpdateWindow(hwnd);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -102,10 +116,11 @@ int main(int, char**)
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
         MSG msg;
-        while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+
+        while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
         {
-            ::TranslateMessage(&msg);
-            ::DispatchMessage(&msg);
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
             if (msg.message == WM_QUIT)
                 done = true;
         }
@@ -178,8 +193,8 @@ int main(int, char**)
     ImGui::DestroyContext();
 
     CleanupDeviceD3D();
-    ::DestroyWindow(hwnd);
-    ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+    DestroyWindow(hwnd);
+    UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
     return 0;
 }
@@ -271,7 +286,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
         break;
     case WM_DESTROY:
-        ::PostQuitMessage(0);
+        PostQuitMessage(0);
         return 0;
     case WM_DPICHANGED:
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
@@ -279,9 +294,9 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             //const int dpi = HIWORD(wParam);
             //printf("WM_DPICHANGED to %d (%.0f%%)\n", dpi, (float)dpi / 96.0f * 100.0f);
             const RECT* suggested_rect = (RECT*)lParam;
-            ::SetWindowPos(hWnd, NULL, suggested_rect->left, suggested_rect->top, suggested_rect->right - suggested_rect->left, suggested_rect->bottom - suggested_rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+            SetWindowPos(hWnd, NULL, suggested_rect->left, suggested_rect->top, suggested_rect->right - suggested_rect->left, suggested_rect->bottom - suggested_rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
         }
         break;
     }
-    return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+    return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
