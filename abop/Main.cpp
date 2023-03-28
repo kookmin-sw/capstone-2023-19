@@ -8,54 +8,113 @@
 #include <d3d11.h>
 #include <tchar.h>
 
-// Data
-static ID3D11Device* g_pd3dDevice = NULL;
-static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
-static IDXGISwapChain* g_pSwapChain = NULL;
-static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
+//
+#include <iostream>
 
-// Forward declarations of helper functions
-bool CreateDeviceD3D(HWND hWnd);
-void CleanupDeviceD3D();
-void CreateRenderTarget();
-void CleanupRenderTarget();
+#include <string>
+#include <vector>
+#include "Stdafx.h"
+#include "D3DClass.hpp"
+#include "Graphics.hpp"
+#include "InputClass.hpp"
+#include "LSystem.hpp"
+
+// Data
+static LPCWSTR APPLICATION_NAME = L"The Algorithmic Beauty of Plants";
+static FLOAT SCREEN_WIDTH = 1280.0f;
+static FLOAT SCREEN_HEIGHT = 800.0f;
+//static ID3D11Device* g_pd3dDevice = NULL;
+//static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
+//static IDXGISwapChain* g_pSwapChain = NULL;
+//static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
+//
+//// Forward declarations of helper functions
+//bool CreateDeviceD3D(HWND hWnd);
+//void CleanupDeviceD3D();
+//void CreateRenderTarget();
+//void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // Main code
 int main(int, char**)
 {
-    // (1) System.InitializeWindows()
     // window 클래스 설정
-    WNDCLASSEXW wc =
-    { 
-        sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
-        GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
-        L"ImGui Example", NULL 
-    };
-    
+    //WNDCLASSEXW wc =
+    //{
+    //    sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
+    //    GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
+    //    L"ImGui Example", NULL
+    //};
+    HINSTANCE hInstance = GetModuleHandle(NULL);
+
+    WNDCLASSEXW wc;
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wc.lpfnWndProc = WndProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = hInstance;
+    wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+    wc.hIconSm = wc.hIcon;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = APPLICATION_NAME;
+    wc.cbSize = sizeof(WNDCLASSEX);
+
     RegisterClassExW(&wc);
 
-    // posX, posY 100 100
-    // width, height 1200 800
     HWND hwnd = CreateWindowW
     (
-        wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW,
-        100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL
+        wc.lpszClassName, APPLICATION_NAME, WS_OVERLAPPEDWINDOW,
+        100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL, wc.hInstance, NULL
     );
 
-    // (2) Graphics.Initialize()
-    // D3DClass.Initialize()
-    if (!CreateDeviceD3D(hwnd))
+    // D3D 초기화
+    D3DClass* d3d = new D3DClass();
+    if (!d3d)
     {
-        CleanupDeviceD3D();
-        UnregisterClassW(wc.lpszClassName, wc.hInstance);
-        return 1;
+        return -1;
     }
+
+    if (!d3d->Initialize(1280, 800, true, hwnd, false, 1000.0f, 0.1f))
+    {
+        std::cout << "Could not initialize Direct3D" << std::endl;
+        d3d->Shutdown();
+        UnregisterClassW(wc.lpszClassName, wc.hInstance);
+        return -1;
+    }
+
+    LSystem* lSystem = new LSystem();
+    if (!lSystem)
+    {
+        return -1;
+    }
+
+    // Graphics 초기화
+    Graphics* graphics = new Graphics();
+    if (!graphics)
+    {
+        return -1;
+    }
+
+    // !!! TEMP
+    lSystem->SetWord("FFFFF");
+    std::cout << lSystem->GetWord() << std::endl;
+    // ----------------
+
+    if (graphics->Initialize(hwnd, d3d, lSystem))
+    {
+        return -1;
+    }
+
+    graphics->UpdateModels();
 
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
 
+
+#pragma region "Setup ImGui"
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -86,7 +145,7 @@ int main(int, char**)
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
-    ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+    ImGui_ImplDX11_Init(d3d->GetDevice(), d3d->GetDeviceContext());
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -103,11 +162,22 @@ int main(int, char**)
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
+#pragma endregion
 
-    // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // Input 초기화
+    InputClass* input = new InputClass;
+    if (!input)
+    {
+        return -1;
+    }
+
+    if (!input->Initialize(hInstance, hwnd, SCREEN_WIDTH, SCREEN_HEIGHT))
+    {
+        std::cout << "Could not initialize the input object." << std::endl;
+        return -1;
+    }
 
     // Main loop
     bool done = false;
@@ -127,53 +197,46 @@ int main(int, char**)
         if (done)
             break;
 
-        // Start the Dear ImGui frame
+        // UI 설정
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
+        static float f = 0.0f;
+        static int counter = 0;
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-        {
-            static float f = 0.0f;
-            static int counter = 0;
+        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
+        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            counter++;
+        ImGui::SameLine();
+        ImGui::Text("counter = %d", counter);
 
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::End();
-        }
-
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
-        }
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::End();
 
         // Rendering
+        d3d->BeginScene
+        (
+            clear_color.x* clear_color.w,
+            clear_color.y* clear_color.w,
+            clear_color.z* clear_color.w,
+            clear_color.w
+        );
+
+        // Input (!!! TEMP)
+        //input->Frame();
+        int F, R, PU, RR, U;
+        input->GetCameraMove(F, R, PU, RR, U);
+        graphics->Frame(F, R, PU, RR, U);
+
+        // TODO: Zbuffer?
         ImGui::Render();
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
-        g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-        g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         // Update and Render additional Platform Windows
@@ -183,8 +246,7 @@ int main(int, char**)
             ImGui::RenderPlatformWindowsDefault();
         }
 
-        g_pSwapChain->Present(1, 0); // Present with vsync
-        //g_pSwapChain->Present(0, 0); // Present without vsync
+        d3d->EndScene();
     }
 
     // Cleanup
@@ -192,66 +254,22 @@ int main(int, char**)
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 
-    CleanupDeviceD3D();
+    input->Shutdown();
+    input = nullptr;
+
+    delete lSystem;
+    lSystem = nullptr;
+
+    graphics->Shutdown();
+    graphics = nullptr;
+
+    d3d->Shutdown();
+    d3d = nullptr;
+
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
     return 0;
-}
-
-// Helper functions
-bool CreateDeviceD3D(HWND hWnd)
-{
-    // Setup swap chain
-    DXGI_SWAP_CHAIN_DESC sd;
-    ZeroMemory(&sd, sizeof(sd));
-    sd.BufferCount = 2;
-    sd.BufferDesc.Width = 0;
-    sd.BufferDesc.Height = 0;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = hWnd;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.Windowed = TRUE;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-    UINT createDeviceFlags = 0;
-    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    D3D_FEATURE_LEVEL featureLevel;
-    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-    HRESULT res = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
-    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-        res = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_WARP, NULL, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
-    if (res != S_OK)
-        return false;
-
-    CreateRenderTarget();
-    return true;
-}
-
-void CleanupDeviceD3D()
-{
-    CleanupRenderTarget();
-    if (g_pSwapChain) { g_pSwapChain->Release(); g_pSwapChain = NULL; }
-    if (g_pd3dDeviceContext) { g_pd3dDeviceContext->Release(); g_pd3dDeviceContext = NULL; }
-    if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
-}
-
-void CreateRenderTarget()
-{
-    ID3D11Texture2D* pBackBuffer;
-    g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_mainRenderTargetView);
-    pBackBuffer->Release();
-}
-
-void CleanupRenderTarget()
-{
-    if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
 }
 
 #ifndef WM_DPICHANGED
@@ -273,14 +291,14 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    case WM_SIZE:
-        if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
-        {
-            CleanupRenderTarget();
-            g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-            CreateRenderTarget();
-        }
-        return 0;
+    //case WM_SIZE:
+    //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+    //    {
+    //        CleanupRenderTarget();
+    //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+    //        CreateRenderTarget();
+    //    }
+    //    return 0;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;
