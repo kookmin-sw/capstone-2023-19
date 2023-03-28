@@ -84,6 +84,9 @@ int main(int, char**)
         return -1;
     }
 
+    ID3D11RenderTargetView* renderTargetView = NULL;
+    renderTargetView = d3d->GetRenderTargetView();
+
     LSystem* lSystem = new LSystem();
     if (!lSystem)
     {
@@ -221,16 +224,21 @@ int main(int, char**)
         ImGui::End();
 
         // Rendering
-        d3d->BeginScene
-        (
-            clear_color.x* clear_color.w,
-            clear_color.y* clear_color.w,
-            clear_color.z* clear_color.w,
-            clear_color.w
-        );
+        //d3d->BeginScene
+        //(
+        //    clear_color.x* clear_color.w,
+        //    clear_color.y* clear_color.w,
+        //    clear_color.z* clear_color.w,
+        //    clear_color.w
+        //);
 
+        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+
+        d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
+        d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
+        
         // Input (!!! TEMP)
-        //input->Frame();
+        input->Frame();
         int F, R, PU, RR, U;
         input->GetCameraMove(F, R, PU, RR, U);
         graphics->Frame(F, R, PU, RR, U);
