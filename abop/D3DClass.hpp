@@ -15,6 +15,7 @@ public:
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
+	ID3D11RenderTargetView* GetRenderTargetView();
 
 	void GetProjectionMatrix(DirectX::XMMATRIX&);
 	void GetWorldMatrix(DirectX::XMMATRIX&);
