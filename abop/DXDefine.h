@@ -11,7 +11,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <directxmath.h>
-#include <DirectXMath.h>
 #include <dinput.h>
+#include "DDSTextureLoader.h"    // DDS 파일 처리
 
 #include "AlignedAllocationPolicy.h"

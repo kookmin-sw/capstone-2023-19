@@ -3,6 +3,7 @@
 #include "Stdafx.h"
 #include "InputClass.hpp"
 #include "GraphicsClass.hpp"
+#include "FpsClass.hpp"
 #include "SystemClass.hpp"
 #include "LSystem.hpp"
 
@@ -48,6 +49,14 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
+	this->fps_ = new FpsClass;
+	if (!this->fps_)
+	{
+		return false;
+	}
+
+	this->fps_->Initialize();
+
 	return this->graphics_->Initialize(screenWidth, screenHeight, this->hwnd_);
 }
 
@@ -76,6 +85,14 @@ bool SystemClass::Initialize(LSystem* lSystem)
 		MessageBox(this->hwnd_, L"Could not initialize the input object.", L"Error", MB_OK);
 		return false;
 	}
+
+	this->fps_ = new FpsClass;
+	if (!this->fps_)
+	{
+		return false;
+	}
+
+	this->fps_->Initialize();
 	
 	this->graphics_ = new GraphicsClass;
 	if (!this->graphics_)
@@ -89,6 +106,12 @@ bool SystemClass::Initialize(LSystem* lSystem)
 
 void SystemClass::Shutdown()
 {
+	if (this->fps_)
+	{
+		delete this->fps_;
+		this->fps_ = 0;
+	}
+	
 	if (this->graphics_)
 	{
 		this->graphics_->Shutdown();
@@ -152,6 +175,10 @@ bool SystemClass::Frame()
 	int mouseX = 0, mouseY = 0;
 	int forward = 0, right = 0;
 	int pitchUp = 0, rotationRight = 0;
+	int up = 0;
+	
+	// fps 통계 업데이트
+	this->fps_->Frame();
 
 	if (!this->input_->Frame())
 	{
@@ -161,10 +188,13 @@ bool SystemClass::Frame()
 	// mouseX, mouseY로 마우스 위치 가져옴
 	this->input_->GetMouseLocation(mouseX, mouseY);
 
-	this->input_->GetCameraMove(forward, right, pitchUp, rotationRight);
+	this->input_->GetCameraMove(forward, right, pitchUp, rotationRight, up);
 
 	// 그래픽 Frame 처리
-	if (!this->graphics_->Frame(mouseX, mouseY, forward, right, pitchUp, rotationRight))
+	if (!this->graphics_->Frame(
+		mouseX, mouseY, 
+		forward, right, pitchUp, rotationRight, up, 
+		this->fps_->GetFps()))
 	{
 		return false;
 	}
@@ -230,9 +260,14 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	// 윈도우 생성 후 핸들 저장
+	//this->hwnd_ = CreateWindowEx(
+	//	WS_EX_APPWINDOW, this->applicationName_, this->applicationName_,
+	//	WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+	//	posX, posY, screenWidth, screenHeight, NULL, NULL, this->hInstance_, NULL);
+
 	this->hwnd_ = CreateWindowEx(
 		WS_EX_APPWINDOW, this->applicationName_, this->applicationName_,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
 		posX, posY, screenWidth, screenHeight, NULL, NULL, this->hInstance_, NULL);
 
 	// 윈도우 표시 및 포커스 지정
@@ -262,6 +297,9 @@ void SystemClass::ShutdownWindows()
 
 LRESULT CALLBACK SWndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
+	char szText[100];
+	static HWND hEditbox;
+
 	switch (umsg)
 	{
 		case WM_DESTROY:

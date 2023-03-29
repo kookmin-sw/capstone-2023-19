@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 class InputClass
 {
@@ -13,7 +13,7 @@ public:
 
 	bool IsEscapePressed();
 	void GetMouseLocation(int&, int&);
-	void GetCameraMove(int&, int&, int&, int&);
+	void GetCameraMove(int&, int&, int&, int&, int&);
 
 	//void KeyDown(const unsigned int&);
 	//void KeyUp(const unsigned int&);

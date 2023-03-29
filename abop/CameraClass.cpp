@@ -218,6 +218,17 @@ void CameraClass::Walk(float d)
 	DirectX::XMStoreFloat3(&(this->position_), DirectX::XMVectorMultiplyAdd(s, l, p));
 }
 
+void CameraClass::Up(float d)
+{
+	// y축 이동
+	DirectX::XMFLOAT3 worldUp = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+	DirectX::XMVECTOR s = DirectX::XMVectorReplicate(d);
+	DirectX::XMVECTOR u = DirectX::XMLoadFloat3(&worldUp);
+	DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&(this->position_));
+
+	DirectX::XMStoreFloat3(&(this->position_), DirectX::XMVectorMultiplyAdd(s, u, p));
+}
+
 // 카메라 회전
 void CameraClass::Pitch(float angle)
 {

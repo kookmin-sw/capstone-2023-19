@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 class CameraClass : public AlignedAllocationPolicy<16>
 {
@@ -53,6 +53,7 @@ public:
 	// 카메라 이동
 	void Strafe(float);		// 시선 벡터를 기준으로 횡이동
 	void Walk(float);		// 축이동
+	void Up(float);			// z축 이동
 
 	// 카메라 회전
 	void Pitch(float);		// 시선 벡터를 기준으로 상하회전

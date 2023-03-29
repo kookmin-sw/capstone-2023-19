@@ -15,6 +15,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return -1;
 	}
 
+	// Hilbert Curve 3D
 	//lSystem->SetWord("A");
 	//lSystem->AddRule('A', "B - F + CFC + F - D & F^D - F + && CFC + F + B//");
 	//lSystem->AddRule('B', "A & F^CFB^F^D^^ - F - D^ | F^B | FC^F^A//");
@@ -26,9 +27,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->GetWord();
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
+	// Leaf - 2D (CANNOT USE)
+	lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
+	lSystem->SetAngleChange(30.0f);
 
-	//lSystem->SetDistance(3.0f);
+	// Simple Tree
+	//lSystem->SetWord("F");
+	//lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
 	//lSystem->SetAngleChange(22.5f);
+	//lSystem->SetDistance(1.0f);
+	//lSystem->SetThickness(0.5f);
+	//lSystem->SetDeltaThickness(0.9f);
+	//lSystem->Iterate(4);
 	//lSystem->Iterate(7);
 
 
@@ -65,6 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	if (system->Initialize(lSystem))
+	//if (system->Initialize())
 	{
 		system->Run();
 	}

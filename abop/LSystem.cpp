@@ -9,34 +9,30 @@
 #include "LSystem.hpp"
 
 // TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& distance)
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
     // !!! TEMP
 
     Model model;
     model.modelType = ModelType::CubeModel;
-    model.dataCount = 9;
-    model.data = new float[9];
+    model.dataCount = 10;
+    model.data = new float[10];
 
     Vector3 position = (startPos + endPos) / 2.0f;
-
-    //float angleX = atan2(rotation.y, rotation.z);
-    ////float angleY = atan2(rotation.z, rotation.x);
-    //float angleY = atan2(rotation.x, rotation.z);
-    //float angleZ = atan2(rotation.y, rotation.x);
 
     model.data[0] = position.x;
     model.data[1] = position.y;
     model.data[2] = position.z;
-    model.data[3] = rotation.x * PI / 180.0f;     // pitch
-    model.data[4] = rotation.z * PI / 180.0f;     // roll
-    model.data[5] = rotation.y * PI / 180.0f;     // yaw
+    model.data[3] = DirectX::XMVectorGetX(quaternion);
+    model.data[4] = DirectX::XMVectorGetY(quaternion);
+    model.data[5] = DirectX::XMVectorGetZ(quaternion);
+    model.data[6] = DirectX::XMVectorGetW(quaternion);
     //model.data[3] = 0.0f * PI / 180.0f;     // pitch
     //model.data[4] = 0.0f * PI / 180.0f;     // roll
     //model.data[5] = 0.0f * PI / 180.0f;     // yaw
-    model.data[6] = 0.3f;       // size.x
-    model.data[7] = 0.3f;       // size.y
-    model.data[8] = distance;       // size.z (height)
+    model.data[7] = thickness;       // size.x
+    model.data[8] = thickness;       // size.y
+    model.data[9] = distance;       // size.z (height)
 
     return model;
 }
@@ -46,7 +42,7 @@ Model CreateLeaf(std::vector<Vector3>* leaf, const float& angle)
     int size = leaf->size();
 
     // !!! color 일단 그린 고정
-    Vector4 green { 0.0f, 1.0f, 0.0f, 0.0f };
+    Vector4 green{ 0.0f, 1.0f, 0.0f, 0.0f };
 
     Model model;
 
@@ -60,7 +56,7 @@ Model CreateLeaf(std::vector<Vector3>* leaf, const float& angle)
     // TEMP
     for (int i = 0; i < size; i++)
     {
-        model.vertexTypes[i] = VertexType { (*leaf)[i], green };
+        model.vertexTypes[i] = VertexType{ (*leaf)[i], green };
     }
 
     int i = 0;
@@ -89,12 +85,20 @@ LSystem::LSystem()
     rules_ = std::vector<LRule>();
     word_ = new std::vector<LLetter>();
 
-    this->state_ = 
-    { 
-        {0.0f, 0.0f, 0.0f}, 
+    axisX = DirectX::XMFLOAT3(1, 0, 0);
+    axisY = DirectX::XMFLOAT3(0, 1, 0);
+    axisZ = DirectX::XMFLOAT3(0, 0, 1);
+
+    this->state_ =
+    {
+        {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
-        {90.0f, 0.0f, 0.0f}     // pitch yaw roll
+        {90.0f, 0.0f, 0.0f},     // X Y Z
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
+        0.3f
     };
+
+    ;
 }
 
 LSystem::~LSystem()
@@ -176,6 +180,16 @@ void LSystem::SetWord(const std::string& word)
     }
 }
 
+void LSystem::SetThickness(const float& val)
+{
+    this->state_.thickness = val;
+}
+
+void LSystem::SetDeltaThickness(const float& val)
+{
+    this->deltaThickness_ = val;
+}
+
 // Rule
 void LSystem::AddRule(const std::string& ruleText)
 {
@@ -196,7 +210,7 @@ void LSystem::AddRule(const std::string& key, const std::string& value)
 void LSystem::Iterate()
 {
     bool changed;
-    std::vector<LLetter> *v = new std::vector<LLetter>();
+    std::vector<LLetter>* v = new std::vector<LLetter>();
 
     for (const LLetter& letter : *(this->word_))
     {
@@ -208,7 +222,7 @@ void LSystem::Iterate()
             {
                 std::vector<LLetter> letters = rule.GetAfter();
 
-                v->insert(v->end(), letters.begin(), letters.end());    
+                v->insert(v->end(), letters.begin(), letters.end());
 
                 changed = true;
                 break;
@@ -220,7 +234,7 @@ void LSystem::Iterate()
             v->push_back(letter);
         }
     }
-    
+
     this->word_ = v;
 }
 
@@ -259,7 +273,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->distance_));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->state_.quaternion, this->state_.thickness, this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -278,52 +292,26 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             }
             case LLetter::Type::RollLeft:
             {
-                // angleChange_ 만큼 y축 회전
-                if (drawingLeaf_) {
-                    this->Rotate(1, leafAngleChange_);
-                }
-                else {
-                    this->Rotate(1, angleChange_);
-                }
+                // angleChange_ 만큼 x축 회전
+                this->Rotate(0, angleChange_);
                 break;
             }
             case LLetter::Type::RollRight:
             {
-                // -angleChange_ 만큼 y축 회전
-
-                if (drawingLeaf_) {
-                    this->Rotate(1, -leafAngleChange_);
-                }
-                else {
-                    this->Rotate(1, -angleChange_);
-                }
-
+                // -angleChange_ 만큼 x축 회전
+                this->Rotate(0, -angleChange_);
                 break;
             }
             case LLetter::Type::PitchUp:
             {
-                // angleChange_ 만큼 x축 회전
-
-                if (drawingLeaf_) {
-                    this->Rotate(0, leafAngleChange_);
-                }
-                else {
-                    this->Rotate(0, angleChange_);
-                }
-
+                // angleChange_ 만큼 y축 회전
+                this->Rotate(1, angleChange_);
                 break;
             }
             case LLetter::Type::PitchDown:
             {
-                // -angleChange_ 만큼 x축 회전
-
-                if (drawingLeaf_) {
-                    this->Rotate(0, -leafAngleChange_);
-                }
-                else {
-                    this->Rotate(0, -angleChange_);
-                }
-
+                // -angleChange_ 만큼 y축 회전
+                this->Rotate(1, -angleChange_);
                 break;
             }
             case LLetter::Type::TurnLeft:
@@ -357,7 +345,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::TurnAround:
             {
                 // 180도 z축 회전
-                this->Rotate(2, 180.0f);
+                this->Rotate(2, 180.f);
                 break;
             }
             case LLetter::Type::Push:
@@ -378,7 +366,9 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::StartingPoint:
             {
                 leaf = new std::vector<Vector3>();
-                
+
+                leafstack.push(leaf);
+
                 leaf->push_back(this->state_.position);
 
                 this->drawingLeaf_ = true;
@@ -410,7 +400,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 break;
             }
-        }
+         }
     }
 }
 
@@ -418,9 +408,10 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
 void LSystem::Move()
 {
     // Heading Vector에 distance 곱해서 움직여주기
-    this->state_.position.x += this->state_.heading.x * this->distance_;
-    this->state_.position.y += this->state_.heading.y * this->distance_;
-    this->state_.position.z += this->state_.heading.z * this->distance_;
+    this->state_.position.x += this->state_.direction.x * this->distance_;
+    this->state_.position.y += this->state_.direction.y * this->distance_;
+    this->state_.position.z += this->state_.direction.z * this->distance_;
+    this->state_.thickness *= this->deltaThickness_;
 }
 void LSystem::Move(float distance) // Symbol : G (Leaf)
 {
@@ -434,51 +425,66 @@ void LSystem::Move(float distance) // Symbol : G (Leaf)
 void LSystem::Rotate(const unsigned short& axis, const float& angle)
 {
     // axis
-    // 0: Pitch, x, Left
-    // 1: Roll, y, Heading
-    // 2: yaw, z, Up
+    // 0: Roll, X
+    // 1: Pitch, Y
+    // 2: Turn, Z
     float rad = angle / 180.0f * PI;
-    float cos = std::cos(rad);
-    float sin = std::sin(rad);
+    float cos = std::cosf(rad);
+    float sin = std::sinf(rad);
 
-    float x = this->state_.heading.x;
-    float y = this->state_.heading.y;
-    float z = this->state_.heading.z;
+    float x = this->state_.direction.x;
+    float y = this->state_.direction.y;
+    float z = this->state_.direction.z;
 
     switch (axis)
     {
-		case 0:
-		{
-            // Pitch, x, Left
+        case 0:
+        {
+            // Roll, x
             this->state_.rotation.x += angle;
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
             float newY = cos * y - sin * z;
-			float newZ = sin * y + cos * z;
-            this->state_.heading.y = newY;
-            this->state_.heading.z = newZ;
-            
-			break;
-		}
-		case 1:
-		{
-            // Roll, y, Heading
+            float newZ = sin * y + cos * z;
+            this->state_.direction.y = newY;
+            this->state_.direction.z = newZ;
+            break;
+        }
+        case 1:
+        {
+            // Pitch, y
             this->state_.rotation.y += angle;
-			float newX = cos * x + sin * z;
-            float newZ = -1 * sin * x + cos * z;
-            this->state_.heading.x = newX;
-            this->state_.heading.z = newZ;
-
-			break;
-		}
-		case 2:
-		{
-            // Yaw, z, Up
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
+            float newX = cos * x + sin * z;
+            float newZ = -sin * x + cos * z;
+            this->state_.direction.x = newX;
+            this->state_.direction.z = newZ;
+            break;
+        }
+        case 2:
+        {
+             // Turn, z
             this->state_.rotation.z += angle;
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
             float newX = cos * x - sin * y;
             float newY = sin * x + cos * y;
-
-            this->state_.heading.x = newX;
-            this->state_.heading.y = newY;
-			break;
-		}
+            this->state_.direction.x = newX;
+            this->state_.direction.y = newY;
+            break;
+        }
     }
+
+    while (this->state_.rotation.x > 180.0f)
+        this->state_.rotation.x -= 360.0f;
+    while (this->state_.rotation.x < -180.0f)
+        this->state_.rotation.x += 360.0f;
+    while (this->state_.rotation.y > 180.0f)
+        this->state_.rotation.y -= 360.0f;
+    while (this->state_.rotation.y < -180.0f)
+        this->state_.rotation.y += 360.0f;
+    while (this->state_.rotation.z > 180.0f)
+        this->state_.rotation.z -= 360.0f;
+    while (this->state_.rotation.z < -180.0f)
+        this->state_.rotation.z += 360.0f;
+
+    this->state_.direction.Normalized();
 }
