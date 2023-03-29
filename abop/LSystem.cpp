@@ -293,25 +293,45 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::RollLeft:
             {
                 // angleChange_ 만큼 x축 회전
-                this->Rotate(0, angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(0, leafAngleChange_);
+                }
+                else {
+                    this->Rotate(0, angleChange_);
+                }
                 break;
             }
             case LLetter::Type::RollRight:
             {
                 // -angleChange_ 만큼 x축 회전
-                this->Rotate(0, -angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(0, -leafAngleChange_);
+                }
+                else {
+                    this->Rotate(0,- angleChange_);
+                }
                 break;
             }
             case LLetter::Type::PitchUp:
             {
                 // angleChange_ 만큼 y축 회전
-                this->Rotate(1, angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(1, leafAngleChange_);
+                }
+                else {
+                    this->Rotate(1, angleChange_);
+                }
                 break;
             }
             case LLetter::Type::PitchDown:
             {
                 // -angleChange_ 만큼 y축 회전
-                this->Rotate(1, -angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(1, -leafAngleChange_);
+                }
+                else {
+                    this->Rotate(1, -angleChange_);
+                }
                 break;
             }
             case LLetter::Type::TurnLeft:
@@ -367,8 +387,6 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 leaf = new std::vector<Vector3>();
 
-                leafstack.push(leaf);
-
                 leaf->push_back(this->state_.position);
 
                 this->drawingLeaf_ = true;
@@ -391,8 +409,9 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 }
                 else {
                     leaf = nullptr;
-                    this->drawingLeaf_ = false;
                 }
+
+                this->drawingLeaf_ = false;
                 
                 break;
             }
@@ -416,9 +435,9 @@ void LSystem::Move()
 void LSystem::Move(float distance) // Symbol : G (Leaf)
 {
     // Heading Vector에 distance 곱해서 움직여주기
-    this->state_.position.x += this->state_.heading.x * distance_;
-    this->state_.position.y += this->state_.heading.y * distance_;
-    this->state_.position.z += this->state_.heading.z * distance_;
+    this->state_.position.x += this->state_.direction.x * distance;
+    this->state_.position.y += this->state_.direction.y * distance;
+    this->state_.position.z += this->state_.direction.z * distance;
 }
 
 // 현재 state를 기준으로 회전

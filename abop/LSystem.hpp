@@ -9,7 +9,6 @@ private:
     float angleChange_ = 90;
     float distance_ = 1.0f;
     float deltaThickness_ = 1.0f;
-    float distance_ = 1.0;
     float leafAngleChange_ = 22.5f;
     float leafDistance_ = 0.5f;
     bool drawingLeaf_ = false;

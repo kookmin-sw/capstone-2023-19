@@ -28,8 +28,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->SetWord("&F^F^F^^^-F-^|F^|F^F^//-F+^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F-F-F+|F&F^&&F-F+|F//&F^F-F+|F&F^&&F-F+|F//-F+&&^|F^-F+^F^&&F&F^+F+^F^//F^|F^-F+^F^&&F&F^+F+^F^//+F+&F^F^F^^^-F-^|F^|F^F^////");
 
 	// Leaf - 2D (CANNOT USE)
-	lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
-	lSystem->SetAngleChange(30.0f);
+	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
+	//lSystem->SetAngleChange(30.0f);
 
 	// Simple Tree
 	//lSystem->SetWord("F");
@@ -54,19 +54,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->SetLeafDistance(1.0f);
 	//lSystem->SetLeafAngleChange(25.0f);
 
-	lSystem->SetWord("FL");
-	lSystem->AddRule("L", "{++[+G.-G.-G.----G.-G.]}}{----[+G.-G.-G.----G.-G.]}}");
-	lSystem->SetAngleChange(45.0f);
-	lSystem->SetLeafAngleChange(30.f);
-	lSystem->Iterate(1);
+	//lSystem->SetWord("FL");
+	//lSystem->AddRule("L", "{++[+G.-G.-G.----G.-G.]}}{----[+G.-G.-G.----G.-G.]}}");
+	//lSystem->SetAngleChange(45.0f);
+	//lSystem->SetLeafAngleChange(30.f);
+	//lSystem->Iterate(1);
 
-	//lSystem->SetWord("A");
-	//lSystem->AddRule("A", "[&FLA]/////[&FLA]///////[&FLA]");
-	//lSystem->AddRule("F", "S ///// F");
-	//lSystem->AddRule("S", "F L");
-	//lSystem->AddRule("L", "[{[+G.-G.-G.----G.-G.]}]");
-	//lSystem->SetAngleChange(30.0f);
-	//lSystem->Iterate(7);
+	lSystem->SetWord("A");
+	lSystem->AddRule("A", "[&FLA]/////`[&FLA]///////`[&FLA]");
+	lSystem->AddRule("F", "S/////F");
+	lSystem->AddRule("S", "FL");
+	lSystem->AddRule("L", "[```^^{-G.+G.+G.-|-G.+G.+G.}]");
+	lSystem->SetLeafAngleChange(22.5f);
+	lSystem->SetLeafDistance(0.3f);
+	lSystem->SetDistance(2.0f);
+	lSystem->SetDeltaThickness(0.9f);
+	lSystem->SetAngleChange(22.5f);
+	lSystem->Iterate(7);
+
+	//lSystem->SetWord("F");
+	//lSystem->AddRule('F', "FF");
+	//lSystem->SetDeltaThickness(0.8f);
+	//lSystem->Iterate(4);
 
 	SystemClass* system = new SystemClass;
 	if (!system)
