@@ -32,14 +32,31 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->Iterate(7);
 
 
-	lSystem->SetWord("F&FFF^F--F--FFF^F");
-	lSystem->SetAngleChange(45.0f);
+	//lSystem->SetWord("F&FFF^F--F--FFF^F");
+	//lSystem->SetAngleChange(45.0f);
 
-	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.]}");
+	//lSystem->SetWord("{[++++G.][++GG.][+GGG.][GGGGG.][-GGG.][--GG.][----G.][++++G.]}");
 	//lSystem->SetAngleChange(30.0f);
 
-	lSystem->SetWord("[{+.G.{.&G.{.&G.][-G[&G[&G.].}.].}.}]");
-	lSystem->SetAngleChange(30.0f);
+	//lSystem->SetWord("[{+.G.{.&G.{.&G.][-G[&G[&G.].}.].}.}]F^F");
+	//lSystem->SetLeafAngleChange(25.0f);
+	//lSystem->SetAngleChange(90.0f);
+	//lSystem->SetLeafDistance(1.0f);
+	//lSystem->SetLeafAngleChange(25.0f);
+
+	lSystem->SetWord("FL");
+	lSystem->AddRule("L", "{++[+G.-G.-G.----G.-G.]}}{----[+G.-G.-G.----G.-G.]}}");
+	lSystem->SetAngleChange(45.0f);
+	lSystem->SetLeafAngleChange(30.f);
+	lSystem->Iterate(1);
+
+	//lSystem->SetWord("A");
+	//lSystem->AddRule("A", "[&FLA]/////[&FLA]///////[&FLA]");
+	//lSystem->AddRule("F", "S ///// F");
+	//lSystem->AddRule("S", "F L");
+	//lSystem->AddRule("L", "[{[+G.-G.-G.----G.-G.]}]");
+	//lSystem->SetAngleChange(30.0f);
+	//lSystem->Iterate(7);
 
 	SystemClass* system = new SystemClass;
 	if (!system)

@@ -70,6 +70,9 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Leaf.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -140,6 +143,9 @@
     </ClInclude>
     <ClInclude Include="CommonStructure.hpp">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Leaf.hpp">
+      <Filter>DX\Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

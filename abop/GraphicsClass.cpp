@@ -83,6 +83,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 
 				this->models_->push_back(modelClass);
 			}
+			else if (model.modelType == ModelType::LeafModel) {
+				Leaf* leaf = new Leaf;
+				leaf->Initialize(this->direct3D_->GetDevice(), model);
+
+				this->models_->push_back((ModelClass*)leaf);
+			}
 			else
 			{
 				// !!! TEMP
@@ -102,7 +108,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 	else
 	{
 		// !!! FOR TEST
-		// ---------------------
+		Cube* cube2 = new Cube;
+		cube2->SetPosition(10.0f, 0.f, 0.f);
+		cube2->SetRotation(90.0f, 90.0f, 45.0f);
+		cube2->SetSize(1.f, 5.f, 1.f);
+
+		cube2->Initialize(this->direct3D_->GetDevice());
+
+		this->models_->push_back((ModelClass*)cube2);
 	}
 
 	// ColorShader 객체 생성

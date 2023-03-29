@@ -27,6 +27,7 @@ enum ModelType
 {
     Custom,
     // Same as DX/Models/ModelVariation.cpp
+    LeafModel,
     TriangleModel,
     SquareModel,
     PlaneModel,
@@ -43,6 +44,9 @@ struct Model
     int indexCount;
     VertexType* vertexTypes = nullptr;
     int* indices = nullptr;
+
+    // For LeafModel
+    float angle;
 
     // For others
     int dataCount;
