@@ -84,6 +84,11 @@ Vector3 ModelClass::GetRotation()
     return this->rotation_;
 }
 
+DirectX::XMFLOAT4 ModelClass::GetQuaternion()
+{
+    return this->quaternion_;
+}
+
 ID3D11ShaderResourceView* ModelClass::GetTexture()
 {
     if (this->texture_)
@@ -112,6 +117,11 @@ void ModelClass::SetRotation(const float& x, const float& y, const float& z)
 void ModelClass::SetRotation(const Vector3& rotation)
 {
     this->rotation_ = rotation;
+}
+
+void ModelClass::SetQuaternion(const float& x, const float& y, const float& z, const float& w)
+{
+    this->quaternion_ = DirectX::XMFLOAT4(x, y, z, w);
 }
 
 void ModelClass::SetScale(const float& x, const float& y, const float& z)
