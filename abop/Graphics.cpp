@@ -7,9 +7,11 @@
 #include "ModelVariation.hpp"
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
-#include "LSystem.hpp"
-#include "Graphics.hpp"
+#include "LightClass.hpp"
 #include "ColorShaderClass.hpp"
+#include "LSystem.hpp"
+
+#include "Graphics.hpp"
 
 bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 {
@@ -38,6 +40,18 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 		return false;
 	}
 
+	// Light
+	this->light_ = new LightClass;
+	if (!this->light_)
+	{
+		return false;
+	}
+
+	// Default Light Setting
+	this->light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	this->light_->SetDiffuseColor(1.0f, 0.0f, 1.0f, 1.0f);
+	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
+
 	// Shader
 	this->colorShader_ = new ColorShaderClass;
 	if (!this->colorShader_)
@@ -56,6 +70,12 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 
 void Graphics::Shutdown()
 {
+	if (this->light_)
+	{
+		delete this->light_;
+		this->light_ = nullptr;
+	}
+
 	if (this->colorShader_)
 	{
 		this->colorShader_->Shutdown();

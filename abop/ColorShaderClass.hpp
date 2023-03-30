@@ -10,6 +10,15 @@ private:
         DirectX::XMMATRIX projection;
     };
 
+    struct LightBufferType
+    {
+        DirectX::XMFLOAT2 ambientColor;
+        DirectX::XMFLOAT4 diffuseColor;
+        DirectX::XMFLOAT3 lightDirection;
+        // CreateBuffer 입력 조건(16배수)를 위한 여분의 padding
+        float padding;
+    };
+
 public:
     ColorShaderClass();
     ColorShaderClass(const ColorShaderClass&);
