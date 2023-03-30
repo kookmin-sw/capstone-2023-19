@@ -50,5 +50,6 @@ float4 ColorPixelShader(PixelInputType input) : SV_TARGET
 
     outputColor = saturate(outputColor + specular);
 
-    return outputColor;
+    // !!! DISABLE
+    return input.color;
 }
