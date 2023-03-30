@@ -134,6 +134,7 @@
     <ClCompile Include="Leaf.cpp">
       <Filter>DX\Models</Filter>
     </ClCompile>
+    <ClCompile Include="Leaf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">

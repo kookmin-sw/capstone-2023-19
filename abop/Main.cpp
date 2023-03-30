@@ -39,7 +39,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // Main code
 int main(int, char**)
 {
-    // window ?대옒???ㅼ젙
+    // window 클래스 설정
     //WNDCLASSEXW wc =
     //{
     //    sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
@@ -70,7 +70,7 @@ int main(int, char**)
         100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL, wc.hInstance, NULL
     );
 
-    // D3D 珥덇린??
+    // D3D 초기화
     D3DClass* d3d = new D3DClass();
     if (!d3d)
     {
@@ -94,7 +94,7 @@ int main(int, char**)
         return -1;
     }
 
-    // Graphics 珥덇린??
+    // Graphics 초기화
     Graphics* graphics = new Graphics();
     if (!graphics)
     {
@@ -211,7 +211,7 @@ int main(int, char**)
         if (done)
             break;
 
-        // UI ?ㅼ젙
+        // UI 설정
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
@@ -247,7 +247,7 @@ int main(int, char**)
 
         d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
         d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
-        
+
         // Input (!!! TEMP)
         input->Frame();
         int F, R, PU, RR, U;
@@ -310,14 +310,14 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    //case WM_SIZE:
-    //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
-    //    {
-    //        CleanupRenderTarget();
-    //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-    //        CreateRenderTarget();
-    //    }
-    //    return 0;
+        //case WM_SIZE:
+        //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+        //    {
+        //        CleanupRenderTarget();
+        //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+        //        CreateRenderTarget();
+        //    }
+        //    return 0;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;
