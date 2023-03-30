@@ -140,12 +140,12 @@ void Graphics::UpdateModels()
 	}
 }
 
-void Graphics::SetCameraPosition(float& x, float& y, float& z)
+void Graphics::SetCameraPosition(float x, float y, float z)
 {
 	this->camera_->SetPosition(x, y, z);
 }
 
-void Graphics::SetCameraRotation(float& x, float& y, float& z)
+void Graphics::SetCameraRotation(float x, float y, float z)
 {
 	// TODO to be update
 }

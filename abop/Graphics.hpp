@@ -16,8 +16,8 @@ public:
 
 	void UpdateModels();
 
-	void SetCameraPosition(float&, float&, float&);
-	void SetCameraRotation(float&, float&, float&);
+	void SetCameraPosition(float, float, float);
+	void SetCameraRotation(float, float, float);
 	void SetCameraSensitivity(float&);
 	void SetCameraSpeed(float&);
 private:

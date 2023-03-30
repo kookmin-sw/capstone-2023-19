@@ -1,7 +1,3 @@
-// Dear ImGui: standalone example application for DirectX 11
-// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
-// Read online: https://github.com/ocornut/imgui/tree/master/docs
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
@@ -25,29 +21,13 @@
 static LPCWSTR APPLICATION_NAME = L"The Algorithmic Beauty of Plants";
 static FLOAT SCREEN_WIDTH = 1280.0f;
 static FLOAT SCREEN_HEIGHT = 800.0f;
-//static ID3D11Device* g_pd3dDevice = NULL;
-//static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
-//static IDXGISwapChain* g_pSwapChain = NULL;
-//static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
-//
-//// Forward declarations of helper functions
-//bool CreateDeviceD3D(HWND hWnd);
-//void CleanupDeviceD3D();
-//void CreateRenderTarget();
-//void CleanupRenderTarget();
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // Main code
 int main(int, char**)
 {
     // window 클래스 설정
-    //WNDCLASSEXW wc =
-    //{
-    //    sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
-    //    GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
-    //    L"ImGui Example", NULL
-    //};
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
     WNDCLASSEXW wc;
@@ -103,21 +83,20 @@ int main(int, char**)
         return -1;
     }
 
-    // !!! TEMP
-    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
+    if (graphics->Initialize(hwnd, d3d, lSystem))
+    {
+        return -1;
+    }
+
+    // Init Render
     lSystem->SetWord("F");
     lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
     lSystem->SetAngleChange(20.f);
     lSystem->SetDistance(10.0f);
     lSystem->Iterate(4);
-    std::cout << lSystem->GetWord() << std::endl;
-    // ----------------
-
-    if (graphics->Initialize(hwnd, d3d, lSystem))
-    {
-        return -1;
-    }
+    //std::cout << lSystem->GetWord() << std::endl;
     graphics->UpdateModels();
+    // ----------------
 
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
@@ -144,7 +123,6 @@ int main(int, char**)
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
 
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -156,21 +134,6 @@ int main(int, char**)
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(d3d->GetDevice(), d3d->GetDeviceContext());
 
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-    // - Read 'docs/FONTS.md' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != NULL);
 #pragma endregion
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -190,6 +153,7 @@ int main(int, char**)
 
     static bool show_location_window = false;
     static bool show_console_window = false;
+    static bool show_light_window = false;
 
     // Main loop
     bool done = false;
@@ -263,6 +227,7 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Checkbox("Camera Location Window", &show_location_window);
             ImGui::Checkbox("Console Edit Window", &show_console_window);
+            ImGui::Checkbox("Light Location Window", &show_light_window);
             ImGui::PopStyleColor();
         }
 
@@ -280,13 +245,19 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Position>");
             ImGui::PopStyleColor();
-            ImGui::InputFloat3("(x, y, z)", cameraPosition);
+            if (ImGui::InputFloat3("(x, y, z)", cameraPosition))
+            {
+                graphics->SetCameraPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            }
 
             // Camera Rotation
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Rotation>");
             ImGui::PopStyleColor();
-            ImGui::InputFloat3("(x, y, z)", cameraRotation);
+            if (ImGui::InputFloat3("(x, y, z)", cameraRotation))
+            {
+                // 카메라 각도 조절
+            }
 
             // Camera Speed
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
@@ -335,17 +306,25 @@ int main(int, char**)
             ImGui::End();
         }
 
-        // Light
-            //-on / off
-            //- shadow ?
-            //-light color
-            //- position 3
-            //- rotation 3
+        if (show_light_window)
+        {
+            ImGui::Begin("Light Location Window", &show_light_window);
 
+            // Light
+                //-on / off
+                //- shadow ?
+                //-light color
+                //- position 3
+                //- rotation 3
+
+            ImGui::End();
+        }
 
         // Plane 유무 checkbox
+        //ImGui::Checkbox("Draw Plane", &show_light_window);
 
         // wireframe, solid select
+        //ImGui::Checkbox("", &show_light_window);
 
         ImGui::End();
 
