@@ -39,7 +39,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // Main code
 int main(int, char**)
 {
-    // window ?�래???�정
+    // window 클래스 설정
     //WNDCLASSEXW wc =
     //{
     //    sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
@@ -70,7 +70,7 @@ int main(int, char**)
         100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL, wc.hInstance, NULL
     );
 
-    // D3D 초기??
+    // D3D 초기화
     D3DClass* d3d = new D3DClass();
     if (!d3d)
     {
@@ -94,7 +94,7 @@ int main(int, char**)
         return -1;
     }
 
-    // Graphics 초기??
+    // Graphics 초기화
     Graphics* graphics = new Graphics();
     if (!graphics)
     {
@@ -102,12 +102,25 @@ int main(int, char**)
     }
 
     // !!! TEMP
-    // Simple Tree - Turn Around�� Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) �� Ŀ����
+    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
     lSystem->SetWord("F");
     lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
     lSystem->SetAngleChange(20.f);
     lSystem->SetDistance(10.0f);
     lSystem->Iterate(4);
+
+    //lSystem->SetWord("F");
+    //lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
+    //lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
+    //lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
+    //lSystem->SetLeafAngleChange(22.5f);
+    //lSystem->SetLeafDistance(0.3f);
+    //lSystem->SetAngleChange(22.5f);
+    //lSystem->SetDistance(1.5f);
+    //lSystem->SetThickness(0.5f);
+    //lSystem->SetDeltaThickness(0.9f);
+    //lSystem->Iterate(4);
+
     std::cout << lSystem->GetWord() << std::endl;
     // ----------------
 
@@ -175,7 +188,7 @@ int main(int, char**)
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // Input �ʱ�ȭ
+    // Input 초기화
     InputClass* input = new InputClass;
     if (!input)
     {
@@ -206,7 +219,7 @@ int main(int, char**)
         if (done)
             break;
 
-        // UI ?�정
+        // UI 설정
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
@@ -242,7 +255,7 @@ int main(int, char**)
 
         d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
         d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
-        
+
         // Input (!!! TEMP)
         input->Frame();
         int F, R, PU, RR, U;
@@ -305,14 +318,14 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    //case WM_SIZE:
-    //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
-    //    {
-    //        CleanupRenderTarget();
-    //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-    //        CreateRenderTarget();
-    //    }
-    //    return 0;
+        //case WM_SIZE:
+        //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+        //    {
+        //        CleanupRenderTarget();
+        //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+        //        CreateRenderTarget();
+        //    }
+        //    return 0;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;
