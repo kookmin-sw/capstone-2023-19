@@ -261,8 +261,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	//rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
+	//rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
@@ -473,6 +473,10 @@ ID3D11DeviceContext* D3DClass::GetDeviceContext()
 	return this->deviceContext_;
 }
 
+ID3D11RenderTargetView* D3DClass::GetRenderTargetView()
+{
+	return this->renderTargetView_;
+}
 
 void D3DClass::GetProjectionMatrix(DirectX::XMMATRIX& projectionMatrix)
 {
