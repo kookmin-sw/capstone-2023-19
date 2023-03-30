@@ -122,6 +122,12 @@ void Graphics::UpdateModels()
 
 			this->models_->push_back(modelClass);
 		}
+		else if (model.modelType == ModelType::LeafModel) {
+			Leaf* leaf = new Leaf;
+			leaf->Initialize(this->d3d_->GetDevice(), model);
+
+			this->models_->push_back((ModelClass*)leaf);
+		}
 		else
 		{
 

@@ -256,6 +256,7 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>DX\ImGui\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Leaf.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">

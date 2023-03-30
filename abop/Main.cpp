@@ -39,7 +39,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // Main code
 int main(int, char**)
 {
-    // window ?�래???�정
+    // window ?대옒???ㅼ젙
     //WNDCLASSEXW wc =
     //{
     //    sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
@@ -70,7 +70,7 @@ int main(int, char**)
         100, 100, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL, wc.hInstance, NULL
     );
 
-    // D3D 초기??
+    // D3D 珥덇린??
     D3DClass* d3d = new D3DClass();
     if (!d3d)
     {
@@ -94,7 +94,7 @@ int main(int, char**)
         return -1;
     }
 
-    // Graphics 초기??
+    // Graphics 珥덇린??
     Graphics* graphics = new Graphics();
     if (!graphics)
     {
@@ -102,13 +102,18 @@ int main(int, char**)
     }
 
     // !!! TEMP
-    // Simple Tree - Turn Around�� Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) �� Ŀ����
+    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
+
     lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
-    lSystem->SetAngleChange(20.f);
-    lSystem->SetDistance(10.0f);
-    lSystem->Iterate(4);
-    std::cout << lSystem->GetWord() << std::endl;
+    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
+    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
+    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
+    lSystem->SetLeafAngleChange(22.5f);
+    lSystem->SetLeafDistance(0.3f);
+    lSystem->SetDistance(2.0f);
+    lSystem->SetDeltaThickness(0.9f);
+    lSystem->SetAngleChange(22.5f);
+    lSystem->Iterate(5);
     // ----------------
 
     if (graphics->Initialize(hwnd, d3d, lSystem))
@@ -175,7 +180,7 @@ int main(int, char**)
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // Input �ʱ�ȭ
+    // Input 초기화
     InputClass* input = new InputClass;
     if (!input)
     {
@@ -206,7 +211,7 @@ int main(int, char**)
         if (done)
             break;
 
-        // UI ?�정
+        // UI ?ㅼ젙
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
