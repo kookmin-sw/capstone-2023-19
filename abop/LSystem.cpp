@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 #include <cmath>
+#include "Stdafx.h"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
 #include "LRule.hpp"
@@ -89,8 +90,6 @@ LSystem::LSystem()
         DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
-
-    ;
 }
 
 LSystem::~LSystem()
@@ -200,6 +199,7 @@ void LSystem::ClearState()
         {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
         {90.0f, 0.0f, 0.0f},     // X Y Z
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
 }

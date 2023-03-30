@@ -116,17 +116,11 @@ int main(int, char**)
     {
         return -1;
     }
+    graphics->UpdateModels();
 
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
-
-
-    lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
-    lSystem->SetAngleChange(20.f);
-    lSystem->SetDistance(10.0f);
-    lSystem->Iterate(4);
 
 #pragma region "Setup ImGui"
     // Setup Dear ImGui context
