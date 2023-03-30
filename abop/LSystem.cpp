@@ -10,29 +10,30 @@
 #include "LSystem.hpp"
 
 // TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, const float& thickness, const float& distance)
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
     // !!! TEMP
 
     Model model;
     model.modelType = ModelType::CubeModel;
-    model.dataCount = 9;
-    model.data = new float[9];
+    model.dataCount = 10;
+    model.data = new float[10];
 
     Vector3 position = (startPos + endPos) / 2.0f;
 
     model.data[0] = position.x;
     model.data[1] = position.y;
     model.data[2] = position.z;
-    model.data[3] = rotation.x * PI / 180.0f;     
-    model.data[4] = rotation.y * PI / 180.0f;     
-    model.data[5] = rotation.z * PI / 180.0f;   
+    model.data[3] = DirectX::XMVectorGetX(quaternion);
+    model.data[4] = DirectX::XMVectorGetY(quaternion);
+    model.data[5] = DirectX::XMVectorGetZ(quaternion);
+    model.data[6] = DirectX::XMVectorGetW(quaternion);
     //model.data[3] = 0.0f * PI / 180.0f;     // pitch
     //model.data[4] = 0.0f * PI / 180.0f;     // roll
     //model.data[5] = 0.0f * PI / 180.0f;     // yaw
-    model.data[6] = thickness;       // size.x
-    model.data[7] = thickness;       // size.y
-    model.data[8] = distance;       // size.z (height)
+    model.data[7] = thickness;       // size.x
+    model.data[8] = thickness;       // size.y
+    model.data[9] = distance;       // size.z (height)
 
     return model;
 }
@@ -76,13 +77,20 @@ LSystem::LSystem()
     rules_ = std::vector<LRule>();
     word_ = new std::vector<LLetter>();
 
+    axisX = DirectX::XMFLOAT3(1, 0, 0);
+    axisY = DirectX::XMFLOAT3(0, 1, 0);
+    axisZ = DirectX::XMFLOAT3(0, 0, 1);
+
     this->state_ =
     {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
         {90.0f, 0.0f, 0.0f},     // X Y Z
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
+
+    ;
 }
 
 LSystem::~LSystem()
@@ -263,7 +271,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->state_.thickness, this->distance_));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->state_.quaternion, this->state_.thickness, this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -400,6 +408,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         {
             // Roll, x
             this->state_.rotation.x += angle;
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
             float newY = cos * y - sin * z;
             float newZ = sin * y + cos * z;
             this->state_.direction.y = newY;
@@ -410,6 +419,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         {
             // Pitch, y
             this->state_.rotation.y += angle;
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
             float newX = cos * x + sin * z;
             float newZ = -sin * x + cos * z;
             this->state_.direction.x = newX;
@@ -420,6 +430,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         {
              // Turn, z
             this->state_.rotation.z += angle;
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
             float newX = cos * x - sin * y;
             float newY = sin * x + cos * y;
             this->state_.direction.x = newX;

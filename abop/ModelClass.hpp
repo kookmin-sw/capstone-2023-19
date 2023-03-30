@@ -36,12 +36,14 @@ public:
     void SetPosition(const Vector3&);
     void SetRotation(const float&, const float&, const float&);
     void SetRotation(const Vector3&);
+    void SetQuaternion(const float&, const float&, const float&, const float&);
     void SetScale(const float&, const float&, const float&);
     void SetScale(const Vector3&);
 
     int GetIndexCount();
     Vector3 GetPosition();
     Vector3 GetRotation();
+    DirectX::XMFLOAT4 GetQuaternion();
 
     ID3D11ShaderResourceView* GetTexture();
 
@@ -67,6 +69,7 @@ protected:
     Vector3 position_ = { 0.0f, 0.0f, 0.0f };
     Vector3 rotation_ = { 0.0f, 0.0f, 0.0f };
     Vector3 scale_ = { 1.0f, 1.0f, 1.0f };
+    DirectX::XMFLOAT4 quaternion_ = { 0.0f, 0.0f, 0.0f, 1.0f };
     DirectX::XMFLOAT4 color_ = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     TextureClass* texture_ = nullptr;

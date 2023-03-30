@@ -52,4 +52,8 @@ public:
 private:
     void Move();
     void Rotate(const unsigned short&, const float&);
+
+    DirectX::XMFLOAT3 axisX;
+    DirectX::XMFLOAT3 axisY;
+    DirectX::XMFLOAT3 axisZ;
 };

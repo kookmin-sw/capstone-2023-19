@@ -126,9 +126,10 @@ void Graphics::UpdateModels()
 
 			// !!! TEMP
 			Cube* cube = new Cube;
+
 			cube->SetPosition(model.data[0], model.data[1], model.data[2]);
-			cube->SetRotation(model.data[3], model.data[4], model.data[5]);
-			cube->SetSize(model.data[6], model.data[7], model.data[8]);
+			cube->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
+			cube->SetSize(model.data[7], model.data[8], model.data[9]);
 
 			cube->Initialize(this->d3d_->GetDevice());
 
@@ -185,17 +186,16 @@ bool Graphics::Render()
 		// !!! to be update
 
 		// 회전 변환
-		Vector3 rotation = model->GetRotation();
-
-		DirectX::XMMATRIX xMatrix = DirectX::XMMatrixRotationX(rotation.x);
-		DirectX::XMMATRIX yMatrix = DirectX::XMMatrixRotationY(rotation.y);
-		DirectX::XMMATRIX zMatrix = DirectX::XMMatrixRotationZ(rotation.z);
+		DirectX::XMFLOAT4 quat = model->GetQuaternion();
+		DirectX::XMVECTOR quaternion = DirectX::XMLoadFloat4(&quat);
+		DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, rotMatrix);
 
 		// 당장 짐벌락 발생하지 않는 X->Y->Z 순으로 회전변환 적용
 		// TODO - 짐벌락 해결 위해서는 Quaternion으로 변환 필요
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
-		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
+		// worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
+		// worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
+		// worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
 
 		// 이동 변환
 		Vector3 translation = model->GetPosition();

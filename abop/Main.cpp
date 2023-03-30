@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <string>
 #include "Stdafx.h"
 #include "D3DClass.hpp"
 #include "Graphics.hpp"
@@ -100,6 +101,16 @@ int main(int, char**)
     {
         return -1;
     }
+
+    // !!! TEMP
+    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
+    lSystem->SetWord("F");
+    lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
+    lSystem->SetAngleChange(20.f);
+    lSystem->SetDistance(10.0f);
+    lSystem->Iterate(4);
+    std::cout << lSystem->GetWord() << std::endl;
+    // ----------------
 
     if (graphics->Initialize(hwnd, d3d, lSystem))
     {
