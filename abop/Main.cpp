@@ -8,7 +8,7 @@
 #include <d3d11.h>
 #include <tchar.h>
 
-//
+
 #include <iostream>
 
 #include <string>
@@ -35,6 +35,7 @@ static FLOAT SCREEN_HEIGHT = 800.0f;
 //void CreateRenderTarget();
 //void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 // Main code
 int main(int, char**)
@@ -182,6 +183,9 @@ int main(int, char**)
         return -1;
     }
 
+    static bool show_location_window = false;
+    static bool show_console_window = false;
+
     // Main loop
     bool done = false;
     while (!done)
@@ -205,44 +209,125 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        bool tempp = true;
-        ImGui::ShowDemoWindow(&tempp);
 
         // 1. UI (Default)
-        ImGui::Begin("Default");
-
-        // Camera
-        ImGui::Text("Camera");
-
-        static float cameraPosition[4] = { 0.0f, 0.0f, -10.0f };
-        static float cameraRotation[4] = { 0.0f, 0.0f, 0.0f };
-        static float cameraSpeed = 0.3f;
-        static float cameraSensitivity = 0.01f;
-        ImGui::InputFloat3("position (not working)", cameraPosition);
-        ImGui::InputFloat3("rotation (not working)", cameraRotation);
-        if (ImGui::InputFloat("speed", &cameraSpeed, 0.01f, 0.3f, "%.2f"))
         {
-            if (cameraSpeed < 0.01f)
+            // Demo Window
+            //bool tempp = true;
+            //ImGui::ShowDemoWindow(&tempp);
+            
+            ImGui::Begin("DirectX Controller");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 128));
+            ImGui::Text("Welcome, DirectX World! \n\nThis is a library viewer for real-time \ngrowing plant models.");
+            ImGui::Text("You can use these models by adding them \nas assets to any graphics development engine.");
+            ImGui::PopStyleColor();
+
+            // FPS
+            ImGui::Text("\nFPS :");
+            if (100 <= io.Framerate)
             {
-                cameraSpeed = 0.01f;
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));
+                ImGui::SameLine();
+                ImGui::Text("\n%.1f", io.Framerate);
+                ImGui::PopStyleColor();
             }
-            if (cameraSpeed >= 5.0f)
+            else
             {
-                cameraSpeed = 5.0f;
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); 
+                ImGui::SameLine();
+                ImGui::Text("\n%.1f", io.Framerate);
+                ImGui::PopStyleColor();
             }
-            graphics->SetCameraSpeed(cameraSpeed);
+            
+            // Application average
+            ImGui::Text("Application average", 1000.0f / io.Framerate);
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 128));
+            ImGui::SameLine();
+            ImGui::Text("%.3f", 1000.0f / io.Framerate);
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+            ImGui::Text("ms/frame", 1000.0f / io.Framerate);
+
+            // Background Color
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n <Background Color>");
+            ImGui::PopStyleColor();
+            ImGui::ColorEdit4("", (float*)&clear_color);
+
+            ImGui::Text("\nViewer Windows.");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Checkbox("Camera Location Window", &show_location_window);
+            ImGui::Checkbox("Console Edit Window", &show_console_window);
+            ImGui::PopStyleColor();
         }
-        if (ImGui::InputFloat("sensitivity", &cameraSensitivity, 0.005f, 0.01f, "%.3f"))
+
+        if (show_location_window)
         {
-            if (cameraSpeed < 0.001f)
+            // Camera
+            static float cameraPosition[4] = { 0.0f, 0.0f, -10.0f };
+            static float cameraRotation[4] = { 0.0f, 0.0f, 0.0f };
+            static float cameraSpeed = 0.3f;
+            static float cameraSensitivity = 0.01f;
+            
+            ImGui::Begin("Camera Location Window", &show_location_window);
+
+            // Camera Position
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Position>");
+            ImGui::PopStyleColor();
+            ImGui::InputFloat3("(x, y, z)", cameraPosition);
+
+            // Camera Rotation
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Rotation>");
+            ImGui::PopStyleColor();
+            ImGui::InputFloat3("(x, y, z)", cameraRotation);
+
+            // Camera Speed
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Speed>");
+            ImGui::PopStyleColor();
+            if (ImGui::InputFloat(" ", &cameraSpeed, 0.01f, 0.3f, "%.2f"))
             {
-                cameraSpeed = 0.001f;
+                if (cameraSpeed < 0.01f)
+                {
+                    cameraSpeed = 0.01f;
+                }
+                if (cameraSpeed >= 5.0f)
+                {
+                    cameraSpeed = 5.0f;
+                }
+                graphics->SetCameraSpeed(cameraSpeed);
             }
-            if (cameraSensitivity >= 0.1f)
+
+            // Camera Sensitivity
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Sensitivity>");
+            ImGui::PopStyleColor();
+            if (ImGui::InputFloat(" ", &cameraSensitivity, 0.005f, 0.01f, "%.3f"))
             {
-                cameraSensitivity = 0.1f;
+                if (cameraSpeed < 0.001f)
+                {
+                    cameraSpeed = 0.001f;
+                }
+                if (cameraSensitivity >= 0.1f)
+                {
+                    cameraSensitivity = 0.1f;
+                }
+                graphics->SetCameraSensitivity(cameraSensitivity);
             }
-            graphics->SetCameraSensitivity(cameraSensitivity);
+
+            ImGui::End();
+
+        }
+
+        if (show_console_window)
+        {
+            ImGui::Begin("Console Edit Window", &show_console_window);
+
+            // 콘솔 클래스 함수 실행 (ex) Draw()
+
+            ImGui::End();
         }
 
         // Light
@@ -252,26 +337,49 @@ int main(int, char**)
             //- position 3
             //- rotation 3
 
-        // World
-        ImGui::Text("World");
-
-        // world 회전 slide
-        //static float f = 0.0f;
-        //ImGui::SliderFloat("world rotate", &f, 0.0f, 1.0f);
-        ImGui::ColorEdit3("clear color", (float*)&clear_color);     // background color
 
         // Plane 유무 checkbox
 
         // wireframe, solid select
 
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::End();
 
-        // 2. UI (L-System)
-        ImGui::Begin("L-System");
 
-        // Menu bar
+        // Demonstrate the various window flags. Typically you would just use the default!
+        static bool no_titlebar = false;
+        static bool no_scrollbar = false;
+        static bool no_menu = false;
+        static bool no_move = false;
+        static bool no_resize = false;
+        static bool no_collapse = false;
+        static bool no_close = false;
+        static bool no_nav = false;
+        static bool no_background = false;
+        static bool no_bring_to_front = false;
+        static bool no_docking = false;
+        static bool unsaved_document = false;
+
+        bool myLsystemMenuBar = true;
+
+        ImGuiWindowFlags window_flags = 0;
+        if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
+        if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
+        if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
+        if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
+        if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
+        if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
+        if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
+        if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
+        if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+        if (no_docking)         window_flags |= ImGuiWindowFlags_NoDocking;
+        if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
+        if (no_close)           myLsystemMenuBar = NULL; // Don't pass our bool* to Begin
+
+
+        // 2. UI (L-System)
+        ImGui::Begin("L-System", &myLsystemMenuBar, ImGuiWindowFlags_MenuBar);
+
+        // L-System : Menu bar
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
@@ -286,23 +394,63 @@ int main(int, char**)
                 }
                 ImGui::EndMenu();
             }
+            
+            if (ImGui::BeginMenu("Preset"))
+            {
+                if (ImGui::MenuItem("2D Example"))
+                {
+                    // do something
+                }
+                if (ImGui::MenuItem("3D Example"))
+                {
+                    // do something
+                }
+                ImGui::EndMenu();
+            }
             ImGui::EndMenuBar();
         }
 
-        static char temp[128] = "";
-        ImGui::InputText("Word", temp, IM_ARRAYSIZE(temp));
+        // L-System : Main window
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
+        ImGui::Text("\n<L-System Algorithm Word>");
+        ImGui::PopStyleColor();
+
+        // One-line Text Input
+        static char word[128] = "ex) FFFFF";
+        ImGui::InputText(" ", word, IM_ARRAYSIZE(word));
+        ImGui::SameLine();
         if (ImGui::Button("Render"))
         {
-            lSystem->SetWord(temp);
+            lSystem->SetWord(word);
             lSystem->ClearState();
             graphics->UpdateModels();
         }
+
+        // Multi-line Text Input
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
+        ImGui::Text("\n<L-System Algorithm Word>");
+        ImGui::PopStyleColor();
+
+        static char multiText[1024 * 16] = "Input your multi-line text..";
+        static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
+        ImGui::InputTextMultiline("##source", multiText, IM_ARRAYSIZE(multiText), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+        
         if (ImGui::Button("Clear"))
         {
             lSystem->SetWord("");
             lSystem->ClearState();
             graphics->UpdateModels();
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Complete"))
+        {
+            lSystem->SetWord(multiText);
+            lSystem->ClearState();
+            graphics->UpdateModels();
+        }
+        
+        
         // Word
 
         // Rule
