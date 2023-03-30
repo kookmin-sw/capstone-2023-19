@@ -1,7 +1,9 @@
+#include <cstring>
 #include <string>
 #include <vector>
 #include <stack>
 #include <cmath>
+#include "Stdafx.h"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
 #include "LRule.hpp"
@@ -42,7 +44,7 @@ Model CreateLeaf(std::vector<Vector3>* leaf, const float& angle)
     int size = leaf->size();
 
     // !!! color 일단 그린 고정
-    Vector4 green{ 0.0f, 1.0f, 0.0f, 0.0f };
+    Vector4 green{ 0.19f, 0.35f, 0.15f, 0.0f };
 
     Model model;
 
@@ -97,8 +99,6 @@ LSystem::LSystem()
         DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
-
-    ;
 }
 
 LSystem::~LSystem()
@@ -119,7 +119,12 @@ std::string LSystem::GetWord() const
     return wordText;
 }
 
-std::string LSystem::GetRules() const
+std::vector<LRule> LSystem::GetRules() const
+{
+    return this->rules_;
+}
+
+std::string LSystem::GetRuleText() const
 {
     std::string rulesText;
     for (const LRule& rule : this->rules_)
@@ -204,6 +209,18 @@ void LSystem::AddRule(const char& key, const std::string& value)
 void LSystem::AddRule(const std::string& key, const std::string& value)
 {
     this->rules_.push_back(LRule(key, value));
+}
+
+void LSystem::ClearState()
+{
+    this->state_ =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {90.0f, 0.0f, 0.0f},     // X Y Z
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
+        0.3f
+    };
 }
 
 // Run

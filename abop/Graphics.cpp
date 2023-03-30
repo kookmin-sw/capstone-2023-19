@@ -29,7 +29,7 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 	}
 
 	DirectX::XMMATRIX baseViewMatrix;
-	this->camera_->SetPosition(0.0f, 0.0f, -100.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -10.0f);
 	this->camera_->Render();
 	baseViewMatrix = this->camera_->View();
 
@@ -111,16 +111,14 @@ void Graphics::Shutdown()
 
 bool Graphics::Frame(int forward, int right, int pitchUp, int rotationRight, int up)
 {
-	float tempCameraSpeed = 0.3f;
-	this->camera_->Walk(forward * tempCameraSpeed);
-	this->camera_->Strafe(right * tempCameraSpeed);
+	// TODO 카메라 키보드 조작 인자 줄이기
+	this->camera_->Walk(forward * this->cameraSpeed_);
+	this->camera_->Strafe(right * this->cameraSpeed_);
 
-	float tempRotationSpeed = 0.01f;
-	this->camera_->Pitch(pitchUp * tempRotationSpeed);
-	this->camera_->RotateY(rotationRight * tempRotationSpeed);
+	this->camera_->Pitch(pitchUp * this->cameraSensitivity_);
+	this->camera_->RotateY(rotationRight * this->cameraSensitivity_);
 
-	float tempUpSpeed = 0.1f;
-	this->camera_->Up(up * tempUpSpeed);
+	this->camera_->Up(up * this->cameraSpeed_);
 
 	return this->Render();
 }
@@ -128,6 +126,7 @@ bool Graphics::Frame(int forward, int right, int pitchUp, int rotationRight, int
 void Graphics::UpdateModels()
 {
 	// 모델 초기화
+	this->models_ = new std::vector<ModelClass*>();
 	std::vector<Model>* models = new std::vector<Model>();
 	if (!models)
 	{
@@ -138,7 +137,7 @@ void Graphics::UpdateModels()
 	Plane* plane = new Plane();
 	plane->SetWidth(1000.0f);
 	plane->SetHeight(1000.0f);
-	plane->SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+	plane->SetColor(0.3f, 0.3f, 0.3f, 1.0f);
 	// 임시 회전
 	DirectX::XMFLOAT3 axisX = DirectX::XMFLOAT3(1, 0, 0);
 	DirectX::XMVECTOR v = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * 3.14f / 180.0f);
@@ -177,6 +176,7 @@ void Graphics::UpdateModels()
 			cube->SetPosition(model.data[0], model.data[1], model.data[2]);
 			cube->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
 			cube->SetSize(model.data[7], model.data[8], model.data[9]);
+			cube->SetColor(0.32f, 0.19f, 0.0f, 1.0f);		// !!! Trunk color
 
 			cube->Initialize(this->d3d_->GetDevice());
 
@@ -185,6 +185,26 @@ void Graphics::UpdateModels()
 			this->models_->push_back((ModelClass*)cube);
 		}
 	}
+}
+
+void Graphics::SetCameraPosition(float x, float y, float z)
+{
+	this->camera_->SetPosition(x, y, z);
+}
+
+void Graphics::SetCameraRotation(float x, float y, float z)
+{
+	// TODO to be update
+}
+
+void Graphics::SetCameraSensitivity(float& sen)
+{
+	this->cameraSensitivity_ = sen;
+}
+
+void Graphics::SetCameraSpeed(float& speed)
+{
+	this->cameraSpeed_ = speed;
 }
 
 bool Graphics::Render()

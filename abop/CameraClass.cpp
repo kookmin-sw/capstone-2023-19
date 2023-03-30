@@ -31,9 +31,6 @@ DirectX::XMFLOAT3 CameraClass::GetPosition() const
 	return this->position_;
 }
 
-void SetPosition(const DirectX::XMFLOAT3&);
-
-
 void CameraClass::SetPosition(float x, float y, float z)
 {
 	this->position_ = DirectX::XMFLOAT3(x, y, z);
