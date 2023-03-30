@@ -110,15 +110,10 @@ std::string LSystem::GetWord() const
     return wordText;
 }
 
-//char* LSystem::GetWordIntoChar() const
-//{
-//    std::string s = this->GetWord();
-//    
-//    char* charArray = new char[s.length() + 1];
-//    strcpy_s(charArray, s.c_str());
-//
-//    return charArray;
-//}
+std::vector<LRule> LSystem::GetRules() const
+{
+    return this->rules_;
+}
 
 std::string LSystem::GetRuleText() const
 {
@@ -128,11 +123,6 @@ std::string LSystem::GetRuleText() const
         rulesText += rule.GetRule() + '\n';
     }
     return rulesText;
-}
-
-std::vector<LRule>* LSystem::GetRules()
-{
-    return &this->rules_;
 }
 
 float LSystem::GetAngleChange() const

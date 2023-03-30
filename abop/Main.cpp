@@ -90,11 +90,17 @@ int main(int, char**)
 
     // Init Render
     lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
-    lSystem->SetAngleChange(20.f);
-    lSystem->SetDistance(10.0f);
+    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
+    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
+    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
+    //lSystem->SetLeafAngleChange(22.5f);
+    //lSystem->SetLeafDistance(0.3f);
+    lSystem->SetAngleChange(22.5f);
+    lSystem->SetDistance(1.5f);
+    lSystem->SetThickness(0.5f);
+    lSystem->SetDeltaThickness(0.9f);
     lSystem->Iterate(4);
-    //std::cout << lSystem->GetWord() << std::endl;
+    //std::cout << lSystem->GetRules()[0].GetRule() << std::endl;
     graphics->UpdateModels();
     // ----------------
 
@@ -245,7 +251,9 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Position>");
             ImGui::PopStyleColor();
-            if (ImGui::InputFloat3("(x, y, z)", cameraPosition))
+            ImGui::Text("(X, Y, Z) :"); 
+            ImGui::SameLine();
+            if (ImGui::InputFloat3("##positon", cameraPosition))
             {
                 graphics->SetCameraPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
             }
@@ -254,7 +262,9 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Rotation>");
             ImGui::PopStyleColor();
-            if (ImGui::InputFloat3("(x, y, z)", cameraRotation))
+            ImGui::Text("(P, R, Y) :"); 
+            ImGui::SameLine();
+            if (ImGui::InputFloat3("##rotation", cameraRotation))
             {
                 // 카메라 각도 조절
             }
@@ -263,7 +273,7 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Speed>");
             ImGui::PopStyleColor();
-            if (ImGui::InputFloat(" ", &cameraSpeed, 0.01f, 0.3f, "%.2f"))
+            if (ImGui::InputFloat("  ", &cameraSpeed, 0.01f, 0.3f, "%.2f"))
             {
                 if (cameraSpeed < 0.01f)
                 {
@@ -359,7 +369,6 @@ int main(int, char**)
         if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
         if (no_close)           myLsystemMenuBar = NULL; // Don't pass our bool* to Begin
 
-
         // 2. UI (L-System)
         ImGui::Begin("L-System", &myLsystemMenuBar, ImGuiWindowFlags_MenuBar);
 
@@ -395,30 +404,38 @@ int main(int, char**)
         }
 
         // L-System : Main window
+        //ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
+        //ImGui::Text("\n<L-System Algorithm Word>");
+        //ImGui::PopStyleColor();
 
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
-        ImGui::Text("\n<L-System Algorithm Word>");
-        ImGui::PopStyleColor();
-
-        // One-line Text Input
-        static char word[128] = "ex) FFFFF";
-        ImGui::InputText(" ", word, IM_ARRAYSIZE(word));
-        ImGui::SameLine();
-        if (ImGui::Button("Render"))
-        {
-            lSystem->SetWord(word);
-            lSystem->ClearState();
-            graphics->UpdateModels();
-        }
+        //// One-line Text Input
+        //static char word[128] = "ex) FFFFF";
+        //ImGui::InputText(" ", word, IM_ARRAYSIZE(word));
+        //ImGui::SameLine();
+        //if (ImGui::Button("Render"))
+        //{
+        //    lSystem->SetWord(word);
+        //    lSystem->ClearState();
+        //    graphics->UpdateModels();
+        //}
 
         // Multi-line Text Input
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
-        ImGui::Text("\n<L-System Algorithm Word>");
+        ImGui::Text("<L-System Algorithm Word>");
         ImGui::PopStyleColor();
 
         static char multiText[1024 * 16] = "Input your multi-line text..";
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
+        // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
         ImGui::InputTextMultiline("##source", multiText, IM_ARRAYSIZE(multiText), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
+        ImGui::Text("<L-System Algorithm Rules>");
+        ImGui::PopStyleColor();
+
+        static char multiText2[1024 * 16] = "Input your multi-line text..";
+        // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
+        ImGui::InputTextMultiline("##rules", multiText2, IM_ARRAYSIZE(multiText), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
         
         if (ImGui::Button("Clear"))
         {
@@ -427,7 +444,7 @@ int main(int, char**)
             graphics->UpdateModels();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Complete"))
+        if (ImGui::Button("Render"))
         {
             lSystem->SetWord(multiText);
             lSystem->ClearState();
@@ -438,17 +455,18 @@ int main(int, char**)
         // Word
 
         // Rule
-        ImGui::BeginChild("Scrolling");
-        //for (LRule rule : *lSystem->GetRules())
+        //ImGui::BeginChild("Scrolling");
+        //for (LRule rule : lSystem->GetRules())
+        
+        //static std::vector<LRule> rules = ;
+        //ImGui::Text("%d", rules.size());
+        ////for (int i = 0; i < )
+        //for (LRule& rule : rules)
         //{
-        //    //ImGui::Text("%s", rule.GetRule());
+        //    static std::string s = rules[0].GetRule();
+        //    ImGui::Text("%s", s);
         //}
-        ImGui::Text("FOR TEST");
-        ImGui::Text("FOR TEST");
-        ImGui::Text("FOR TEST");
-        ImGui::Text("FOR TEST");
-        ImGui::Text("FOR TEST");
-        ImGui::EndChild();
+        //ImGui::EndChild();
 
         ImGui::End();
 
