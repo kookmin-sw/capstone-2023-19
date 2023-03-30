@@ -8,9 +8,9 @@ protected:
     struct VertexType
     {
         DirectX::XMFLOAT3 position;
-        DirectX::XMFLOAT2 texture;
-        DirectX::XMFLOAT3 normal;
         DirectX::XMFLOAT4 color;
+        DirectX::XMFLOAT3 normal;
+        DirectX::XMFLOAT2 texture;
     };
 
     struct ModelType
@@ -39,6 +39,8 @@ public:
     void SetQuaternion(const float&, const float&, const float&, const float&);
     void SetScale(const float&, const float&, const float&);
     void SetScale(const Vector3&);
+
+    void SetColor(const float& r, const float& g, const float& b, const float& a);
 
     int GetIndexCount();
     Vector3 GetPosition();

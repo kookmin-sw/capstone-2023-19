@@ -109,6 +109,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 
 				this->models_->push_back(modelClass);
 			}
+			else if (model.modelType == ModelType::LeafModel) {
+				Leaf* leaf = new Leaf;
+				leaf->Initialize(this->direct3D_->GetDevice(), model);
+
+				this->models_->push_back((ModelClass*)leaf);
+			}
 			else
 			{
 				// !!! TEMP
@@ -383,8 +389,14 @@ bool GraphicsClass::Render()
 		if (!model->GetTexture())
 		{
 			// ColorShader를 통해 렌더링
-			if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-				model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+			bool result = this->colorShader_->Render(
+				this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix,
+				this->light_->GetDirection(), this->light_->GetAmbientColor(),
+				this->light_->GetDiffuseColor(), this->camera_->GetPosition(),
+				this->light_->GetSpecularColor(), this->light_->GetSpecularPower());
+
+			if (!result)
 			{
 				return false;
 			}

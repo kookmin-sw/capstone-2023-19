@@ -83,6 +83,21 @@ int main(int, char**)
         return -1;
     }
 
+    // !!! TEMP
+    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
+
+    lSystem->SetWord("F");
+    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
+    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
+    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
+    lSystem->SetLeafAngleChange(22.5f);
+    lSystem->SetLeafDistance(0.3f);
+    lSystem->SetDistance(2.0f);
+    lSystem->SetDeltaThickness(0.9f);
+    lSystem->SetAngleChange(22.5f);
+    lSystem->Iterate(5);
+    // ----------------
+
     if (graphics->Initialize(hwnd, d3d, lSystem))
     {
         return -1;
@@ -483,7 +498,7 @@ int main(int, char**)
 
         d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
         d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
-        
+
         // Input (!!! TEMP)
         input->Frame();
         int F, R, PU, RR, U;
@@ -546,14 +561,14 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    //case WM_SIZE:
-    //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
-    //    {
-    //        CleanupRenderTarget();
-    //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-    //        CreateRenderTarget();
-    //    }
-    //    return 0;
+        //case WM_SIZE:
+        //    if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+        //    {
+        //        CleanupRenderTarget();
+        //        g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+        //        CreateRenderTarget();
+        //    }
+        //    return 0;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;

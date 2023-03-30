@@ -39,19 +39,21 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::X
     return model;
 }
 
-Model CreateLeaf(std::vector<Vector3>* leaf)
+Model CreateLeaf(std::vector<Vector3>* leaf, const float& angle)
 {
     int size = leaf->size();
 
     // !!! color 일단 그린 고정
-    Vector4 green{ 0.0f, 1.0f, 0.0f, 0.0f };
+    Vector4 green{ 0.19f, 0.35f, 0.15f, 0.0f };
 
     Model model;
 
+    model.modelType = ModelType::LeafModel;
     model.vertexCount = size;
     model.vertexTypes = new VertexType[size];
-    model.indexCount = (size - 1) * 3;
+    model.indexCount = (size - 1) * 6;
     model.indices = new int[model.indexCount];
+    model.angle = angle;
 
     // TEMP
     for (int i = 0; i < size; i++)
@@ -61,13 +63,20 @@ Model CreateLeaf(std::vector<Vector3>* leaf)
 
     int i = 0;
     int vertex = 1;
-    while (i < (size - 1) * 3 - 1)
+    while (i < (size - 1) * 5 - 1)
     {
+        int a = vertex++;
+        int b = vertex;
+
         model.indices[i++] = 0;
-        model.indices[i++] = vertex++;
-        model.indices[i++] = vertex;
+        model.indices[i++] = a;
+        model.indices[i++] = b;
+
+        model.indices[i++] = 0;
+        model.indices[i++] = b;
+        model.indices[i++] = a;
     }
-    model.indices[--i] = 1;
+    // model.indices[--i] = 1;
 
     return model;
 }
@@ -143,6 +152,26 @@ void LSystem::SetAngleChange(const float& val)
 void LSystem::SetDistance(const float& val)
 {
     this->distance_ = val;
+}
+
+float LSystem::GetLeafAngleChange() const
+{
+    return this->leafAngleChange_;
+}
+
+float LSystem::GetLeafDistance() const
+{
+    return this->leafDistance_;
+}
+
+void LSystem::SetLeafAngleChange(const float& val)
+{
+    this->leafAngleChange_ = val;
+}
+
+void LSystem::SetLeafDistance(const float& val)
+{
+    this->leafDistance_ = val;
 }
 
 void LSystem::SetWord(const std::string& word)
@@ -265,49 +294,89 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 startPos = this->state_.position;
                 break;
             }
-            case LLetter::Type::NoDrawForward:
+            case LLetter::Type::NoDrawForward: {
+                this->Move();
+                endPos = this->state_.position;
+                break;
+            }
             case LLetter::Type::NoDrawForward2:
             {
                 // No Draw + Move foward
-                this->Move();
-                startPos = this->state_.position;
+                this->Move(leafDistance_);
+                endPos = this->state_.position;
                 //out->push_back(CreateLineModel(startPos, endPos));
                 break;
             }
             case LLetter::Type::RollLeft:
             {
                 // angleChange_ 만큼 x축 회전
-                this->Rotate(0, angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(0, leafAngleChange_);
+                }
+                else {
+                    this->Rotate(0, angleChange_);
+                }
                 break;
             }
             case LLetter::Type::RollRight:
             {
                 // -angleChange_ 만큼 x축 회전
-                this->Rotate(0, -angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(0, -leafAngleChange_);
+                }
+                else {
+                    this->Rotate(0,- angleChange_);
+                }
                 break;
             }
             case LLetter::Type::PitchUp:
             {
                 // angleChange_ 만큼 y축 회전
-                this->Rotate(1, angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(1, leafAngleChange_);
+                }
+                else {
+                    this->Rotate(1, angleChange_);
+                }
                 break;
             }
             case LLetter::Type::PitchDown:
             {
                 // -angleChange_ 만큼 y축 회전
-                this->Rotate(1, -angleChange_);
+                if (drawingLeaf_) {
+                    this->Rotate(1, -leafAngleChange_);
+                }
+                else {
+                    this->Rotate(1, -angleChange_);
+                }
                 break;
             }
             case LLetter::Type::TurnLeft:
             {
                 // angleChange_ 만큼 z축 회전
-                this->Rotate(2, angleChange_);
+                //this->Rotate(2, angleChange_);
+
+                if (drawingLeaf_) {
+                    this->Rotate(2, leafAngleChange_);
+                }
+                else {
+                    this->Rotate(2, angleChange_);
+                }
+
                 break;
             }
             case LLetter::Type::TurnRight:
             {
                 // -angleChange_ 만큼 z축 회전
-                this->Rotate(2, -angleChange_);
+                //this->Rotate(2, -angleChange_);
+
+                if (drawingLeaf_) {
+                    this->Rotate(2, -leafAngleChange_);
+                }
+                else {
+                    this->Rotate(2, -angleChange_);
+                }
+
                 break;
             }
             case LLetter::Type::TurnAround:
@@ -335,9 +404,11 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 leaf = new std::vector<Vector3>();
 
-                leafstack.push(leaf);
-
                 leaf->push_back(this->state_.position);
+
+                this->drawingLeaf_ = true;
+
+                leafstack.push(leaf);
                 break;
             }
             case LLetter::Type::MarkingPoint:
@@ -347,8 +418,8 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             }
             case LLetter::Type::EndingPoint:
             {
-                out->push_back(CreateLeaf(leaf));
-
+                out->push_back(CreateLeaf(leaf, this->leafAngleChange_));
+                
                 if (!leafstack.empty()) {
                     leaf = leafstack.top();
                     leafstack.pop();
@@ -357,6 +428,8 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     leaf = nullptr;
                 }
 
+                this->drawingLeaf_ = false;
+                
                 break;
             }
             case LLetter::Type::None:
@@ -375,6 +448,13 @@ void LSystem::Move()
     this->state_.position.y += this->state_.direction.y * this->distance_;
     this->state_.position.z += this->state_.direction.z * this->distance_;
     this->state_.thickness *= this->deltaThickness_;
+}
+void LSystem::Move(float distance) // Symbol : G (Leaf)
+{
+    // Heading Vector에 distance 곱해서 움직여주기
+    this->state_.position.x += this->state_.direction.x * distance;
+    this->state_.position.y += this->state_.direction.y * distance;
+    this->state_.position.z += this->state_.direction.z * distance;
 }
 
 // 현재 state를 기준으로 회전

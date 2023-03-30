@@ -54,9 +54,6 @@
     <ClCompile Include="D3DClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
-    <ClCompile Include="ColorShaderClass.cpp">
-      <Filter>DX</Filter>
-    </ClCompile>
     <ClCompile Include="CameraClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
@@ -139,6 +136,13 @@
     <ClCompile Include="FpsClass.cpp">
       <Filter>DX</Filter>
     </ClCompile>
+    <ClCompile Include="Leaf.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Leaf.cpp" />
+    <ClCompile Include="ColorShaderClass.cpp">
+      <Filter>DX\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -175,9 +179,6 @@
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="CameraClass.hpp">
-      <Filter>DX</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorShaderClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
     <ClInclude Include="ModelClass.hpp">
@@ -267,6 +268,12 @@
     <ClInclude Include="FpsClass.hpp">
       <Filter>DX</Filter>
     </ClInclude>
+    <ClInclude Include="ColorShaderClass.hpp">
+      <Filter>DX\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Leaf.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">
@@ -299,10 +306,10 @@
     <FxCompile Include="Font.ps">
       <Filter>DX\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="Color.vs">
+    <FxCompile Include="ColorVertex.hlsl">
       <Filter>DX\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="Color.ps">
+    <FxCompile Include="ColorPixel.hlsl">
       <Filter>DX\Shader</Filter>
     </FxCompile>
   </ItemGroup>

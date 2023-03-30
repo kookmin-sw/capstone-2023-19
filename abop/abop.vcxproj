@@ -76,6 +76,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Leaf.cpp" />
     <ClCompile Include="LightClass.cpp" />
     <ClCompile Include="LightShaderClass.cpp" />
     <ClCompile Include="LLetter.cpp">
@@ -189,6 +190,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Leaf.hpp" />
     <ClInclude Include="LightClass.hpp" />
     <ClInclude Include="LightShaderClass.hpp" />
     <ClInclude Include="LLetter.hpp">
@@ -243,7 +245,7 @@
     <ClInclude Include="Vector3.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Color.ps">
+    <FxCompile Include="ColorPixel.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -300,7 +302,7 @@
     <None Include="Texture.vs" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Color.vs">
+    <FxCompile Include="ColorVertex.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ColorVertexShader</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ColorVertexShader</EntryPointName>

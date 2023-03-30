@@ -9,6 +9,9 @@ private:
     float angleChange_ = 90;
     float distance_ = 1.0f;
     float deltaThickness_ = 1.0f;
+    float leafAngleChange_ = 22.5f;
+    float leafDistance_ = 0.5f;
+    bool drawingLeaf_ = false;
     State state_;
 
     std::vector<LRule> rules_;
@@ -26,12 +29,16 @@ public:
 
     float GetAngleChange() const;
     float GetDistance() const;
+    float GetLeafAngleChange() const;
+    float GetLeafDistance() const;
 
     void SetAngleChange(const float&);
     void SetDistance(const float&);
     void SetWord(const std::string&);
     void SetThickness(const float&);
     void SetDeltaThickness(const float&);
+    void SetLeafAngleChange(const float&);
+    void SetLeafDistance(const float&);
     
     // Rule
     void AddRule(const std::string&);
@@ -49,6 +56,7 @@ public:
 
 private:
     void Move();
+    void Move(float distance);
     void Rotate(const unsigned short&, const float&);
 
     DirectX::XMFLOAT3 axisX;

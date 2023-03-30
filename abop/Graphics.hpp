@@ -5,7 +5,7 @@ class CameraClass;
 class ModelClass;
 class LSystem;
 class ColorShaderClass;
-//class LightClass;
+class LightClass;
 
 class Graphics
 {
@@ -24,6 +24,7 @@ private:
 	bool Render();
 
 private:
+	// DirectX
 	D3DClass* d3d_ = nullptr;
 
 	// Camera
@@ -31,8 +32,12 @@ private:
 	float cameraSensitivity_ = 0.01f;
 	float cameraSpeed_ = 0.3f;
 
+	LightClass* light_ = nullptr;
+
+	// Shader
+	ColorShaderClass* colorShader_ = nullptr;
+
+	// LSystem, Model
 	LSystem* lSystem_ = nullptr;
 	std::vector<ModelClass*>* models_ = nullptr;
-
-	ColorShaderClass* colorShader_ = nullptr;
 };
