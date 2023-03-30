@@ -97,6 +97,9 @@
     <ClCompile Include="BitmapClass.cpp" />
     <ClCompile Include="FpsClass.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Leaf.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -192,6 +195,9 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="BitmapClass.hpp" />
     <ClInclude Include="FpsClass.hpp" />
+    <ClInclude Include="Leaf.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">

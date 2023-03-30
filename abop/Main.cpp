@@ -60,22 +60,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//lSystem->SetLeafAngleChange(30.f);
 	//lSystem->Iterate(1);
 
-	lSystem->SetWord("A");
-	lSystem->AddRule("A", "[&FLA]/////`[&FLA]///////`[&FLA]");
-	lSystem->AddRule("F", "S/////F");
-	lSystem->AddRule("S", "FL");
-	lSystem->AddRule("L", "[```^^{-G.+G.+G.-|-G.+G.+G.}]");
+	//lSystem->SetWord("A");
+	//lSystem->AddRule("A", "[&FLA]/////`[&FLA]///////`[&FLA]");
+	//lSystem->AddRule("F", "S/////F");
+	//lSystem->AddRule("S", "FL");
+	//lSystem->AddRule("L", "[```^^{-G.+G.+G.-|-G.+G.+G.}]");
+	//lSystem->SetLeafAngleChange(22.5f);
+	//lSystem->SetLeafDistance(0.3f);
+	//lSystem->SetDistance(2.0f);
+	//lSystem->SetDeltaThickness(0.9f);
+	//lSystem->SetAngleChange(22.5f);
+	//lSystem->Iterate(7);
+
+	lSystem->SetWord("F");
+	lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
+	lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
+	lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
 	lSystem->SetLeafAngleChange(22.5f);
 	lSystem->SetLeafDistance(0.3f);
-	lSystem->SetDistance(2.0f);
-	lSystem->SetDeltaThickness(0.9f);
 	lSystem->SetAngleChange(22.5f);
-	lSystem->Iterate(7);
-
-	//lSystem->SetWord("F");
-	//lSystem->AddRule('F', "FF");
-	//lSystem->SetDeltaThickness(0.8f);
-	//lSystem->Iterate(4);
+	lSystem->SetDistance(1.5f);
+	lSystem->SetThickness(0.5f);
+	lSystem->SetDeltaThickness(0.9f);
+	lSystem->Iterate(4);
 
 	SystemClass* system = new SystemClass;
 	if (!system)
