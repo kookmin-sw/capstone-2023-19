@@ -39,6 +39,20 @@ float Vector3::SqrtMagnitude()
 	return sqrt(x * x + y * y + z * z);
 }
 
+float Vector3::Dot(const Vector3& vec) const
+{
+	return x * vec.x + y * vec.y + z * vec.z;
+}
+
+void Vector3::Cross(const Vector3& vec)
+{
+	float newX = y * vec.z - z * vec.y;
+	float newY = z * vec.x - x * vec.z;
+	float newZ = x * vec.y - y * vec.x;
+	x = newX; y = newY; z = newZ;
+}
+
+
 Vector3& Vector3::operator+(const Vector3& other)
 {
 	this->x += other.x;
@@ -73,4 +87,11 @@ Vector3& Vector3::operator/(const float& op)
 	this->z /= op;
 
 	return *this;
+}
+
+Vector3& operator%(const Vector3& vec1, const Vector3& vec2)
+{
+	Vector3 v = vec1;
+	v.Cross(vec2);
+	return v;
 }

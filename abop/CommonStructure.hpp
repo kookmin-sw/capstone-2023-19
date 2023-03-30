@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector3.hpp"
+#include "DirectXMath.h"
 
 struct Vector4      // !!! Vector4는 아직 struct임
 {
@@ -13,8 +14,10 @@ struct Vector4      // !!! Vector4는 아직 struct임
 struct State
 {
     Vector3 position;
-    Vector3 heading;    // 방향 단위 벡터
+    Vector3 direction;    // 방향 단위 벡터
     Vector3 rotation;
+	DirectX::XMVECTOR quaternion;
+    float thickness;
 };
 
 struct VertexType
@@ -27,6 +30,7 @@ enum ModelType
 {
     Custom,
     // Same as DX/Models/ModelVariation.cpp
+    LeafModel,
     TriangleModel,
     SquareModel,
     PlaneModel,
@@ -43,6 +47,9 @@ struct Model
     int indexCount;
     VertexType* vertexTypes = nullptr;
     int* indices = nullptr;
+
+    // For LeafModel
+    float angle;
 
     // For others
     int dataCount;
