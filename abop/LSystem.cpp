@@ -251,7 +251,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     // out -> jk,
     if (this->word_->size() < 1)
     {
-        throw "No word";
+        return;
     }
 
     float width = 0.5;

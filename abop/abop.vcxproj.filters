@@ -290,10 +290,10 @@
     <FxCompile Include="Font.ps">
       <Filter>DX\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="Color.vs">
+    <FxCompile Include="ColorVertex.hlsl">
       <Filter>DX\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="Color.ps">
+    <FxCompile Include="ColorPixel.hlsl">
       <Filter>DX\Shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -7,9 +7,11 @@
 #include "ModelVariation.hpp"
 #include "D3DClass.hpp"
 #include "CameraClass.hpp"
-#include "LSystem.hpp"
-#include "Graphics.hpp"
+#include "LightClass.hpp"
 #include "ColorShaderClass.hpp"
+#include "LSystem.hpp"
+
+#include "Graphics.hpp"
 
 bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 {
@@ -38,6 +40,20 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 		return false;
 	}
 
+	// Light
+	this->light_ = new LightClass;
+	if (!this->light_)
+	{
+		return false;
+	}
+
+	// Default Light Setting
+	this->light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	this->light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
+	this->light_->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	this->light_->SetSpecularPower(30.0f);
+
 	// Shader
 	this->colorShader_ = new ColorShaderClass;
 	if (!this->colorShader_)
@@ -56,6 +72,12 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 
 void Graphics::Shutdown()
 {
+	if (this->light_)
+	{
+		delete this->light_;
+		this->light_ = nullptr;
+	}
+
 	if (this->colorShader_)
 	{
 		this->colorShader_->Shutdown();
@@ -111,6 +133,24 @@ void Graphics::UpdateModels()
 	{
 		return;
 	}
+
+	// 임시 Plane 추가
+	Plane* plane = new Plane();
+	plane->SetWidth(1000.0f);
+	plane->SetHeight(1000.0f);
+	plane->SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+	// 임시 회전
+	DirectX::XMFLOAT3 axisX = DirectX::XMFLOAT3(1, 0, 0);
+	DirectX::XMVECTOR v = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * 3.14f / 180.0f);
+	plane->SetQuaternion
+	(
+		DirectX::XMVectorGetX(v),
+		DirectX::XMVectorGetY(v),
+		DirectX::XMVectorGetZ(v),
+		DirectX::XMVectorGetW(v)
+	);
+	plane->Initialize(this->d3d_->GetDevice());
+	this->models_->push_back((ModelClass*)plane);
 
 	this->lSystem_->GetResultVertex(models);
 	for (const Model& model : *models)
@@ -194,14 +234,17 @@ bool Graphics::Render()
 		);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
-		// !!! world 회전
-		//worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
-
 		if (!model->GetTexture())
 		{
 			// ColorShader를 통해 렌더링
-			if (!this->colorShader_->Render(this->d3d_->GetDeviceContext(),
-				model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+			bool result = this->colorShader_->Render(
+				this->d3d_->GetDeviceContext(), model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix,
+				this->light_->GetDirection(), this->light_->GetAmbientColor(),
+				this->light_->GetDiffuseColor(), this->camera_->GetPosition(),
+				this->light_->GetSpecularColor(), this->light_->GetSpecularPower());
+
+			if (!result)
 			{
 				return false;
 			}

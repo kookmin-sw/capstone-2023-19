@@ -134,6 +134,11 @@ void ModelClass::SetScale(const Vector3& scale)
     // !!! to be update
 }
 
+void ModelClass::SetColor(const float& r, const float& g, const float& b, const float& a)
+{
+    this->color_ = DirectX::XMFLOAT4(r, g, b, a);
+}
+
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
     VertexType* vertices = new VertexType[this->vertexCount_];
@@ -153,6 +158,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
         vertices[i].position = DirectX::XMFLOAT3(this->model_[i].x, this->model_[i].y, this->model_[i].z);
         vertices[i].texture = DirectX::XMFLOAT2(this->model_[i].tu, this->model_[i].tv);
         vertices[i].normal = DirectX::XMFLOAT3(this->model_[i].nx, this->model_[i].ny, this->model_[i].nz);
+        vertices[i].color = this->color_;
 
         indices[i] = i;
     }

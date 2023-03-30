@@ -5,7 +5,7 @@ class CameraClass;
 class ModelClass;
 class LSystem;
 class ColorShaderClass;
-//class LightClass;
+class LightClass;
 
 class Graphics
 {
@@ -19,11 +19,16 @@ private:
 	bool Render();
 
 private:
+	// DirectX
 	D3DClass* d3d_ = nullptr;
 	CameraClass* camera_ = nullptr;
 
+	LightClass* light_ = nullptr;
+
+	// Shader
+	ColorShaderClass* colorShader_ = nullptr;
+
+	// LSystem, Model
 	LSystem* lSystem_ = nullptr;
 	std::vector<ModelClass*>* models_ = nullptr;
-
-	ColorShaderClass* colorShader_ = nullptr;
 };
