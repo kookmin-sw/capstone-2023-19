@@ -49,8 +49,10 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 
 	// Default Light Setting
 	this->light_->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-	this->light_->SetDiffuseColor(1.0f, 0.0f, 1.0f, 1.0f);
+	this->light_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	this->light_->SetDirection(0.0f, 0.0f, 1.0f);
+	this->light_->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	this->light_->SetSpecularPower(30.0f);
 
 	// Shader
 	this->colorShader_ = new ColorShaderClass;
@@ -226,14 +228,17 @@ bool Graphics::Render()
 		);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, translationMatrix);
 
-		// !!! world 회전
-		//worldMatrix = DirectX::XMMatrixRotationY(this->rotation_);
-
 		if (!model->GetTexture())
 		{
 			// ColorShader를 통해 렌더링
-			if (!this->colorShader_->Render(this->d3d_->GetDeviceContext(),
-				model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+			bool result = this->colorShader_->Render(
+				this->d3d_->GetDeviceContext(), model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix,
+				this->light_->GetDirection(), this->light_->GetAmbientColor(),
+				this->light_->GetDiffuseColor(), this->camera_->GetPosition(),
+				this->light_->GetSpecularColor(), this->light_->GetSpecularPower());
+
+			if (!result)
 			{
 				return false;
 			}

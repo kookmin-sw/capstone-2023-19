@@ -383,8 +383,14 @@ bool GraphicsClass::Render()
 		if (!model->GetTexture())
 		{
 			// ColorShader를 통해 렌더링
-			if (!this->colorShader_->Render(this->direct3D_->GetDeviceContext(),
-				model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
+			bool result = this->colorShader_->Render(
+				this->direct3D_->GetDeviceContext(), model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix,
+				this->light_->GetDirection(), this->light_->GetAmbientColor(),
+				this->light_->GetDiffuseColor(), this->camera_->GetPosition(),
+				this->light_->GetSpecularColor(), this->light_->GetSpecularPower());
+
+			if (!result)
 			{
 				return false;
 			}

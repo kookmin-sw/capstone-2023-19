@@ -106,8 +106,8 @@ int main(int, char**)
     lSystem->SetWord("F");
     lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
     lSystem->SetAngleChange(20.f);
-    lSystem->SetDistance(10.0f);
-    lSystem->Iterate(4);
+    lSystem->SetDistance(2.0f);
+    lSystem->Iterate(2);
     std::cout << lSystem->GetWord() << std::endl;
     // ----------------
 
