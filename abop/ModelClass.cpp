@@ -134,6 +134,11 @@ void ModelClass::SetScale(const Vector3& scale)
     // !!! to be update
 }
 
+void ModelClass::SetColor(const float& r, const float& g, const float& b, const float& a)
+{
+    this->color_ = DirectX::XMFLOAT4(r, g, b, a);
+}
+
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
     VertexType* vertices = new VertexType[this->vertexCount_];

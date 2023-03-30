@@ -112,6 +112,24 @@ void Graphics::UpdateModels()
 		return;
 	}
 
+	// 임시 Plane 추가
+	Plane* plane = new Plane();
+	plane->SetWidth(1000.0f);
+	plane->SetHeight(1000.0f);
+	plane->SetColor(0.0f, 1.0f, 0.0f, 1.0f);
+	// 임시 회전
+	DirectX::XMFLOAT3 axisX = DirectX::XMFLOAT3(1, 0, 0);
+	DirectX::XMVECTOR v = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * 3.14f / 180.0f);
+	plane->SetQuaternion
+	(
+		DirectX::XMVectorGetX(v),
+		DirectX::XMVectorGetY(v),
+		DirectX::XMVectorGetZ(v),
+		DirectX::XMVectorGetW(v)
+	);
+	plane->Initialize(this->d3d_->GetDevice());
+	this->models_->push_back((ModelClass*)plane);
+
 	this->lSystem_->GetResultVertex(models);
 	for (const Model& model : *models)
 	{
