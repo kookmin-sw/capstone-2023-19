@@ -15,12 +15,21 @@ public:
 	bool Frame(int, int, int, int, int);
 
 	void UpdateModels();
+
+	void SetCameraPosition(float&, float&, float&);
+	void SetCameraRotation(float&, float&, float&);
+	void SetCameraSensitivity(float&);
+	void SetCameraSpeed(float&);
 private:
 	bool Render();
 
 private:
 	D3DClass* d3d_ = nullptr;
+
+	// Camera
 	CameraClass* camera_ = nullptr;
+	float cameraSensitivity_ = 0.01f;
+	float cameraSpeed_ = 0.3f;
 
 	LSystem* lSystem_ = nullptr;
 	std::vector<ModelClass*>* models_ = nullptr;

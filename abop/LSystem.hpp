@@ -20,7 +20,12 @@ public:
 
     // Get, Set
     std::string GetWord() const;       // Word text
+    char* GetWordIntoChar() const;
     std::string GetRules() const;      // Rules text
+
+    std::string GetRuleText() const;
+    std::vector<LRule>* GetRules();
+
     float GetAngleChange() const;
     float GetDistance() const;
 
@@ -34,6 +39,8 @@ public:
     void AddRule(const std::string&);
     void AddRule(const char&, const std::string&);
     void AddRule(const std::string&, const std::string&);
+
+    void ClearState();
 
     // Run
     void Iterate();

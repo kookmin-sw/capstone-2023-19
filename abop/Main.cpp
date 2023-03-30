@@ -18,6 +18,7 @@
 #include "Graphics.hpp"
 #include "InputClass.hpp"
 #include "LSystem.hpp"
+#include "LRule.hpp"
 
 // Data
 static LPCWSTR APPLICATION_NAME = L"The Algorithmic Beauty of Plants";
@@ -100,22 +101,21 @@ int main(int, char**)
         return -1;
     }
 
-    // !!! TEMP
-    lSystem->SetWord("FFFFF");
-    std::cout << lSystem->GetWord() << std::endl;
-    // ----------------
-
     if (graphics->Initialize(hwnd, d3d, lSystem))
     {
         return -1;
     }
 
-    graphics->UpdateModels();
-
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
 
+
+    lSystem->SetWord("F");
+    lSystem->AddRule('F', "F[-&\\F][\\++&F]F[--&/F][+&F]");
+    lSystem->SetAngleChange(20.f);
+    lSystem->SetDistance(10.0f);
+    lSystem->Iterate(4);
 
 #pragma region "Setup ImGui"
     // Setup Dear ImGui context
@@ -205,22 +205,119 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        static float f = 0.0f;
-        static int counter = 0;
+        bool tempp = true;
+        ImGui::ShowDemoWindow(&tempp);
 
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        // 1. UI (Default)
+        ImGui::Begin("Default");
 
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        // Camera
+        ImGui::Text("Camera");
 
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        static float cameraPosition[4] = { 0.0f, 0.0f, -10.0f };
+        static float cameraRotation[4] = { 0.0f, 0.0f, 0.0f };
+        static float cameraSpeed = 0.3f;
+        static float cameraSensitivity = 0.01f;
+        ImGui::InputFloat3("position (not working)", cameraPosition);
+        ImGui::InputFloat3("rotation (not working)", cameraRotation);
+        if (ImGui::InputFloat("speed", &cameraSpeed, 0.01f, 0.3f, "%.2f"))
+        {
+            if (cameraSpeed < 0.01f)
+            {
+                cameraSpeed = 0.01f;
+            }
+            if (cameraSpeed >= 5.0f)
+            {
+                cameraSpeed = 5.0f;
+            }
+            graphics->SetCameraSpeed(cameraSpeed);
+        }
+        if (ImGui::InputFloat("sensitivity", &cameraSensitivity, 0.005f, 0.01f, "%.3f"))
+        {
+            if (cameraSpeed < 0.001f)
+            {
+                cameraSpeed = 0.001f;
+            }
+            if (cameraSensitivity >= 0.1f)
+            {
+                cameraSensitivity = 0.1f;
+            }
+            graphics->SetCameraSensitivity(cameraSensitivity);
+        }
 
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
+        // Light
+            //-on / off
+            //- shadow ?
+            //-light color
+            //- position 3
+            //- rotation 3
+
+        // World
+        ImGui::Text("World");
+
+        // world 회전 slide
+        //static float f = 0.0f;
+        //ImGui::SliderFloat("world rotate", &f, 0.0f, 1.0f);
+        ImGui::ColorEdit3("clear color", (float*)&clear_color);     // background color
+
+        // Plane 유무 checkbox
+
+        // wireframe, solid select
+
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::End();
+
+        // 2. UI (L-System)
+        ImGui::Begin("L-System");
+
+        // Menu bar
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                if (ImGui::MenuItem("Open", "Ctrl+O"))
+                {
+                    // do something
+                }
+                if (ImGui::MenuItem("Save", "Ctrl+S"))
+                {
+                    // do something
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+        static char temp[128] = "";
+        ImGui::InputText("Word", temp, IM_ARRAYSIZE(temp));
+        if (ImGui::Button("Render"))
+        {
+            lSystem->SetWord(temp);
+            lSystem->ClearState();
+            graphics->UpdateModels();
+        }
+        if (ImGui::Button("Clear"))
+        {
+            lSystem->SetWord("");
+            lSystem->ClearState();
+            graphics->UpdateModels();
+        }
+        // Word
+
+        // Rule
+        ImGui::BeginChild("Scrolling");
+        //for (LRule rule : *lSystem->GetRules())
+        //{
+        //    //ImGui::Text("%s", rule.GetRule());
+        //}
+        ImGui::Text("FOR TEST");
+        ImGui::Text("FOR TEST");
+        ImGui::Text("FOR TEST");
+        ImGui::Text("FOR TEST");
+        ImGui::Text("FOR TEST");
+        ImGui::EndChild();
+
         ImGui::End();
 
         // Rendering

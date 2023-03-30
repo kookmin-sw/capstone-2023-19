@@ -27,7 +27,7 @@ bool Graphics::Initialize(HWND hwnd, D3DClass* d3d, LSystem* lSystem)
 	}
 
 	DirectX::XMMATRIX baseViewMatrix;
-	this->camera_->SetPosition(0.0f, 0.0f, -100.0f);
+	this->camera_->SetPosition(0.0f, 0.0f, -10.0f);
 	this->camera_->Render();
 	baseViewMatrix = this->camera_->View();
 
@@ -89,16 +89,14 @@ void Graphics::Shutdown()
 
 bool Graphics::Frame(int forward, int right, int pitchUp, int rotationRight, int up)
 {
-	float tempCameraSpeed = 0.3f;
-	this->camera_->Walk(forward * tempCameraSpeed);
-	this->camera_->Strafe(right * tempCameraSpeed);
+	// TODO 카메라 키보드 조작 인자 줄이기
+	this->camera_->Walk(forward * this->cameraSpeed_);
+	this->camera_->Strafe(right * this->cameraSpeed_);
 
-	float tempRotationSpeed = 0.01f;
-	this->camera_->Pitch(pitchUp * tempRotationSpeed);
-	this->camera_->RotateY(rotationRight * tempRotationSpeed);
+	this->camera_->Pitch(pitchUp * this->cameraSensitivity_);
+	this->camera_->RotateY(rotationRight * this->cameraSensitivity_);
 
-	float tempUpSpeed = 0.1f;
-	this->camera_->Up(up * tempUpSpeed);
+	this->camera_->Up(up * this->cameraSpeed_);
 
 	return this->Render();
 }
@@ -106,6 +104,7 @@ bool Graphics::Frame(int forward, int right, int pitchUp, int rotationRight, int
 void Graphics::UpdateModels()
 {
 	// 모델 초기화
+	this->models_ = new std::vector<ModelClass*>();
 	std::vector<Model>* models = new std::vector<Model>();
 	if (!models)
 	{
@@ -138,6 +137,26 @@ void Graphics::UpdateModels()
 			this->models_->push_back((ModelClass*)cube);
 		}
 	}
+}
+
+void Graphics::SetCameraPosition(float& x, float& y, float& z)
+{
+	this->camera_->SetPosition(x, y, z);
+}
+
+void Graphics::SetCameraRotation(float& x, float& y, float& z)
+{
+	// TODO to be update
+}
+
+void Graphics::SetCameraSensitivity(float& sen)
+{
+	this->cameraSensitivity_ = sen;
+}
+
+void Graphics::SetCameraSpeed(float& speed)
+{
+	this->cameraSpeed_ = speed;
 }
 
 bool Graphics::Render()

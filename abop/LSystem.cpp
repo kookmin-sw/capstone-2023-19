@@ -1,3 +1,4 @@
+#include <cstring>
 #include <string>
 #include <vector>
 #include <stack>
@@ -102,7 +103,17 @@ std::string LSystem::GetWord() const
     return wordText;
 }
 
-std::string LSystem::GetRules() const
+//char* LSystem::GetWordIntoChar() const
+//{
+//    std::string s = this->GetWord();
+//    
+//    char* charArray = new char[s.length() + 1];
+//    strcpy_s(charArray, s.c_str());
+//
+//    return charArray;
+//}
+
+std::string LSystem::GetRuleText() const
 {
     std::string rulesText;
     for (const LRule& rule : this->rules_)
@@ -110,6 +121,11 @@ std::string LSystem::GetRules() const
         rulesText += rule.GetRule() + '\n';
     }
     return rulesText;
+}
+
+std::vector<LRule>* LSystem::GetRules()
+{
+    return &this->rules_;
 }
 
 float LSystem::GetAngleChange() const
@@ -169,6 +185,17 @@ void LSystem::AddRule(const std::string& key, const std::string& value)
     this->rules_.push_back(LRule(key, value));
 }
 
+void LSystem::ClearState()
+{
+    this->state_ =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {90.0f, 0.0f, 0.0f},     // X Y Z
+        0.3f
+    };
+}
+
 // Run
 void LSystem::Iterate()
 {
@@ -214,7 +241,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     // out -> jk,
     if (this->word_->size() < 1)
     {
-        throw "No word";
+        return;
     }
 
     float width = 0.5;
