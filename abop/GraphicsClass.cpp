@@ -109,6 +109,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, LSy
 
 				this->models_->push_back(modelClass);
 			}
+			else if (model.modelType == ModelType::LeafModel) {
+				Leaf* leaf = new Leaf;
+				leaf->Initialize(this->direct3D_->GetDevice(), model);
+
+				this->models_->push_back((ModelClass*)leaf);
+			}
 			else
 			{
 				// !!! TEMP

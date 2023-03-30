@@ -43,7 +43,8 @@ bool Cube::InitializeBuffers(ID3D11Device* device)
     // Color
     for (int i = 0; i < 8; i++)
     {
-        vertices[i].color = this->color_;
+        //vertices[i].color = this->color_;
+        vertices[i].color = { 0.5f, 0.25f, 0.0f, 0.0f }; // Temp tree color
     }
 
     int cubeIndices[36] = {

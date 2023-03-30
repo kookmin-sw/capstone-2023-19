@@ -131,6 +131,10 @@
     <ClCompile Include="imgui\imguiMain.cpp">
       <Filter>DX\ImGui\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Leaf.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Leaf.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -253,6 +257,7 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>DX\ImGui\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Leaf.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">
