@@ -275,13 +275,19 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Position>");
             ImGui::PopStyleColor();
-            ImGui::InputFloat3("(x, y, z)", cameraPosition);
+
+            ImGui::Text("(X, Y, Z) :"); 
+            ImGui::SameLine(); 
+            ImGui::InputFloat3("##positon", cameraPosition);
 
             // Camera Rotation
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Rotation>");
             ImGui::PopStyleColor();
-            ImGui::InputFloat3("(x, y, z)", cameraRotation);
+
+            ImGui::Text("(P, R, Y) :"); 
+            ImGui::SameLine(); 
+            ImGui::InputFloat3("##rotation", cameraRotation);
 
             // Camera Speed
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
