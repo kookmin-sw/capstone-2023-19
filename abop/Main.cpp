@@ -105,7 +105,7 @@ int main(int, char**)
 
     // Init Render
     lSystem->SetWord("F");
-    //lSystem->AddRule('F', "FF");
+    lSystem->AddRule('F', "FF");
     lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
     lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
     lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
