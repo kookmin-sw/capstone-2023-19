@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="LSystem">
+      <UniqueIdentifier>{66fba13c-dddf-4342-b736-053e52634d32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX">
+      <UniqueIdentifier>{42a3fff0-59fe-4b6d-8613-82c3a1698fca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\Models">
+      <UniqueIdentifier>{fd08c5be-71da-4193-b7eb-7dc1db1f11fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{0081bf59-3c4d-418a-84ed-35b4dce4e3e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\Shader">
+      <UniqueIdentifier>{6d6e72c2-5a27-4bbf-a739-cf909ede7ad2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\ImGui">
+      <UniqueIdentifier>{1a4b715c-6133-46ee-9ecb-b2fccfa63000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\ImGui\imgui">
+      <UniqueIdentifier>{61c2e6fa-3341-48e0-8620-0cc8b6a5967f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX\ImGui\source">
+      <UniqueIdentifier>{66d951f1-07dd-48ae-8541-32fd127606e7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LLetter.cpp">
+      <Filter>LSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LRule.cpp">
+      <Filter>LSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LSystem.cpp">
+      <Filter>LSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="LSystemTest.cpp">
+      <Filter>LSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="DXTest.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="InputClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelClass.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Square.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FontShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="LightShaderClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_dx11.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_win32.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imguiMain.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="BitmapClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="FpsClass.cpp">
+      <Filter>DX</Filter>
+    </ClCompile>
+    <ClCompile Include="Leaf.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Leaf.cpp" />
+    <ClCompile Include="ColorShaderClass.cpp">
+      <Filter>DX\Shader</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LLetter.hpp">
+      <Filter>LSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LRule.hpp">
+      <Filter>LSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="LSystem.hpp">
+      <Filter>LSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="DXDefine.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="InputClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="AlignedAllocationPolicy.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelClass.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Square.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelVariation.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonVariable.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonStructure.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FontClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FontShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="LightShaderClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="TextClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_dx11.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_win32.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="BitmapClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="FpsClass.hpp">
+      <Filter>DX</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorShaderClass.hpp">
+      <Filter>DX\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Leaf.hpp">
+      <Filter>DX\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSeed.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Light.ps">
+      <Filter>DX\Shader</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>DX\Shader</Filter>
+    </None>
+    <None Include="Texture.vs">
+      <Filter>DX\Shader</Filter>
+    </None>
+    <None Include="Texture.ps">
+      <Filter>DX\Shader</Filter>
+    </None>
+    <None Include="Light.ps">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="Light.vs">
+      <Filter>DX</Filter>
+    </None>
+    <None Include="DirectXTK\include\SimpleMath.inl" />
+    <None Include="imgui\imgui.natstepfilter">
+      <Filter>DX\ImGui\imgui</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Font.vs">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Font.ps">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ColorVertex.hlsl">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ColorPixel.hlsl">
+      <Filter>DX\Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="imgui\imgui.natvis">
+      <Filter>DX\ImGui\imgui</Filter>
+    </Natvis>
+  </ItemGroup>
+</Project>
