@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include "RandomSeed.hpp"
 #include "LLetter.hpp"
 #include "LRule.hpp"
 
@@ -43,7 +44,10 @@ LLetter LRule::GetBefore() const
 
 std::vector<LLetter> LRule::GetAfter() const
 {
-    return this->after_;
+    int total = this->after_.size();
+    int index = dist(gen) % total;
+
+    return this->after_[index];
 }
 
 std::string LRule::GetRule() const
@@ -52,7 +56,10 @@ std::string LRule::GetRule() const
     ruleText += this->before_->GetLetter();
     ruleText += " -> ";
 
-    for (const LLetter& let : this->after_)
+    int total = this->after_.size();
+    int index = dist(gen) % total;
+
+    for (const LLetter& let : this->after_[index])
     {
         ruleText += let.GetLetter();
     }
@@ -63,9 +70,12 @@ std::string LRule::GetRule() const
 void LRule::SetRule(const char& key, const std::string& value)
 {
     this->before_ = new LLetter(key);
-    this->after_ = std::vector<LLetter>();
+    auto temp = std::vector<LLetter>();
+
     for (const char& ch : value)
     {
-        this->after_.push_back(LLetter(ch));
+        temp.push_back(LLetter(ch));
     }
+
+    this->after_.push_back(temp);
 }

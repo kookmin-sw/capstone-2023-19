@@ -203,7 +203,27 @@ void LSystem::AddRule(const std::string& ruleText)
 
 void LSystem::AddRule(const char& key, const std::string& value)
 {
-    this->rules_.push_back(LRule(key, value));
+    bool found = false;
+    int index;
+    for (int i = 0; i < this->rules_.size(); i++)
+    {
+        auto& rule = this->rules_[i];
+        if (rule.GetBefore().IsEqual(key))
+        {
+            found = true;
+            index = i;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        this->rules_.push_back(LRule(key, value));
+    }
+    else
+    {
+        this->rules_[index].SetRule(key, value);
+    }
 }
 
 void LSystem::AddRule(const std::string& key, const std::string& value)

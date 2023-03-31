@@ -86,16 +86,16 @@ int main(int, char**)
     // !!! TEMP
     // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
 
-    lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
-    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
-    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
-    lSystem->SetLeafAngleChange(22.5f);
-    lSystem->SetLeafDistance(0.3f);
-    lSystem->SetDistance(2.0f);
-    lSystem->SetDeltaThickness(0.9f);
-    lSystem->SetAngleChange(22.5f);
-    lSystem->Iterate(5);
+    //lSystem->SetWord("F");
+    //lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
+    //lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
+    //lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
+    //lSystem->SetLeafAngleChange(22.5f);
+    //lSystem->SetLeafDistance(0.3f);
+    //lSystem->SetDistance(2.0f);
+    //lSystem->SetDeltaThickness(0.9f);
+    //lSystem->SetAngleChange(22.5f);
+    //lSystem->Iterate(5);
     // ----------------
 
     if (graphics->Initialize(hwnd, d3d, lSystem))
@@ -105,6 +105,7 @@ int main(int, char**)
 
     // Init Render
     lSystem->SetWord("F");
+    //lSystem->AddRule('F', "FF");
     lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
     lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
     lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
