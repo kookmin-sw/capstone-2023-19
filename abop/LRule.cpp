@@ -60,12 +60,42 @@ std::string LRule::GetRule() const
     return ruleText;
 }
 
+void LRule::GetKey(char* out)
+{
+    for (int i = 0; i < this->key_.size(); i++)
+    {
+        out[i] = this->key_[i];
+    }
+}
+
+std::string LRule::GetKeyString() const
+{
+    return this->key_;
+}
+
+void LRule::GetValue(char* out)
+{
+    for (int i = 0; i < this->value_.size(); i++)
+    {
+        out[i] = this->value_[i];
+    }
+}
+
+std::string LRule::GetValueString() const
+{
+    return this->value_;
+}
+
 void LRule::SetRule(const char& key, const std::string& value)
 {
     this->before_ = new LLetter(key);
+    this->key_ = key;
+
     this->after_ = std::vector<LLetter>();
+    this->value_ = "";
     for (const char& ch : value)
     {
         this->after_.push_back(LLetter(ch));
+        this->value_ += ch;
     }
 }
