@@ -1,9 +1,9 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
+
 #include <d3d11.h>
 #include <tchar.h>
-
 
 #include <iostream>
 
@@ -23,6 +23,14 @@ static FLOAT SCREEN_WIDTH = 1280.0f;
 static FLOAT SCREEN_HEIGHT = 800.0f;
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+void ClearCharArray(int size, char* out)
+{
+    for (int i = 0; i < size; i++)
+    {
+        out[i] = 0;
+    }
+}
 
 // Main code
 int main(int, char**)
@@ -75,6 +83,7 @@ int main(int, char**)
     {
         return -1;
     }
+    static std::vector<LRule> rules;
 
     // Graphics 초기화
     Graphics* graphics = new Graphics();
@@ -82,21 +91,6 @@ int main(int, char**)
     {
         return -1;
     }
-
-    // !!! TEMP
-    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
-
-    lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
-    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
-    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
-    lSystem->SetLeafAngleChange(22.5f);
-    lSystem->SetLeafDistance(0.3f);
-    lSystem->SetDistance(2.0f);
-    lSystem->SetDeltaThickness(0.9f);
-    lSystem->SetAngleChange(22.5f);
-    lSystem->Iterate(5);
-    // ----------------
 
     if (graphics->Initialize(hwnd, d3d, lSystem))
     {
@@ -108,14 +102,13 @@ int main(int, char**)
     lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
     lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
     lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
-    //lSystem->SetLeafAngleChange(22.5f);
-    //lSystem->SetLeafDistance(0.3f);
+    lSystem->SetLeafAngleChange(22.5f);
+    lSystem->SetLeafDistance(1.0f);
     lSystem->SetAngleChange(22.5f);
-    lSystem->SetDistance(1.5f);
+    lSystem->SetDistance(4.0f);
     lSystem->SetThickness(0.5f);
-    lSystem->SetDeltaThickness(0.9f);
+    lSystem->SetDeltaThickness(0.93f);
     lSystem->Iterate(4);
-    //std::cout << lSystem->GetRules()[0].GetRule() << std::endl;
     graphics->UpdateModels();
     // ----------------
 
@@ -176,6 +169,9 @@ int main(int, char**)
     static bool show_console_window = false;
     static bool show_light_window = false;
 
+    static bool isUpdateRules = true;
+    static bool isUpdateWord = true;
+
     // Main loop
     bool done = false;
     while (!done)
@@ -200,6 +196,10 @@ int main(int, char**)
         ImGui::NewFrame();
 
 
+        bool tempp = true;
+        ImGui::ShowDemoWindow(&tempp);
+
+#pragma region UI_Default
         // 1. UI (Default)
         {
             // Demo Window
@@ -353,6 +353,7 @@ int main(int, char**)
 
         ImGui::End();
 
+#pragma endregion UI_Default
 
         // Demonstrate the various window flags. Typically you would just use the default!
         static bool no_titlebar = false;
@@ -384,6 +385,7 @@ int main(int, char**)
         if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
         if (no_close)           myLsystemMenuBar = NULL; // Don't pass our bool* to Begin
 
+#pragma region L-System
         // 2. UI (L-System)
         ImGui::Begin("L-System", &myLsystemMenuBar, ImGuiWindowFlags_MenuBar);
 
@@ -418,83 +420,146 @@ int main(int, char**)
             ImGui::EndMenuBar();
         }
 
-        // L-System : Main window
-        //ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
-        //ImGui::Text("\n<L-System Algorithm Word>");
-        //ImGui::PopStyleColor();
+        // Multi-line Text 
+        static char word[1024 * 64] = "";
+        if (isUpdateWord)
+        {
+            lSystem->GetWord(word);
+            isUpdateWord = false;
+        }
 
-        //// One-line Text Input
-        //static char word[128] = "ex) FFFFF";
-        //ImGui::InputText(" ", word, IM_ARRAYSIZE(word));
-        //ImGui::SameLine();
-        //if (ImGui::Button("Render"))
-        //{
-        //    lSystem->SetWord(word);
-        //    lSystem->ClearState();
-        //    graphics->UpdateModels();
-        //}
-
-        // Multi-line Text Input
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
-        ImGui::Text("<L-System Algorithm Word>");
-        ImGui::PopStyleColor();
-
-        static char multiText[1024 * 16] = "Input your multi-line text..";
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-        // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
-        ImGui::InputTextMultiline("##source", multiText, IM_ARRAYSIZE(multiText), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
 
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 190, 255));
-        ImGui::Text("<L-System Algorithm Rules>");
-        ImGui::PopStyleColor();
-
-        static char multiText2[1024 * 16] = "Input your multi-line text..";
-        // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
-        ImGui::InputTextMultiline("##rules", multiText2, IM_ARRAYSIZE(multiText), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
-        
-        if (ImGui::Button("Clear"))
+        if (ImGui::Button("Reset"))
         {
             lSystem->SetWord("");
+            lSystem->ClearRule();
             lSystem->ClearState();
+            ClearCharArray(1024 * 64, word);
             graphics->UpdateModels();
+
+            isUpdateRules = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Iterate"))
+        {
+            ClearCharArray(1024 * 64, word);
+            lSystem->Iterate(1);
+            lSystem->GetWord(word);
         }
         ImGui::SameLine();
         if (ImGui::Button("Render"))
         {
-            lSystem->SetWord(multiText);
+            lSystem->SetWord(word);
             lSystem->ClearState();
             graphics->UpdateModels();
         }
-        
-        
-        // Word
 
-        // Rule
-        //ImGui::BeginChild("Scrolling");
-        //for (LRule rule : lSystem->GetRules())
-        
-        //static std::vector<LRule> rules = ;
-        //ImGui::Text("%d", rules.size());
-        ////for (int i = 0; i < )
-        //for (LRule& rule : rules)
-        //{
-        //    static std::string s = rules[0].GetRule();
-        //    ImGui::Text("%s", s);
-        //}
-        //ImGui::EndChild();
+        if (ImGui::CollapsingHeader("Word"))
+        {
+            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
+            ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+        }
+
+        if (ImGui::CollapsingHeader("Rules"))
+        {
+            static char addKey[16] = "";
+            static char addValue[128] = "";
+            if (ImGui::Button("Add"))
+            {
+                ClearCharArray(16, addKey);
+                ClearCharArray(128, addValue);
+                ImGui::OpenPopup("AddRules");
+            }
+            
+            if (ImGui::BeginPopupModal("AddRules", NULL))
+            {
+                ImGui::InputText("key", addKey, IM_ARRAYSIZE(addKey));
+                ImGui::InputText("value", addValue, IM_ARRAYSIZE(addValue));
+
+                if (ImGui::Button("Add"))
+                {
+                    lSystem->AddRule(addKey, addValue);
+
+                    // update
+                    isUpdateRules = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Close"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
+            if (isUpdateRules)
+            {
+                rules = lSystem->GetRules();
+                
+                isUpdateRules = false;
+
+            }
+
+            static char key[16];
+            static char value[128];
+
+            for (LRule& rule : rules)
+            {
+                rule.GetKey(key);
+                rule.GetValue(value);
+
+                if (ImGui::Button(key))
+                {
+                    // !!! key가 1개인 경우만 고려
+                    lSystem->DeleteRule(key[0]);
+                    isUpdateRules = true;
+                }
+                ImGui::SameLine();
+                //ImGui::Text("%s\t%s", key, value);
+                ImGui::Text("%s", value);
+
+                ClearCharArray(16, key);
+                ClearCharArray(128, value);
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Settings"))
+        {
+            static float distance = 1.0f;
+            static float angle = 90.0f;
+            static float thickness = 1.0f;
+            static float nextThickness = 1.0f;
+
+            if (ImGui::InputFloat("Distance", &distance, 1.0f, 1.0f, "%.3f"))
+            {
+                lSystem->SetDistance(distance);
+            }
+            if (ImGui::InputFloat("Angle", &angle, 10.0f, 10.0f, "%.3f"))
+            {
+                lSystem->SetAngleChange(angle);
+            }
+            if (ImGui::InputFloat("Thickness", &thickness, 1.0f, 1.0f, "%.3f"))
+            {
+                lSystem->SetThickness(thickness);
+            }
+            if (ImGui::InputFloat("Next Thickness", &nextThickness, 1.0f, 1.0f, "%.3f"))
+            {
+                lSystem->SetDeltaThickness(nextThickness);
+            }
+        }
 
         ImGui::End();
+#pragma endregion L-System
 
-        // Rendering
-        //d3d->BeginScene
-        //(
-        //    clear_color.x* clear_color.w,
-        //    clear_color.y* clear_color.w,
-        //    clear_color.z* clear_color.w,
-        //    clear_color.w
-        //);
-
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        const float clear_color_with_alpha[4] = 
+        { 
+            clear_color.x * clear_color.w,
+            clear_color.y * clear_color.w,
+            clear_color.z * clear_color.w,
+            clear_color.w 
+        };
 
         d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
         d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
