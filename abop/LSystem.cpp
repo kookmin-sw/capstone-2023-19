@@ -119,6 +119,16 @@ std::string LSystem::GetWord() const
     return wordText;
 }
 
+void LSystem::GetWord(char* out)
+{
+    int index = 0;
+    for (LLetter& letter : *this->word_)
+    {
+        out[index] = letter.GetLetter();
+        index++;
+    }
+}
+
 std::vector<LRule> LSystem::GetRules() const
 {
     return this->rules_;
@@ -211,6 +221,24 @@ void LSystem::AddRule(const std::string& key, const std::string& value)
     this->rules_.push_back(LRule(key, value));
 }
 
+void LSystem::DeleteRule(const char& key)
+{
+    //for (LRule& rule : this->rules_)
+    for (int i = 0; i < this->rules_.size(); i++)
+    {
+        if (this->rules_[i].GetBefore().GetLetter() == key)
+        {
+            this->rules_.erase(this->rules_.begin() + i);
+            break;
+        }
+    }
+}
+
+void LSystem::ClearRule()
+{
+    this->rules_ = std::vector<LRule>();
+}
+
 void LSystem::ClearState()
 {
     this->state_ =
@@ -265,7 +293,6 @@ void LSystem::Iterate(int n)
 
 void LSystem::GetResultVertex(std::vector<Model>* out)
 {
-    // out -> jk,
     if (this->word_->size() < 1)
     {
         return;

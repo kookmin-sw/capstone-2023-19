@@ -23,6 +23,7 @@ public:
 
     // Get, Set
     std::string GetWord() const;       // Word text
+    void GetWord(char* out);
 
     std::vector<LRule> GetRules() const;
     std::string GetRuleText() const;
@@ -44,6 +45,8 @@ public:
     void AddRule(const std::string&);
     void AddRule(const char&, const std::string&);
     void AddRule(const std::string&, const std::string&);
+    void DeleteRule(const char&);
+    void ClearRule();
 
     void ClearState();
 

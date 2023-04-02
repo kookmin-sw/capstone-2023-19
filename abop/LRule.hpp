@@ -9,6 +9,9 @@ private:
     LLetter* before_;
     std::vector<LLetter> after_;
 
+    std::string key_;
+    std::string value_;
+
 public:
     LRule();
     // Full Text (ex. "A->ABAB")
@@ -21,6 +24,9 @@ public:
     LLetter GetBefore() const;
     std::vector<LLetter> GetAfter() const;
     std::string GetRule() const;
+
+    void GetKey(char* out);
+    void GetValue(char* out);
 
 private:
     void SetRule(const char&, const std::string&);
