@@ -154,6 +154,16 @@ float LSystem::GetDistance() const
     return this->distance_;
 }
 
+float LSystem::GetThickness() const
+{
+    return this->state_.thickness;
+}
+
+float LSystem::GetDeltaThickness() const
+{
+    return this->deltaThickness_;
+}
+
 void LSystem::SetAngleChange(const float& val)
 {
     this->angleChange_ = val;

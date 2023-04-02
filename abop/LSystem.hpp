@@ -30,6 +30,8 @@ public:
 
     float GetAngleChange() const;
     float GetDistance() const;
+    float GetThickness() const;
+    float GetDeltaThickness() const;
     float GetLeafAngleChange() const;
     float GetLeafDistance() const;
 

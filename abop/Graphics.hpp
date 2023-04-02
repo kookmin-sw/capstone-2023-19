@@ -16,6 +16,8 @@ public:
 
 	void UpdateModels();
 
+	DirectX::XMFLOAT3 GetCameraPosition() const;
+
 	void SetCameraPosition(float, float, float);
 	void SetCameraRotation(float, float, float);
 	void SetCameraSensitivity(float&);

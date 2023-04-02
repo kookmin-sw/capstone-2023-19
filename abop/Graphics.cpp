@@ -190,6 +190,11 @@ void Graphics::UpdateModels()
 	}
 }
 
+DirectX::XMFLOAT3 Graphics::GetCameraPosition() const
+{
+	return this->camera_->GetPosition();
+}
+
 void Graphics::SetCameraPosition(float x, float y, float z)
 {
 	this->camera_->SetPosition(x, y, z);

@@ -157,8 +157,12 @@ int main(int, char**)
     static bool show_console_window = false;
     static bool show_light_window = false;
 
+    // Preset load (Init render) 시 아래 변수를 true로 설정해야
+    // 다음 frame에서 load 함
     static bool isUpdateRules = true;
     static bool isUpdateWord = true;
+    static bool isUpdateCamera = true;
+    static bool isUpdateLSystemSetting = true;
 
     // Main loop
     bool done = false;
@@ -245,6 +249,17 @@ int main(int, char**)
             static float cameraSpeed = 0.3f;
             static float cameraSensitivity = 0.01f;
             
+            if (isUpdateCamera)
+            {
+                // 현재 항상 카메라 위치 업데이트
+                DirectX::XMFLOAT3 v = graphics->GetCameraPosition();
+                cameraPosition[0] = v.x;
+                cameraPosition[1] = v.y;
+                cameraPosition[2] = v.z;
+
+                // !!! 각도는 나중에
+            }
+
             ImGui::Begin("Camera Location Window", &show_location_window);
 
             // Camera Position
@@ -516,6 +531,16 @@ int main(int, char**)
             static float angle = 90.0f;
             static float thickness = 1.0f;
             static float nextThickness = 1.0f;
+
+            if (isUpdateLSystemSetting)
+            {
+                distance = lSystem->GetDistance();
+                angle = lSystem->GetAngleChange();
+                thickness = lSystem->GetThickness();
+                nextThickness = lSystem->GetDeltaThickness();
+
+                isUpdateLSystemSetting = false;
+            }
 
             if (ImGui::InputFloat("Distance", &distance, 1.0f, 1.0f, "%.3f"))
             {
