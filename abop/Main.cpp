@@ -1,6 +1,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_internal.h"
 
 #include <d3d11.h>
 #include <tchar.h>
@@ -35,6 +36,7 @@ void ClearCharArray(int size, char* out)
 // Main code
 int main(int, char**)
 {
+#pragma region Init
     // window 클래스 설정
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
@@ -67,7 +69,7 @@ int main(int, char**)
         return -1;
     }
 
-    if (!d3d->Initialize(1280, 800, true, hwnd, false, 1000.0f, 0.1f))
+    if (!d3d->Initialize(SCREEN_WIDTH, SCREEN_HEIGHT, true, hwnd, false, 1000.0f, 0.1f))
     {
         std::cout << "Could not initialize Direct3D" << std::endl;
         d3d->Shutdown();
@@ -97,24 +99,10 @@ int main(int, char**)
         return -1;
     }
 
-    // Init Render
-    lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
-    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
-    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
-    lSystem->SetLeafAngleChange(22.5f);
-    lSystem->SetLeafDistance(1.0f);
-    lSystem->SetAngleChange(22.5f);
-    lSystem->SetDistance(4.0f);
-    lSystem->SetThickness(0.5f);
-    lSystem->SetDeltaThickness(0.93f);
-    lSystem->Iterate(4);
-    graphics->UpdateModels();
-    // ----------------
-
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
+#pragma endregion
 
 #pragma region "Setup ImGui"
     // Setup Dear ImGui context
@@ -195,16 +183,13 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-
-        bool tempp = true;
-        ImGui::ShowDemoWindow(&tempp);
+        // Demo Window
+        //bool tempp = false;
+        //ImGui::ShowDemoWindow(&tempp);
 
 #pragma region UI_Default
         // 1. UI (Default)
         {
-            // Demo Window
-            //bool tempp = true;
-            //ImGui::ShowDemoWindow(&tempp);
             
             ImGui::Begin("DirectX Controller");
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 128));
@@ -564,10 +549,21 @@ int main(int, char**)
         d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
         d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
 
-        // Input (!!! TEMP)
         input->Frame();
-        int F, R, PU, RR, U;
-        input->GetCameraMove(F, R, PU, RR, U);
+
+        // TODO: TEMP KEYBOARD INPUT
+        int F = 0;
+        int R = 0;
+        int PU = 0;
+        int RR = 0;
+        int U = 0;
+
+        if (ImGui::GetCurrentContext()->NavWindow == nullptr)
+        {
+            // 활성화된 윈도우가 없는 경우에만 카메라 키보드 조작
+            input->GetCameraMove(F, R, PU, RR, U);
+        }
+
         graphics->Frame(F, R, PU, RR, U);
 
         // TODO: Zbuffer?
