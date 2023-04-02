@@ -7,6 +7,8 @@
 #include <tchar.h>
 
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 
 #include <string>
 #include <vector>
@@ -19,19 +21,18 @@
 #include "LRule.hpp"
 
 // Data
+std::string PATH = "./data/preset/";
+
 static LPCWSTR APPLICATION_NAME = L"The Algorithmic Beauty of Plants";
 static FLOAT SCREEN_WIDTH = 1280.0f;
 static FLOAT SCREEN_HEIGHT = 800.0f;
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-void ClearCharArray(int size, char* out)
-{
-    for (int i = 0; i < size; i++)
-    {
-        out[i] = 0;
-    }
-}
+// Utils
+void ClearCharArray(int size, char* out);
+std::vector<std::string> LoadPresetList();
+void SavePreset(std::string filename, LSystem* lsystem);
 
 // Main code
 int main(int, char**)
@@ -164,6 +165,8 @@ int main(int, char**)
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
 
+    LoadPresetList();
+
     // Main loop
     bool done = false;
     while (!done)
@@ -188,8 +191,8 @@ int main(int, char**)
         ImGui::NewFrame();
 
         // Demo Window
-        //bool tempp = false;
-        //ImGui::ShowDemoWindow(&tempp);
+        bool tempp = false;
+        ImGui::ShowDemoWindow(&tempp);
 
 #pragma region UI_Default
         // 1. UI (Default)
@@ -392,32 +395,71 @@ int main(int, char**)
         // L-System : Menu bar
         if (ImGui::BeginMenuBar())
         {
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("Open", "Ctrl+O"))
-                {
-                    // do something
-                }
-                if (ImGui::MenuItem("Save", "Ctrl+S"))
-                {
-                    // do something
-                }
-                ImGui::EndMenu();
-            }
+            //if (ImGui::BeginMenu("File"))
+            //{
+            //    if (ImGui::MenuItem("Open", "Ctrl+O"))
+            //    {
+            //        // do something
+            //    }
+            //    if (ImGui::MenuItem("Save As", "Ctrl+S"))
+            //    {
+            //        ImGui::OpenPopup("SaveAs");
+            //    }
+
+            //    ImGui::EndMenu();
+            //}
             
             if (ImGui::BeginMenu("Preset"))
             {
-                if (ImGui::MenuItem("2D Example"))
+                for (std::string& presetName : LoadPresetList())
                 {
-                    // do something
-                }
-                if (ImGui::MenuItem("3D Example"))
-                {
-                    // do something
+                    char filename[128];
+                    strcpy_s(filename, presetName.c_str());
+                    if (ImGui::MenuItem(filename))
+                    {
+                        lSystem->LoadPreset(presetName);
+                        isUpdateRules = true;
+                        isUpdateWord = true;
+                        isUpdateCamera = true;
+                        isUpdateLSystemSetting = true;
+                    }
                 }
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
+        }
+
+        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
+        if (ImGui::Button("Save As"))
+        {
+            ImGui::OpenPopup("SaveAs");
+        }
+
+        if (ImGui::BeginPopup("SaveAs", NULL))
+        {
+            std::string filename = "";
+            static char buffer[128];
+
+            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
+    
+            if (ImGui::Button("Save"))
+            {
+                filename = buffer;
+
+                // !!! 배포할 때에는 경로를 직접 수정
+                SavePreset(filename, lSystem);
+                ClearCharArray(128, buffer);
+
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ClearCharArray(128, buffer);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
         }
 
         // Multi-line Text 
@@ -473,7 +515,7 @@ int main(int, char**)
                 ImGui::OpenPopup("AddRules");
             }
             
-            if (ImGui::BeginPopupModal("AddRules", NULL))
+            if (ImGui::BeginPopup("AddRules", NULL))
             {
                 ImGui::InputText("key", addKey, IM_ARRAYSIZE(addKey));
                 ImGui::InputText("value", addValue, IM_ARRAYSIZE(addValue));
@@ -673,4 +715,61 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
     return DefWindowProcW(hWnd, msg, wParam, lParam);
+}
+
+void ClearCharArray(int size, char* out)
+{
+    for (int i = 0; i < size; i++)
+    {
+        out[i] = 0;
+    }
+}
+
+std::vector<std::string> LoadPresetList()
+{
+    std::vector<std::string> v = std::vector<std::string>();
+
+
+    for (const auto& file : std::filesystem::recursive_directory_iterator(PATH))
+    {
+        v.push_back(file.path().string());
+    }
+
+    return v;
+}
+
+void SavePreset(std::string filename, LSystem* lSystem)
+{
+    std::ofstream file;
+
+    file.open(PATH + filename + ".txt");
+
+    std::string ok;
+
+    ok = "angle:" + std::to_string(lSystem->GetAngleChange()) + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "thickness:" + std::to_string(lSystem->GetThickness()) + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "deltaThickness:" + std::to_string(lSystem->GetDeltaThickness()) + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "word:" + lSystem->GetWord() + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "rule" + '\n';
+    file.write(ok.c_str(), ok.size());
+
+    char key[16];
+    static char value[128];
+
+    for (LRule& rules : lSystem->GetRules())
+    {
+        ok = rules.GetKeyString() + ":" + rules.GetValueString() + '\n';
+        file.write(ok.c_str(), ok.size());
+    }
+
+    ok = "end";
+    file.write(ok.c_str(), ok.size());
+
+    file.close();
+
+    return;
 }

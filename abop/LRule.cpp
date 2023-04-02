@@ -68,12 +68,22 @@ void LRule::GetKey(char* out)
     }
 }
 
+std::string LRule::GetKeyString() const
+{
+    return this->key_;
+}
+
 void LRule::GetValue(char* out)
 {
     for (int i = 0; i < this->value_.size(); i++)
     {
         out[i] = this->value_[i];
     }
+}
+
+std::string LRule::GetValueString() const
+{
+    return this->value_;
 }
 
 void LRule::SetRule(const char& key, const std::string& value)

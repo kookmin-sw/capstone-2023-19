@@ -26,7 +26,9 @@ public:
     std::string GetRule() const;
 
     void GetKey(char* out);
+    std::string GetKeyString() const;
     void GetValue(char* out);
+    std::string GetValueString() const;
 
 private:
     void SetRule(const char&, const std::string&);

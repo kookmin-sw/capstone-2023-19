@@ -1,3 +1,5 @@
+#include <fstream>
+#include <iostream>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -477,6 +479,60 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     }
 }
 
+void LSystem::LoadPreset(std::string& filename)
+{
+    // TODO: 잘못된 파일 예외 처리하기
+    std::ifstream ifs;
+
+    this->Reset();
+
+    ifs.open(filename);
+
+    std::string inp;
+    while (ifs >> inp)
+    {
+        if (inp == "rule")
+        {
+            while (ifs >> inp)
+            {
+                if (inp == "end")
+                {
+                    break;
+                }
+
+                int index = inp.find(':');
+                this->AddRule(inp.substr(0, index), inp.substr(index + 1, inp.size()));
+            }
+        }
+        else
+        {
+            int index = inp.find(':');
+
+            std::string key = inp.substr(0, index);
+            std::string value = inp.substr(index + 1, inp.size());
+
+            if (key == "word")
+            {
+                this->SetWord(value);
+            }
+            else if (key == "angle")
+            {
+                this->SetAngleChange(std::stof(value));
+            }
+            else if (key == "thickness")
+            {
+                this->SetThickness(std::stof(value));
+            }
+            else if (key == "deltaThickness")
+            {
+                this->SetDeltaThickness(std::stof(value));
+            }
+        }
+    }
+
+    return;
+}
+
 // Private
 void LSystem::Move()
 {
@@ -560,4 +616,16 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         this->state_.rotation.z += 360.0f;
 
     this->state_.direction.Normalized();
+}
+
+void LSystem::Reset()
+{
+    this->ClearRule();
+    this->ClearState();
+    this->angleChange_ = 90.0f;
+    this->distance_ = 1.0f;
+    this->deltaThickness_ = 1.0f;
+    //float leafAngleChange_ = 22.5f;
+    //float leafDistance_ = 0.5f;
+    //bool drawingLeaf_ = false;
 }
