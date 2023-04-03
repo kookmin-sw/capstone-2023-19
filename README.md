@@ -66,11 +66,12 @@ This is the project of creating a plant's growth by algorithm and visualize it w
 
 ### Simulator
 #### Controller widget
-![](./docs/cameraWidget.png)
+<img src="./docs/cameraWidget.png" width="206" height="425"/>
+
 FPS와 Backgroud color 등 시뮬레이터 옵션과 카메라 옵션을 수정할 수 있습니다.
 
 #### L-System widget
-![](./docs/lSystemWidget.png)
+<img src="./docs/lSystemWidget.png" width="181" height="448"/>
 
 ##### Word
 초기 상태(symbols) 입력입니다. Iterate 할 때마다 변환 규칙이 적용된 word로 수정됩니다.
@@ -87,7 +88,8 @@ FPS와 Backgroud color 등 시뮬레이터 옵션과 카메라 옵션을 수정�
 |Next Thickness|두께 변화량 (before * deltaThickness)|`deltaThickness`| 
 
 ##### Preset
-![](./docs/preset.png)
+<img src="./docs/preset.png" width="181" height="133"/>
+
 `Preset` 탭에서 미리 등록된 프리셋을 읽어올 수 있습니다. 새로 생성하거나 수정한 상태에서 `Save As` 버튼을 눌러 새로운 프리셋을 생성할 수 있습니다. Iterate 정보는 저장되지 않습니다. Parameter 정보는 위 테이블 Preset key를 기준으로 저장됩니다.
 
 ###### Example
