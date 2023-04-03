@@ -23,6 +23,7 @@ This is the project of creating a plant's growth by algorithm and visualize it w
 
 ## Guides
 ### Symbol
+
 |Symbol|Description| |
 |---|---|---|
 |`F`|Move forward|Drawing (cube, cylinder)|
@@ -80,6 +81,7 @@ FPS와 Backgroud color 등 시뮬레이터 옵션과 카메라 옵션을 수정�
 변환 규칙 입력입니다. `+` 버튼을 통해 규칙을 추가할 수 있습니다. 동일한 Key의 변환 규칙이 추가되는 경우 의도하지 않은 결과가 나올 수도 있습니다.
 
 ##### Paramters
+
 |Parameter|Description|Preset key|
 |---|---|---|
 |Distance|Forward 거리|`distance`|
