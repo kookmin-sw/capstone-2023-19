@@ -250,7 +250,7 @@ void LSystem::AddRule(const char& key, const std::string& value)
 
 void LSystem::AddRule(const std::string& key, const std::string& value)
 {
-    this->rules_.push_back(LRule(key, value));
+    this->AddRule(key[0], value);
 }
 
 void LSystem::DeleteRule(const char& key)

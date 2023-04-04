@@ -93,6 +93,11 @@ std::string LRule::GetValueString(const int& index) const
     return this->values_[index];
 }
 
+int LRule::GetRuleCount() const
+{
+    return this->values_.size();
+}
+
 void LRule::SetRule(const char& key, const std::string& value)
 {
     this->before_ = new LLetter(key);
@@ -107,6 +112,6 @@ void LRule::SetRule(const char& key, const std::string& value)
         tempString += ch;
     }
 
-    this->after_.push_back(temp);
-    this->values_.push_back(tempValue);
+    this->after_.push_back(tempLetter);
+    this->values_.push_back(tempString);
 }

@@ -30,7 +30,8 @@ public:
     void GetKey(char* out);
     std::string GetKeyString() const;
     void GetValue(char* out, const int& index);
-    std::string GetValueString(, const int& index) const;
+    std::string GetValueString(const int& index) const;
+    int GetRuleCount() const;
 
 private:
 };
