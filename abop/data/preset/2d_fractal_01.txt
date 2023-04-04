@@ -1,0 +1,6 @@
+angle:90
+word:F+F+F+F
+rule
+F:F+f-FF+F+FF+Ff+FF-f+FF-F-FF-Ff-FFF
+f:fffff
+end
