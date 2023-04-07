@@ -549,21 +549,24 @@ int main(int, char**)
 
             for (LRule& rule : rules)
             {
-                rule.GetKey(key);
-                rule.GetValue(value);
-
-                if (ImGui::Button(key))
+                for (int i = 0; i < rule.GetRuleCount(); i++)
                 {
-                    // !!! key가 1개인 경우만 고려
-                    lSystem->DeleteRule(key[0]);
-                    isUpdateRules = true;
-                }
-                ImGui::SameLine();
-                //ImGui::Text("%s\t%s", key, value);
-                ImGui::Text("%s", value);
+                    rule.GetKey(key);
+                    rule.GetValue(value, i);
 
-                ClearCharArray(16, key);
-                ClearCharArray(128, value);
+                    if (ImGui::Button(key))
+                    {
+                        // !!! key가 1개인 경우만 고려
+                        lSystem->DeleteRule(key[0]);
+                        isUpdateRules = true;
+                    }
+                    ImGui::SameLine();
+                    //ImGui::Text("%s\t%s", key, value);
+                    ImGui::Text("%s", value);
+
+                    ClearCharArray(16, key);
+                    ClearCharArray(128, value);
+                }
             }
         }
 
@@ -762,8 +765,11 @@ void SavePreset(std::string filename, LSystem* lSystem)
 
     for (LRule& rules : lSystem->GetRules())
     {
-        ok = rules.GetKeyString() + ":" + rules.GetValueString() + '\n';
-        file.write(ok.c_str(), ok.size());
+        for (int i = 0; i < rules.GetRuleCount(); i++)
+        {
+            ok = rules.GetKeyString() + ":" + rules.GetValueString(i) + '\n';
+            file.write(ok.c_str(), ok.size());
+        }
     }
 
     ok = "end";
