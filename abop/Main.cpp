@@ -1,15 +1,14 @@
-// Dear ImGui: standalone example application for DirectX 11
-// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
-// Read online: https://github.com/ocornut/imgui/tree/master/docs
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_internal.h"
+
 #include <d3d11.h>
 #include <tchar.h>
 
-//
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 
 #include <string>
 #include <vector>
@@ -19,33 +18,27 @@
 #include "Graphics.hpp"
 #include "InputClass.hpp"
 #include "LSystem.hpp"
+#include "LRule.hpp"
 
 // Data
+std::string PATH = "./data/preset/";
+
 static LPCWSTR APPLICATION_NAME = L"The Algorithmic Beauty of Plants";
 static FLOAT SCREEN_WIDTH = 1280.0f;
 static FLOAT SCREEN_HEIGHT = 800.0f;
-//static ID3D11Device* g_pd3dDevice = NULL;
-//static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
-//static IDXGISwapChain* g_pSwapChain = NULL;
-//static ID3D11RenderTargetView* g_mainRenderTargetView = NULL;
-//
-//// Forward declarations of helper functions
-//bool CreateDeviceD3D(HWND hWnd);
-//void CleanupDeviceD3D();
-//void CreateRenderTarget();
-//void CleanupRenderTarget();
+
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+// Utils
+void ClearCharArray(int size, char* out);
+std::vector<std::string> LoadPresetList();
+void SavePreset(std::string filename, LSystem* lsystem);
 
 // Main code
 int main(int, char**)
 {
+#pragma region Init
     // window 클래스 설정
-    //WNDCLASSEXW wc =
-    //{
-    //    sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L,
-    //    GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
-    //    L"ImGui Example", NULL
-    //};
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
     WNDCLASSEXW wc;
@@ -77,7 +70,7 @@ int main(int, char**)
         return -1;
     }
 
-    if (!d3d->Initialize(1280, 800, true, hwnd, false, 1000.0f, 0.1f))
+    if (!d3d->Initialize(SCREEN_WIDTH, SCREEN_HEIGHT, true, hwnd, false, 1000.0f, 0.1f))
     {
         std::cout << "Could not initialize Direct3D" << std::endl;
         d3d->Shutdown();
@@ -93,6 +86,7 @@ int main(int, char**)
     {
         return -1;
     }
+    static std::vector<LRule> rules;
 
     // Graphics 초기화
     Graphics* graphics = new Graphics();
@@ -100,21 +94,6 @@ int main(int, char**)
     {
         return -1;
     }
-
-    // !!! TEMP
-    // Simple Tree - Turn Around를 Rotate(2, 180.f) -> Rotate(0, 2 * angleChange_) 로 커스텀
-
-    lSystem->SetWord("F");
-    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
-    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
-    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
-    lSystem->SetLeafAngleChange(22.5f);
-    lSystem->SetLeafDistance(0.3f);
-    lSystem->SetDistance(2.0f);
-    lSystem->SetDeltaThickness(0.9f);
-    lSystem->SetAngleChange(22.5f);
-    lSystem->Iterate(5);
-    // ----------------
 
     if (graphics->Initialize(hwnd, d3d, lSystem))
     {
@@ -141,7 +120,7 @@ int main(int, char**)
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
-
+#pragma endregion
 
 #pragma region "Setup ImGui"
     // Setup Dear ImGui context
@@ -164,7 +143,6 @@ int main(int, char**)
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
 
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -176,21 +154,6 @@ int main(int, char**)
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(d3d->GetDevice(), d3d->GetDeviceContext());
 
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-    // - Read 'docs/FONTS.md' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != NULL);
 #pragma endregion
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -207,6 +170,19 @@ int main(int, char**)
         std::cout << "Could not initialize the input object." << std::endl;
         return -1;
     }
+
+    static bool show_location_window = false;
+    static bool show_console_window = false;
+    static bool show_light_window = false;
+
+    // Preset load (Init render) 시 아래 변수를 true로 설정해야
+    // 다음 frame에서 load 함
+    static bool isUpdateRules = true;
+    static bool isUpdateWord = true;
+    static bool isUpdateCamera = true;
+    static bool isUpdateLSystemSetting = true;
+
+    LoadPresetList();
 
     // Main loop
     bool done = false;
@@ -231,42 +207,450 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        static float f = 0.0f;
-        static int counter = 0;
+        // Demo Window
+        bool tempp = false;
+        ImGui::ShowDemoWindow(&tempp);
 
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+#pragma region UI_Default
+        // 1. UI (Default)
+        {
+            
+            ImGui::Begin("DirectX Controller");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 128));
+            ImGui::Text("Welcome, DirectX World! \n\nThis is a library viewer for real-time \ngrowing plant models.");
+            ImGui::Text("You can use these models by adding them \nas assets to any graphics development engine.");
+            ImGui::PopStyleColor();
 
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            // FPS
+            ImGui::Text("\nFPS :");
+            if (100 <= io.Framerate)
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));
+                ImGui::SameLine();
+                ImGui::Text("\n%.1f", io.Framerate);
+                ImGui::PopStyleColor();
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); 
+                ImGui::SameLine();
+                ImGui::Text("\n%.1f", io.Framerate);
+                ImGui::PopStyleColor();
+            }
+            
+            // Application average
+            ImGui::Text("Application average", 1000.0f / io.Framerate);
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 128));
+            ImGui::SameLine();
+            ImGui::Text("%.3f", 1000.0f / io.Framerate);
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+            ImGui::Text("ms/frame", 1000.0f / io.Framerate);
 
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+            // Background Color
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n <Background Color>");
+            ImGui::PopStyleColor();
+            ImGui::ColorEdit4("", (float*)&clear_color);
 
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
+            ImGui::Text("\nViewer Windows.");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Checkbox("Camera Location Window", &show_location_window);
+            ImGui::Checkbox("Console Edit Window", &show_console_window);
+            ImGui::Checkbox("Light Location Window", &show_light_window);
+            ImGui::PopStyleColor();
+        }
 
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        if (show_location_window)
+        {
+            // Camera
+            static float cameraPosition[4] = { 0.0f, 0.0f, -10.0f };
+            static float cameraRotation[4] = { 0.0f, 0.0f, 0.0f };
+            static float cameraSpeed = 0.3f;
+            static float cameraSensitivity = 0.01f;
+            
+            if (isUpdateCamera)
+            {
+                // 현재 항상 카메라 위치 업데이트
+                DirectX::XMFLOAT3 v = graphics->GetCameraPosition();
+                cameraPosition[0] = v.x;
+                cameraPosition[1] = v.y;
+                cameraPosition[2] = v.z;
+
+                // !!! 각도는 나중에
+            }
+
+            ImGui::Begin("Camera Location Window", &show_location_window);
+
+            // Camera Position
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Position>");
+            ImGui::PopStyleColor();
+            ImGui::Text("(X, Y, Z) :"); 
+            ImGui::SameLine();
+            if (ImGui::InputFloat3("##positon", cameraPosition))
+            {
+                graphics->SetCameraPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            }
+
+            // Camera Rotation
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Rotation>");
+            ImGui::PopStyleColor();
+            ImGui::Text("(P, R, Y) :"); 
+            ImGui::SameLine();
+            if (ImGui::InputFloat3("##rotation", cameraRotation))
+            {
+                // 카메라 각도 조절
+            }
+
+            // Camera Speed
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Speed>");
+            ImGui::PopStyleColor();
+            if (ImGui::InputFloat("  ", &cameraSpeed, 0.01f, 0.3f, "%.2f"))
+            {
+                if (cameraSpeed < 0.01f)
+                {
+                    cameraSpeed = 0.01f;
+                }
+                if (cameraSpeed >= 5.0f)
+                {
+                    cameraSpeed = 5.0f;
+                }
+                graphics->SetCameraSpeed(cameraSpeed);
+            }
+
+            // Camera Sensitivity
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Sensitivity>");
+            ImGui::PopStyleColor();
+            if (ImGui::InputFloat(" ", &cameraSensitivity, 0.005f, 0.01f, "%.3f"))
+            {
+                if (cameraSpeed < 0.001f)
+                {
+                    cameraSpeed = 0.001f;
+                }
+                if (cameraSensitivity >= 0.1f)
+                {
+                    cameraSensitivity = 0.1f;
+                }
+                graphics->SetCameraSensitivity(cameraSensitivity);
+            }
+
+            ImGui::End();
+
+        }
+
+        if (show_console_window)
+        {
+            ImGui::Begin("Console Edit Window", &show_console_window);
+
+            // 콘솔 클래스 함수 실행 (ex) Draw()
+
+            ImGui::End();
+        }
+
+        if (show_light_window)
+        {
+            ImGui::Begin("Light Location Window", &show_light_window);
+
+            // Light
+                //-on / off
+                //- shadow ?
+                //-light color
+                //- position 3
+                //- rotation 3
+
+            ImGui::End();
+        }
+
+        // Plane 유무 checkbox
+        //ImGui::Checkbox("Draw Plane", &show_light_window);
+
+        // wireframe, solid select
+        //ImGui::Checkbox("", &show_light_window);
+
         ImGui::End();
 
-        // Rendering
-        //d3d->BeginScene
-        //(
-        //    clear_color.x* clear_color.w,
-        //    clear_color.y* clear_color.w,
-        //    clear_color.z* clear_color.w,
-        //    clear_color.w
-        //);
+#pragma endregion UI_Default
 
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        // Demonstrate the various window flags. Typically you would just use the default!
+        static bool no_titlebar = false;
+        static bool no_scrollbar = false;
+        static bool no_menu = false;
+        static bool no_move = false;
+        static bool no_resize = false;
+        static bool no_collapse = false;
+        static bool no_close = false;
+        static bool no_nav = false;
+        static bool no_background = false;
+        static bool no_bring_to_front = false;
+        static bool no_docking = false;
+        static bool unsaved_document = false;
+
+        bool myLsystemMenuBar = true;
+
+        ImGuiWindowFlags window_flags = 0;
+        if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
+        if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
+        if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
+        if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
+        if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
+        if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
+        if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
+        if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
+        if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+        if (no_docking)         window_flags |= ImGuiWindowFlags_NoDocking;
+        if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
+        if (no_close)           myLsystemMenuBar = NULL; // Don't pass our bool* to Begin
+
+#pragma region L-System
+        // 2. UI (L-System)
+        ImGui::Begin("L-System", &myLsystemMenuBar, ImGuiWindowFlags_MenuBar);
+
+        // L-System : Menu bar
+        if (ImGui::BeginMenuBar())
+        {
+            //if (ImGui::BeginMenu("File"))
+            //{
+            //    if (ImGui::MenuItem("Open", "Ctrl+O"))
+            //    {
+            //        // do something
+            //    }
+            //    if (ImGui::MenuItem("Save As", "Ctrl+S"))
+            //    {
+            //        ImGui::OpenPopup("SaveAs");
+            //    }
+
+            //    ImGui::EndMenu();
+            //}
+            
+            if (ImGui::BeginMenu("Preset"))
+            {
+                for (std::string& presetName : LoadPresetList())
+                {
+                    char filename[128];
+                    strcpy_s(filename, presetName.c_str());
+                    if (ImGui::MenuItem(filename))
+                    {
+                        lSystem->LoadPreset(presetName);
+                        isUpdateRules = true;
+                        isUpdateWord = true;
+                        isUpdateCamera = true;
+                        isUpdateLSystemSetting = true;
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
+        if (ImGui::Button("Save As"))
+        {
+            ImGui::OpenPopup("SaveAs");
+        }
+
+        if (ImGui::BeginPopup("SaveAs", NULL))
+        {
+            std::string filename = "";
+            static char buffer[128];
+
+            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
+    
+            if (ImGui::Button("Save"))
+            {
+                filename = buffer;
+
+                // !!! 배포할 때에는 경로를 직접 수정
+                SavePreset(filename, lSystem);
+                ClearCharArray(128, buffer);
+
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ClearCharArray(128, buffer);
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        // Multi-line Text 
+        static char word[1024 * 64] = "";
+        if (isUpdateWord)
+        {
+            lSystem->GetWord(word);
+            isUpdateWord = false;
+        }
+
+        static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
+
+        if (ImGui::Button("Reset"))
+        {
+            lSystem->SetWord("");
+            lSystem->ClearRule();
+            lSystem->ClearState();
+            ClearCharArray(1024 * 64, word);
+            graphics->UpdateModels();
+
+            isUpdateRules = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Iterate"))
+        {
+            ClearCharArray(1024 * 64, word);
+            lSystem->Iterate(1);
+            lSystem->GetWord(word);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Render"))
+        {
+            lSystem->SetWord(word);
+            lSystem->ClearState();
+            graphics->UpdateModels();
+        }
+
+        if (ImGui::CollapsingHeader("Word"))
+        {
+            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
+            ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+        }
+
+        if (ImGui::CollapsingHeader("Rules"))
+        {
+            static char addKey[16] = "";
+            static char addValue[128] = "";
+            if (ImGui::Button("Add"))
+            {
+                ClearCharArray(16, addKey);
+                ClearCharArray(128, addValue);
+                ImGui::OpenPopup("AddRules");
+            }
+            
+            if (ImGui::BeginPopup("AddRules", NULL))
+            {
+                ImGui::InputText("key", addKey, IM_ARRAYSIZE(addKey));
+                ImGui::InputText("value", addValue, IM_ARRAYSIZE(addValue));
+
+                if (ImGui::Button("Add"))
+                {
+                    lSystem->AddRule(addKey, addValue);
+
+                    // update
+                    isUpdateRules = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Close"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
+            if (isUpdateRules)
+            {
+                rules = lSystem->GetRules();
+                
+                isUpdateRules = false;
+
+            }
+
+            static char key[16];
+            static char value[128];
+
+            for (LRule& rule : rules)
+            {
+                for (int i = 0; i < rule.GetRuleCount(); i++)
+                {
+                    rule.GetKey(key);
+                    rule.GetValue(value, i);
+
+                    if (ImGui::Button(key))
+                    {
+                        // !!! key가 1개인 경우만 고려
+                        lSystem->DeleteRule(key[0]);
+                        isUpdateRules = true;
+                    }
+                    ImGui::SameLine();
+                    //ImGui::Text("%s\t%s", key, value);
+                    ImGui::Text("%s", value);
+
+                    ClearCharArray(16, key);
+                    ClearCharArray(128, value);
+                }
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Settings"))
+        {
+            static float distance = 1.0f;
+            static float angle = 90.0f;
+            static float thickness = 1.0f;
+            static float nextThickness = 1.0f;
+
+            if (isUpdateLSystemSetting)
+            {
+                distance = lSystem->GetDistance();
+                angle = lSystem->GetAngleChange();
+                thickness = lSystem->GetThickness();
+                nextThickness = lSystem->GetDeltaThickness();
+
+                isUpdateLSystemSetting = false;
+            }
+
+            if (ImGui::InputFloat("Distance", &distance, 1.0f, 1.0f, "%.3f"))
+            {
+                lSystem->SetDistance(distance);
+            }
+            if (ImGui::InputFloat("Angle", &angle, 10.0f, 10.0f, "%.3f"))
+            {
+                lSystem->SetAngleChange(angle);
+            }
+            if (ImGui::InputFloat("Thickness", &thickness, 1.0f, 1.0f, "%.3f"))
+            {
+                lSystem->SetThickness(thickness);
+            }
+            if (ImGui::InputFloat("Next Thickness", &nextThickness, 1.0f, 1.0f, "%.3f"))
+            {
+                lSystem->SetDeltaThickness(nextThickness);
+            }
+        }
+
+        ImGui::End();
+#pragma endregion L-System
+
+        const float clear_color_with_alpha[4] = 
+        { 
+            clear_color.x * clear_color.w,
+            clear_color.y * clear_color.w,
+            clear_color.z * clear_color.w,
+            clear_color.w 
+        };
 
         d3d->GetDeviceContext()->OMSetRenderTargets(1, &renderTargetView, NULL);
         d3d->GetDeviceContext()->ClearRenderTargetView(d3d->GetRenderTargetView(), clear_color_with_alpha);
 
-        // Input (!!! TEMP)
         input->Frame();
-        int F, R, PU, RR, U;
-        input->GetCameraMove(F, R, PU, RR, U);
+
+        // TODO: TEMP KEYBOARD INPUT
+        int F = 0;
+        int R = 0;
+        int PU = 0;
+        int RR = 0;
+        int U = 0;
+
+        if (ImGui::GetCurrentContext()->NavWindow == nullptr)
+        {
+            // 활성화된 윈도우가 없는 경우에만 카메라 키보드 조작
+            input->GetCameraMove(F, R, PU, RR, U);
+        }
+
         graphics->Frame(F, R, PU, RR, U);
 
         // TODO: Zbuffer?
@@ -351,4 +735,64 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
     return DefWindowProcW(hWnd, msg, wParam, lParam);
+}
+
+void ClearCharArray(int size, char* out)
+{
+    for (int i = 0; i < size; i++)
+    {
+        out[i] = 0;
+    }
+}
+
+std::vector<std::string> LoadPresetList()
+{
+    std::vector<std::string> v = std::vector<std::string>();
+
+
+    for (const auto& file : std::filesystem::recursive_directory_iterator(PATH))
+    {
+        v.push_back(file.path().string());
+    }
+
+    return v;
+}
+
+void SavePreset(std::string filename, LSystem* lSystem)
+{
+    std::ofstream file;
+
+    file.open(PATH + filename + ".txt");
+
+    std::string ok;
+
+    ok = "angle:" + std::to_string(lSystem->GetAngleChange()) + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "thickness:" + std::to_string(lSystem->GetThickness()) + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "deltaThickness:" + std::to_string(lSystem->GetDeltaThickness()) + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "word:" + lSystem->GetWord() + '\n';
+    file.write(ok.c_str(), ok.size());
+    ok = "rule" + '\n';
+    file.write(ok.c_str(), ok.size());
+
+    char key[16];
+    static char value[128];
+
+    for (LRule& rules : lSystem->GetRules())
+    {
+        for (int i = 0; i < rules.GetRuleCount(); i++)
+        {
+            ok = rules.GetKeyString() + ":" + rules.GetValueString(i) + '\n';
+            file.write(ok.c_str(), ok.size());
+        }
+    }
+
+    ok = "end";
+    file.write(ok.c_str(), ok.size());
+
+    file.close();
+
+    return;
 }

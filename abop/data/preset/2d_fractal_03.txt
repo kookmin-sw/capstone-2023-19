@@ -1,0 +1,7 @@
+angle:90.000000
+thickness:1.000000
+deltaThickness:1.000000
+word:
+dL:LF+RFR+FL-F-LFLFL-FRFR+
+R:-LFLF+RFRFR+F+RF-LFL-FR
+end

@@ -1,7 +1,11 @@
+#include <fstream>
+#include <iostream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <stack>
 #include <cmath>
+#include "Stdafx.h"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
 #include "LRule.hpp"
@@ -43,7 +47,7 @@ Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction, DirectX::XMVECTO
     int size = leaf->size();
 
     // !!! color 일단 그린 고정
-    Vector4 green{ 0.0f, 1.0f, 0.0f, 0.0f };
+    Vector4 green{ 0.19f, 0.35f, 0.15f, 0.0f };
 
     DirectX::XMFLOAT3 axisY(0.0f, 1.0f, 0.0f);
     DirectX::XMFLOAT3 axisZero(0.0f, 0.0f, 0.0f); // 잎의 방향 벡터와 현재 state의 direction 벡터가 같은 방향일 경우, 두 벡터를 Cross 연산한 값을 사용하지 않고 Default 값으로 사용하기 위해 선언 (오류 발생)
@@ -126,8 +130,6 @@ LSystem::LSystem()
         DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
-
-    ;
 }
 
 LSystem::~LSystem()
@@ -148,7 +150,22 @@ std::string LSystem::GetWord() const
     return wordText;
 }
 
-std::string LSystem::GetRules() const
+void LSystem::GetWord(char* out)
+{
+    int index = 0;
+    for (LLetter& letter : *this->word_)
+    {
+        out[index] = letter.GetLetter();
+        index++;
+    }
+}
+
+std::vector<LRule> LSystem::GetRules() const
+{
+    return this->rules_;
+}
+
+std::string LSystem::GetRuleText() const
 {
     std::string rulesText;
     for (const LRule& rule : this->rules_)
@@ -166,6 +183,16 @@ float LSystem::GetAngleChange() const
 float LSystem::GetDistance() const
 {
     return this->distance_;
+}
+
+float LSystem::GetThickness() const
+{
+    return this->state_.thickness;
+}
+
+float LSystem::GetDeltaThickness() const
+{
+    return this->deltaThickness_;
 }
 
 void LSystem::SetAngleChange(const float& val)
@@ -227,12 +254,62 @@ void LSystem::AddRule(const std::string& ruleText)
 
 void LSystem::AddRule(const char& key, const std::string& value)
 {
-    this->rules_.push_back(LRule(key, value));
+    bool found = false;
+    int index;
+    for (int i = 0; i < this->rules_.size(); i++)
+    {
+        auto& rule = this->rules_[i];
+        if (rule.GetBefore().IsEqual(key))
+        {
+            found = true;
+            index = i;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        this->rules_.push_back(LRule(key, value));
+    }
+    else
+    {
+        this->rules_[index].SetRule(key, value);
+    }
 }
 
 void LSystem::AddRule(const std::string& key, const std::string& value)
 {
-    this->rules_.push_back(LRule(key, value));
+    this->AddRule(key[0], value);
+}
+
+void LSystem::DeleteRule(const char& key)
+{
+    //for (LRule& rule : this->rules_)
+    for (int i = 0; i < this->rules_.size(); i++)
+    {
+        if (this->rules_[i].GetBefore().GetLetter() == key)
+        {
+            this->rules_.erase(this->rules_.begin() + i);
+            break;
+        }
+    }
+}
+
+void LSystem::ClearRule()
+{
+    this->rules_ = std::vector<LRule>();
+}
+
+void LSystem::ClearState()
+{
+    this->state_ =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {90.0f, 0.0f, 0.0f},     // X Y Z
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
+        0.3f
+    };
 }
 
 // Run
@@ -277,10 +354,9 @@ void LSystem::Iterate(int n)
 
 void LSystem::GetResultVertex(std::vector<Model>* out)
 {
-    // out -> jk,
     if (this->word_->size() < 1)
     {
-        throw "No word";
+        return;
     }
 
     float width = 0.5;
@@ -454,6 +530,60 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     }
 }
 
+void LSystem::LoadPreset(std::string& filename)
+{
+    // TODO: 잘못된 파일 예외 처리하기
+    std::ifstream ifs;
+
+    this->Reset();
+
+    ifs.open(filename);
+
+    std::string inp;
+    while (ifs >> inp)
+    {
+        if (inp == "rule")
+        {
+            while (ifs >> inp)
+            {
+                if (inp == "end")
+                {
+                    break;
+                }
+
+                int index = inp.find(':');
+                this->AddRule(inp.substr(0, index), inp.substr(index + 1, inp.size()));
+            }
+        }
+        else
+        {
+            int index = inp.find(':');
+
+            std::string key = inp.substr(0, index);
+            std::string value = inp.substr(index + 1, inp.size());
+
+            if (key == "word")
+            {
+                this->SetWord(value);
+            }
+            else if (key == "angle")
+            {
+                this->SetAngleChange(std::stof(value));
+            }
+            else if (key == "thickness")
+            {
+                this->SetThickness(std::stof(value));
+            }
+            else if (key == "deltaThickness")
+            {
+                this->SetDeltaThickness(std::stof(value));
+            }
+        }
+    }
+
+    return;
+}
+
 // Private
 void LSystem::Move()
 {
@@ -580,4 +710,17 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 
     this->state_.direction.Normalized();
     this->leafDirection.Normalized();
+}
+}
+
+void LSystem::Reset()
+{
+    this->ClearRule();
+    this->ClearState();
+    this->angleChange_ = 90.0f;
+    this->distance_ = 1.0f;
+    this->deltaThickness_ = 1.0f;
+    //float leafAngleChange_ = 22.5f;
+    //float leafDistance_ = 0.5f;
+    //bool drawingLeaf_ = false;
 }
