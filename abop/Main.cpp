@@ -122,27 +122,18 @@ int main(int, char**)
     }
 
     // Init Render
-    /*
     lSystem->SetWord("F");
     lSystem->AddRule('F', "FF");
-    lSystem->AddRule('F', "F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]");
-    lSystem->AddRule('L', "[++{-G.+G.+G.-|-G.+G.+G.}]S");
-    lSystem->AddRule('S', "[--{-G.+G.+G.-|-G.+G.+G.}]L");
-    //lSystem->SetLeafAngleChange(22.5f);
-    //lSystem->SetLeafDistance(0.3f);
+    lSystem->AddRule('F', "F[-&\\[{+G.-G.-G.+|+G.-G.}]FL][\\++&F[{+G.-G.-G.+|+G.-G.}]L]F[--&/F[{+G.-G.-G.+|+G.-G.}]L][+&F[{+G.-G.-G.+|+G.-G.}]L]");
+    lSystem->AddRule('L', "[++{+G.-G.-G.+|+G.-G.}]S");
+    lSystem->AddRule('S', "[--{+G.-G.-G.+|+G.-G.}]L");
+    lSystem->SetLeafAngleChange(22.5f);
+    lSystem->SetLeafDistance(0.3f);
     lSystem->SetAngleChange(22.5f);
     lSystem->SetDistance(1.5f);
     lSystem->SetThickness(0.5f);
     lSystem->SetDeltaThickness(0.9f);
     lSystem->Iterate(4);
-    //std::cout << lSystem->GetRules()[0].GetRule() << std::endl;
-    graphics->UpdateModels();
-    */
-
-    lSystem->SetWord("F[{+G.-G.-G.+|+G.-G.}]^^^/F[{+G.-G.-G.+|+G.-G.}]");
-    lSystem->SetAngleChange(45.f);
-    lSystem->SetLeafAngleChange(22.5f);
-    lSystem->SetLeafDistance(0.2f);
     graphics->UpdateModels();
 
     // ----------------

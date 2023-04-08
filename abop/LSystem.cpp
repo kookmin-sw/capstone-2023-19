@@ -45,11 +45,20 @@ Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction, DirectX::XMVECTO
     // !!! color 일단 그린 고정
     Vector4 green{ 0.0f, 1.0f, 0.0f, 0.0f };
 
-    std::cout << "rad = " << rad << '\n';
+    DirectX::XMFLOAT3 axisY(0.0f, 1.0f, 0.0f);
+    DirectX::XMFLOAT3 axisZero(0.0f, 0.0f, 0.0f); // 잎의 방향 벡터와 현재 state의 direction 벡터가 같은 방향일 경우, 두 벡터를 Cross 연산한 값을 사용하지 않고 Default 값으로 사용하기 위해 선언 (오류 발생)
 
-    DirectX::XMFLOAT3 axis(0.0f, 1.0f, 0.0f);
+    DirectX::XMFLOAT3 dir_axis(direction.x, direction.y, direction.z);
+    DirectX::XMVECTOR radianY = DirectX::XMVector3AngleBetweenNormals(DirectX::XMLoadFloat3(&axisY), DirectX::XMLoadFloat3(&dir_axis)); // 잎이 자라는 방향인 (0, 1, 0) 벡터와 현재 state의 direction 벡터 사이의 각
 
-    DirectX::XMFLOAT3 axisX(1.0f, 0.0f, 0.0f);
+    DirectX::XMVECTOR realAxisY = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&axisY), DirectX::XMLoadFloat3(&dir_axis))); // 두 벡터가 같은 방향이 아닐 때 사용하는 real axis
+
+    DirectX::XMVECTOR rotationQuaternion = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), DirectX::XMVectorGetX(radianY));
+
+    if (!DirectX::XMVector3Equal(realAxisY, DirectX::XMLoadFloat3(&axisZero))) // Cross 연산의 값이 Zero 벡터가 아닌지 체크 후, 아니라면 realAxis 사용
+    {
+        rotationQuaternion = DirectX::XMQuaternionRotationAxis(realAxisY, DirectX::XMVectorGetX(radianY));
+    }
 
     Model model;
 
@@ -58,32 +67,12 @@ Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction, DirectX::XMVECTO
     model.vertexTypes = new VertexType[size];
     model.indexCount = (size - 1) * 6;
     model.indices = new int[model.indexCount];
-    DirectX::XMVECTOR rotationQuaternion = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axis), rad);
-
-    model.data[0] = DirectX::XMVectorGetX(tempQuat);
-    model.data[1] = DirectX::XMVectorGetY(tempQuat);
-    model.data[2] = DirectX::XMVectorGetZ(tempQuat);
-    model.data[3] = DirectX::XMVectorGetW(tempQuat);
-
-    Vector3 midPos(0.f, 0.f, 0.f);
-
-    for (int i = 0; i < size; i++) {
-        midPos.x += (*leaf)[i].x, midPos.y += (*leaf)[i].y, midPos.z += (*leaf)[i].z;
-    }
-
-    midPos.x /= 6, midPos.y /= 6, midPos.z /= 6;
-
-    std::cout << "midPos : " << midPos.x << " " << midPos.y << " " << midPos.z << '\n';
-
-    model.data[4] = midPos.x;
-    model.data[5] = midPos.y;
-    model.data[6] = midPos.z;
 
     // TEMP
     for (int i = 0; i < size; i++)
     {
 
-        Vector3 tempPos = (*leaf)[i];
+        Vector3 tempPos{ (*leaf)[i].x - (*leaf)[0].x, (*leaf)[i].y - (*leaf)[0].y, (*leaf)[i].z - (*leaf)[0].z }; // 잎 시작점 기준으로 모든 좌표 원점으로 이동  
 
         DirectX::XMFLOAT3 vertex = { tempPos.x, tempPos.y, tempPos.z };
         DirectX::XMVECTOR vertexVector = DirectX::XMLoadFloat3(&vertex);
@@ -91,11 +80,10 @@ Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction, DirectX::XMVECTO
         DirectX::XMFLOAT3 rotatedVertex;
         DirectX::XMStoreFloat3(&rotatedVertex, rotatedVertexVector);
 
-        tempPos.x = rotatedVertex.x, tempPos.y = rotatedVertex.y, tempPos.z = rotatedVertex.z;
+        tempPos.x = rotatedVertex.x + (*leaf)[0].x, tempPos.y = rotatedVertex.y + (*leaf)[0].y, tempPos.z = rotatedVertex.z + (*leaf)[0].z; // 원점 기준으로 모든 좌표 회전 변환 한 뒤 다시 원위치
 
         model.vertexTypes[i] = VertexType{ tempPos , green };
 
-        std::cout << "creating leaf : " << tempPos.x << " " << tempPos.y << " " << tempPos.z << std::endl;
     }
 
     int i = 0;
@@ -428,8 +416,6 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 leaf = new std::vector<Vector3>();
 
-                std::cout << "start leaf : " << this->state_.position.x << " " << this->state_.position.y << " " << this->state_.position.z << std::endl;
-
                 leaf->push_back(this->state_.position);
 
                 this->drawingLeaf_ = true;
@@ -440,8 +426,6 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::MarkingPoint:
             {
                 leaf->push_back(this->state_.position);
-
-                std::cout << "mark point : " << this->state_.position.x << " " << this->state_.position.y << " " << this->state_.position.z << std::endl;
 
                 break;
             }
@@ -533,8 +517,6 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
         case 2:
         {
             // Turn, z
-           //this->state_.rotation.z += angle;
-            this->leafQuaternion = DirectX::XMQuaternionMultiply(this->leafQuaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
             float newX = cos * x - sin * y;
             float newY = sin * x + cos * y;
             this->leafDirection.x = newX;
