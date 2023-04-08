@@ -12,6 +12,7 @@ private:
     float leafAngleChange_ = 22.5f;
     float leafDistance_ = 0.5f;
     bool drawingLeaf_ = false;
+    Vector3 leafDirection;
     State state_;
 
     std::vector<LRule> rules_;
