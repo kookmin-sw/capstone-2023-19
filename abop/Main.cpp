@@ -101,6 +101,7 @@ int main(int, char**)
     }
 
     // Init Render
+    /*
     lSystem->SetWord("F");
     lSystem->AddRule('F', "FF");
     lSystem->AddRule('F', "F[-&\\[{+G.-G.-G.+|+G.-G.}]FL][\\++&F[{+G.-G.-G.+|+G.-G.}]L]F[--&/F[{+G.-G.-G.+|+G.-G.}]L][+&F[{+G.-G.-G.+|+G.-G.}]L]");
@@ -114,6 +115,7 @@ int main(int, char**)
     lSystem->SetDeltaThickness(0.9f);
     lSystem->Iterate(4);
     graphics->UpdateModels();
+    */
 
     // ----------------
 

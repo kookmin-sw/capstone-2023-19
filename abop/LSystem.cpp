@@ -42,7 +42,7 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::X
     return model;
 }
 
-Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction, DirectX::XMVECTOR& quaternion, float distance)
+Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction)
 {
     int size = leaf->size();
 
@@ -507,7 +507,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             }
             case LLetter::Type::EndingPoint:
             {
-                out->push_back(CreateLeaf(leaf, this->state_.direction, this->state_.quaternion, this->leafDistance_));
+                out->push_back(CreateLeaf(leaf, this->state_.direction));
 
                 if (!leafstack.empty()) {
                     leaf = leafstack.top();
@@ -710,7 +710,6 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 
     this->state_.direction.Normalized();
     this->leafDirection.Normalized();
-}
 }
 
 void LSystem::Reset()
