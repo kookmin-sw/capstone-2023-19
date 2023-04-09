@@ -14,7 +14,7 @@
 #include <iostream>
 
 // TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
+Model CreateTrunk(Vector3 startPos, Vector3 endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
     // !!! TEMP
 
@@ -126,7 +126,6 @@ LSystem::LSystem()
     {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
-        {90.0f, 0.0f, 0.0f},     // X Y Z
         DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
@@ -306,7 +305,6 @@ void LSystem::ClearState()
     {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f},
-        {90.0f, 0.0f, 0.0f},     // X Y Z
         DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
         0.3f
     };
@@ -378,7 +376,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.rotation, this->state_.quaternion, this->state_.thickness, this->distance_));
+                out->push_back(CreateTrunk(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -659,54 +657,38 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
     {
         switch (axis)
         {
-        case 0:
-        {
-            // Roll, x
-            //this->state_.rotation.x += angle;
-            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
-            float newY = cos * y - sin * z;
-            float newZ = sin * y + cos * z;
-            this->state_.direction.y = newY;
-            this->state_.direction.z = newZ;
-            break;
-        }
-        case 1:
-        {
-            // Pitch, y
-            this->state_.rotation.y += angle;
-            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
-            float newX = cos * x + sin * z;
-            float newZ = -sin * x + cos * z;
-            this->state_.direction.x = newX;
-            this->state_.direction.z = newZ;
-            break;
-        }
-        case 2:
-        {
-            // Turn, z
-           //this->state_.rotation.z += angle;
-            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
-            float newX = cos * x - sin * y;
-            float newY = sin * x + cos * y;
-            this->state_.direction.x = newX;
-            this->state_.direction.y = newY;
-            break;
-        }
+			case 0:
+			{
+				// Roll, x
+				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
+				float newY = cos * y - sin * z;
+				float newZ = sin * y + cos * z;
+				this->state_.direction.y = newY;
+				this->state_.direction.z = newZ;
+				break;
+			}
+			case 1:
+			{
+				// Pitch, y
+				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
+				float newX = cos * x + sin * z;
+				float newZ = -sin * x + cos * z;
+				this->state_.direction.x = newX;
+				this->state_.direction.z = newZ;
+				break;
+			}
+			case 2:
+			{
+				// Turn, z
+				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
+				float newX = cos * x - sin * y;
+				float newY = sin * x + cos * y;
+				this->state_.direction.x = newX;
+				this->state_.direction.y = newY;
+				break;
+			}
         }
     }
-
-    while (this->state_.rotation.x > 180.0f)
-        this->state_.rotation.x -= 360.0f;
-    while (this->state_.rotation.x < -180.0f)
-        this->state_.rotation.x += 360.0f;
-    while (this->state_.rotation.y > 180.0f)
-        this->state_.rotation.y -= 360.0f;
-    while (this->state_.rotation.y < -180.0f)
-        this->state_.rotation.y += 360.0f;
-    while (this->state_.rotation.z > 180.0f)
-        this->state_.rotation.z -= 360.0f;
-    while (this->state_.rotation.z < -180.0f)
-        this->state_.rotation.z += 360.0f;
 
     this->state_.direction.Normalized();
     this->leafDirection.Normalized();
