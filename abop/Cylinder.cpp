@@ -5,6 +5,8 @@
 #include "ModelClass.hpp"
 #include "Cylinder.hpp"
 
+#include <iostream>
+
 // 반지름이 radius일 때 n번째 segment 꼭지점 좌표 (높이는 z)
 Vector3 CalCylinderVertexPos(float radius, int n, int segment, float z = 0.0f)
 {
@@ -88,6 +90,12 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
 
         vertices[i].color = this->color_;
         vertices[i + this->segment_ + 1].color = this->color_;
+    }
+
+    std::cout << "VERTEX DEBUG\n";
+    for (int i = 1; i < this->segment_ + 1; i++)
+    {
+        std::cout << vertices[i].position.x << " " << vertices[i].position.y << " " << vertices[i].position.z << "\n";
     }
     
     // Index
@@ -297,7 +305,7 @@ void Cylinder::SetSegment(int segment)
     this->segment_ = segment;
 }
 
-void Cylinder::Setheight(float height)
+void Cylinder::SetHeight(float height)
 {
     this->height_ = height;
 }

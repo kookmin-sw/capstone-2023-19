@@ -19,7 +19,7 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::X
     // !!! TEMP
 
     Model model;
-    model.modelType = ModelType::CubeModel;
+    model.modelType = ModelType::CylinderModel;
     model.dataCount = 10;
     model.data = new float[10];
 
@@ -32,12 +32,9 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, Vector3 rotation, DirectX::X
     model.data[4] = DirectX::XMVectorGetY(quaternion);
     model.data[5] = DirectX::XMVectorGetZ(quaternion);
     model.data[6] = DirectX::XMVectorGetW(quaternion);
-    //model.data[3] = 0.0f * PI / 180.0f;     // pitch
-    //model.data[4] = 0.0f * PI / 180.0f;     // roll
-    //model.data[5] = 0.0f * PI / 180.0f;     // yaw
-    model.data[7] = thickness;       // size.x
-    model.data[8] = thickness;       // size.y
-    model.data[9] = distance;       // size.z (height)
+    model.data[7] = thickness;       // Radius
+    model.data[8] = distance;       // Height
+    model.data[9] = 10;       // Segment
 
     return model;
 }
