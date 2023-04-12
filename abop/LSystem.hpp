@@ -73,4 +73,9 @@ private:
     void Rotate(const unsigned short&, const float&);
 
     void Reset();
+
+    // Model ฐüทร
+    Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
+    Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
+	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
 };

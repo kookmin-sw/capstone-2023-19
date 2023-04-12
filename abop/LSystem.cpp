@@ -1,6 +1,5 @@
 #include <fstream>
 #include <iostream>
-#include <cstring>
 #include <string>
 #include <vector>
 #include <stack>
@@ -11,13 +10,33 @@
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
-#include <iostream>
 
-// TEMP
-Model CreateTrunk(Vector3 startPos, Vector3 endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
+// Model 관련 
+Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
-    // !!! TEMP
+    Model model;
+    model.modelType = ModelType::CubeModel;
+    model.dataCount = 10;
+    model.data = new float[10];
 
+    Vector3 position = (startPos + endPos) / 2.0f;
+
+    model.data[0] = position.x;
+    model.data[1] = position.y;
+    model.data[2] = position.z;
+    model.data[3] = DirectX::XMVectorGetX(quaternion);
+    model.data[4] = DirectX::XMVectorGetY(quaternion);
+    model.data[5] = DirectX::XMVectorGetZ(quaternion);
+    model.data[6] = DirectX::XMVectorGetW(quaternion);
+    model.data[7] = thickness;       // width
+    model.data[8] = thickness;       // depth
+    model.data[9] = distance;       // height
+
+    return model;
+}
+
+Model LSystem::CreateCylinder(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& radius, const float& distance)
+{
     Model model;
     model.modelType = ModelType::CylinderModel;
     model.dataCount = 10;
@@ -32,33 +51,35 @@ Model CreateTrunk(Vector3 startPos, Vector3 endPos, DirectX::XMVECTOR& quaternio
     model.data[4] = DirectX::XMVectorGetY(quaternion);
     model.data[5] = DirectX::XMVectorGetZ(quaternion);
     model.data[6] = DirectX::XMVectorGetW(quaternion);
-    model.data[7] = thickness;       // Radius
+    model.data[7] = radius;       // Radius
     model.data[8] = distance;       // Height
     model.data[9] = 10;       // Segment
 
     return model;
 }
 
-Model CreateLeaf(std::vector<Vector3>* leaf, Vector3 direction)
+Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
 {
     int size = leaf->size();
 
     // !!! color 일단 그린 고정
     Vector4 green{ 0.19f, 0.35f, 0.15f, 0.0f };
 
-    DirectX::XMFLOAT3 axisY(0.0f, 1.0f, 0.0f);
     DirectX::XMFLOAT3 axisZero(0.0f, 0.0f, 0.0f); // 잎의 방향 벡터와 현재 state의 direction 벡터가 같은 방향일 경우, 두 벡터를 Cross 연산한 값을 사용하지 않고 Default 값으로 사용하기 위해 선언 (오류 발생)
 
     DirectX::XMFLOAT3 dir_axis(direction.x, direction.y, direction.z);
     DirectX::XMVECTOR radianY = DirectX::XMVector3AngleBetweenNormals(DirectX::XMLoadFloat3(&axisY), DirectX::XMLoadFloat3(&dir_axis)); // 잎이 자라는 방향인 (0, 1, 0) 벡터와 현재 state의 direction 벡터 사이의 각
 
     DirectX::XMVECTOR realAxisY = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&axisY), DirectX::XMLoadFloat3(&dir_axis))); // 두 벡터가 같은 방향이 아닐 때 사용하는 real axis
-
-    DirectX::XMVECTOR rotationQuaternion = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), DirectX::XMVectorGetX(radianY));
+    DirectX::XMVECTOR rotationQuaternion;
 
     if (!DirectX::XMVector3Equal(realAxisY, DirectX::XMLoadFloat3(&axisZero))) // Cross 연산의 값이 Zero 벡터가 아닌지 체크 후, 아니라면 realAxis 사용
     {
         rotationQuaternion = DirectX::XMQuaternionRotationAxis(realAxisY, DirectX::XMVectorGetX(radianY));
+    }
+    else
+    {
+        rotationQuaternion = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), DirectX::XMVectorGetX(radianY));
     }
 
     Model model;
@@ -373,7 +394,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateTrunk(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_));
+                out->push_back(CreateCylinder(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_));
                 startPos = this->state_.position;
                 break;
             }
@@ -607,84 +628,75 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
     float cos = std::cosf(rad);
     float sin = std::sinf(rad);
 
-    float x = this->state_.direction.x;
-    float y = this->state_.direction.y;
-    float z = this->state_.direction.z;
-
-    if (drawingLeaf_) {
+    float x, y, z;
+    if (drawingLeaf_) 
+    {
         x = this->leafDirection.x;
         y = this->leafDirection.y;
         z = this->leafDirection.z;
     }
-
-    if (drawingLeaf_)
-    {
-        switch (axis)
-        {
-        case 0:
-        {
-            // Roll, x
-            float newY = cos * y - sin * z;
-            float newZ = sin * y + cos * z;
-            this->leafDirection.y = newY;
-            this->leafDirection.z = newZ;
-            break;
-        }
-        case 1:
-        {
-            // Pitch, y
-            float newX = cos * x + sin * z;
-            float newZ = -sin * x + cos * z;
-            this->leafDirection.x = newX;
-            this->leafDirection.z = newZ;
-            break;
-        }
-        case 2:
-        {
-            // Turn, z
-            float newX = cos * x - sin * y;
-            float newY = sin * x + cos * y;
-            this->leafDirection.x = newX;
-            this->leafDirection.y = newY;
-            break;
-        }
-        }
-    }
     else
     {
-        switch (axis)
-        {
-			case 0:
+        x = this->state_.direction.x;
+        y = this->state_.direction.y;
+        z = this->state_.direction.z;
+    }
+
+    float newX = x;
+    float newY = y;
+    float newZ = z;
+
+    switch (axis)
+    {
+		case 0:
+		{
+			if (!drawingLeaf_)
 			{
 				// Roll, x
 				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
-				float newY = cos * y - sin * z;
-				float newZ = sin * y + cos * z;
-				this->state_.direction.y = newY;
-				this->state_.direction.z = newZ;
-				break;
 			}
-			case 1:
+
+			newY = cos * y - sin * z;
+			newZ = sin * y + cos * z;
+			break;
+		}
+		case 1:
+		{
+			if (!drawingLeaf_)
 			{
 				// Pitch, y
 				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
-				float newX = cos * x + sin * z;
-				float newZ = -sin * x + cos * z;
-				this->state_.direction.x = newX;
-				this->state_.direction.z = newZ;
-				break;
 			}
-			case 2:
+
+			newX = cos * x + sin * z;
+			newZ = -sin * x + cos * z;
+			break;
+		}
+		case 2:
+		{
+			if (!drawingLeaf_)
 			{
 				// Turn, z
 				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
-				float newX = cos * x - sin * y;
-				float newY = sin * x + cos * y;
-				this->state_.direction.x = newX;
-				this->state_.direction.y = newY;
-				break;
 			}
-        }
+
+			newX = cos * x - sin * y;
+			newY = sin * x + cos * y;
+			break;
+		}
+    }
+
+    if (drawingLeaf_)
+    {
+        this->leafDirection.x = newX;
+        this->leafDirection.y = newY;
+        this->leafDirection.z = newZ;
+    }
+    else
+    {
+        this->state_.direction.x = newX;
+        this->state_.direction.y = newY;
+        this->state_.direction.z = newZ;
     }
 
     this->state_.direction.Normalized();

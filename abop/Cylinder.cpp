@@ -5,8 +5,6 @@
 #include "ModelClass.hpp"
 #include "Cylinder.hpp"
 
-#include <iostream>
-
 // 반지름이 radius일 때 n번째 segment 꼭지점 좌표 (높이는 z)
 Vector3 CalCylinderVertexPos(float radius, int n, int segment, float z = 0.0f)
 {
@@ -22,8 +20,8 @@ Vector3 CalCylinderVertexPos(float radius, int n, int segment, float z = 0.0f)
 // !!! 테스트용 나중에 지우기
 bool Cylinder::GenerateCylinderCap(ID3D11Device* device)
 {
-    float top = this->position_.z - this->height_ * 0.5f;
-    float bottom = this->position_.z + this->height_ * 0.5f;
+    float top = -this->height_ * 0.5f;
+    float bottom = this->height_ * 0.5f;
 
     return this->GenerateCylinderCap(device, top, bottom);
 }
@@ -52,14 +50,14 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
     // 현재 pos에서 top, bottom만 다름
     vertices[0].position = DirectX::XMFLOAT3
     (
-        this->position_.x,
-        this->position_.y,
+        0.0f,
+        0.0f,
         top
     );
     vertices[this->segment_ + 1].position = DirectX::XMFLOAT3
     (
-        this->position_.x,
-        this->position_.y,
+        0.0f,
+        0.0f,
         bottom
     );
     vertices[0].color = this->color_;
@@ -74,8 +72,8 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
         // cap mid (0) + cap side ( 1 ~ segment )  
         vertices[i].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
+			vt.x,
+            vt.y,
             top
         );
 
@@ -83,19 +81,13 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
         // cap mid (segment + 1) + cap side ( segment + 2 ~ segment * 2 + 1)
         vertices[i + this->segment_ + 1].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
+			vt.x,
+            vt.y,
             bottom
         );
 
         vertices[i].color = this->color_;
         vertices[i + this->segment_ + 1].color = this->color_;
-    }
-
-    std::cout << "VERTEX DEBUG\n";
-    for (int i = 1; i < this->segment_ + 1; i++)
-    {
-        std::cout << vertices[i].position.x << " " << vertices[i].position.y << " " << vertices[i].position.z << "\n";
     }
     
     // Index
@@ -180,8 +172,8 @@ bool Cylinder::Initialize(ID3D11Device* device)
 
 bool Cylinder::InitializeBuffers(ID3D11Device* device)
 {
-    float top = this->position_.z - this->height_ * 0.5f;
-    float bottom = this->position_.z + this->height_ * 0.5f;
+    float top = -this->height_ * 0.5f;
+    float bottom = this->height_ * 0.5f;
     //if (!this->GenerateCylinderCap(device, top, bottom))
     //{
     //    // Cap 먼저 생성
@@ -213,16 +205,16 @@ bool Cylinder::InitializeBuffers(ID3D11Device* device)
 
         vertices[i * 2].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
-            this->position_.z + top
+            vt.x,
+            vt.y,
+            top
         );
 
         vertices[i * 2 + 1].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
-            this->position_.z + bottom
+            vt.x,
+            vt.y,
+            bottom
         );
 
         // color
