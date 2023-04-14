@@ -76,6 +76,6 @@ private:
 
     // Model ฐüทร
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
-    Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
+    Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
 };

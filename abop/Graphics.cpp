@@ -197,9 +197,9 @@ void Graphics::UpdateModels()
 
 				cylinder->SetPosition(model.data[0], model.data[1], model.data[2]);
 				cylinder->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
-				cylinder->SetRadius(model.data[7]);
-				cylinder->SetHeight(model.data[8]);
-				cylinder->SetSegment(model.data[9]);
+				cylinder->SetRadius(model.data[7], model.data[8]);
+				cylinder->SetHeight(model.data[9]);
+				cylinder->SetSegment(model.data[10]);
 				cylinder->SetColor(0.32f, 0.19f, 0.0f, 1.0f); // !!! Trunk color
 
 				cylinder->Initialize(this->d3d_->GetDevice());
@@ -207,13 +207,11 @@ void Graphics::UpdateModels()
 				Cylinder* cylinderCap = new Cylinder;
 				cylinderCap->SetPosition(model.data[0], model.data[1], model.data[2]);
 				cylinderCap->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
-				cylinderCap->SetRadius(model.data[7]);
-				cylinderCap->SetHeight(model.data[8]);
-				cylinderCap->SetSegment(model.data[9]);
+				cylinderCap->SetRadius(model.data[7], model.data[8]);
+				cylinderCap->SetHeight(model.data[9]);
+				cylinderCap->SetSegment(model.data[10]);
 				cylinderCap->SetColor(0.32f, 0.19f, 0.0f, 1.0f); // !!! Trunk color
 				cylinderCap->GenerateCylinderCap(this->d3d_->GetDevice());
-
-				std::cout << "Position debug : " << cylinder->GetPosition().x << " " << cylinder->GetPosition().y << " " << cylinder->GetPosition().z << "\n";
 
 				delete[] model.data;
 

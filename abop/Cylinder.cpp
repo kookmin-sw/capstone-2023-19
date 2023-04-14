@@ -66,14 +66,15 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
     for (int i = 1; i < this->segment_ + 1; i++)
     {
         // ex. vertex[1]은 top cap 우측 기준 반 시계 방향 0번째(i - 1)
-        Vector3 vt = CalCylinderVertexPos(this->radius_, i - 1, this->segment_);
+        Vector3 vtUp = CalCylinderVertexPos(this->radiusUp_, i - 1, this->segment_);
+        Vector3 vtDown = CalCylinderVertexPos(this->radiusDown_, i - 1, this->segment_);
 
         // top cap 
         // cap mid (0) + cap side ( 1 ~ segment )  
         vertices[i].position = DirectX::XMFLOAT3
         (
-			vt.x,
-            vt.y,
+			vtUp.x,
+            vtUp.y,
             top
         );
 
@@ -81,8 +82,8 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
         // cap mid (segment + 1) + cap side ( segment + 2 ~ segment * 2 + 1)
         vertices[i + this->segment_ + 1].position = DirectX::XMFLOAT3
         (
-			vt.x,
-            vt.y,
+			vtDown.x,
+            vtDown.y,
             bottom
         );
 
@@ -201,19 +202,20 @@ bool Cylinder::InitializeBuffers(ID3D11Device* device)
     for (int i = 0; i < this->segment_; i++)
     {
         // vertex
-        Vector3 vt = CalCylinderVertexPos(this->radius_, i, this->segment_);
+        Vector3 vtUp = CalCylinderVertexPos(this->radiusUp_, i, this->segment_);
+        Vector3 vtDown = CalCylinderVertexPos(this->radiusDown_, i, this->segment_);
 
         vertices[i * 2].position = DirectX::XMFLOAT3
         (
-            vt.x,
-            vt.y,
+            vtUp.x,
+            vtUp.y,
             top
         );
 
         vertices[i * 2 + 1].position = DirectX::XMFLOAT3
         (
-            vt.x,
-            vt.y,
+            vtDown.x,
+            vtDown.y,
             bottom
         );
 
@@ -302,7 +304,8 @@ void Cylinder::SetHeight(float height)
     this->height_ = height;
 }
 
-void Cylinder::SetRadius(float radius)
+void Cylinder::SetRadius(float radiusDown, float radiusUp)
 {
-    this->radius_ = radius;
+    this->radiusDown_ = radiusDown;
+    this->radiusUp_ = radiusUp;
 }

@@ -35,14 +35,15 @@ Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR
     return model;
 }
 
-Model LSystem::CreateCylinder(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& radius, const float& distance)
+Model LSystem::CreateCylinder(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& radiusDown, const float& distance, const int& segment)
 {
     Model model;
     model.modelType = ModelType::CylinderModel;
     model.dataCount = 10;
-    model.data = new float[10];
+    model.data = new float[11];
 
     Vector3 position = (startPos + endPos) / 2.0f;
+	float radiusUp = radiusDown * this->deltaThickness_;
 
     model.data[0] = position.x;
     model.data[1] = position.y;
@@ -51,9 +52,10 @@ Model LSystem::CreateCylinder(Vector3& startPos, Vector3& endPos, DirectX::XMVEC
     model.data[4] = DirectX::XMVectorGetY(quaternion);
     model.data[5] = DirectX::XMVectorGetZ(quaternion);
     model.data[6] = DirectX::XMVectorGetW(quaternion);
-    model.data[7] = radius;       // Radius
-    model.data[8] = distance;       // Height
-    model.data[9] = 10;       // Segment
+    model.data[7] = radiusDown;       // Radius Down
+    model.data[8] = radiusUp;       // Radius Up
+    model.data[9] = distance;       // Height
+    model.data[10] = segment;       // Segment
 
     return model;
 }
@@ -394,7 +396,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 // Draw + Move forward
                 this->Move();
                 endPos = this->state_.position;
-                out->push_back(CreateCylinder(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_));
+                out->push_back(CreateCylinder(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_, 50));
                 startPos = this->state_.position;
                 break;
             }
