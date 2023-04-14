@@ -73,7 +73,7 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
         // cap mid (0) + cap side ( 1 ~ segment )  
         vertices[i].position = DirectX::XMFLOAT3
         (
-			vtUp.x,
+            vtUp.x,
             vtUp.y,
             top
         );
@@ -82,7 +82,7 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
         // cap mid (segment + 1) + cap side ( segment + 2 ~ segment * 2 + 1)
         vertices[i + this->segment_ + 1].position = DirectX::XMFLOAT3
         (
-			vtDown.x,
+            vtDown.x,
             vtDown.y,
             bottom
         );
