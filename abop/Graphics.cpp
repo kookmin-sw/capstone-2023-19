@@ -157,35 +157,69 @@ void Graphics::UpdateModels()
 	this->lSystem_->GetResultVertex(models);
 	for (const Model& model : *models)
 	{
-		if (model.modelType == ModelType::Custom)
+		switch (model.modelType)
 		{
-			ModelClass* modelClass = new ModelClass;
-			modelClass->Initialize(this->d3d_->GetDevice(), model);
+			case ModelType::Custom:
+			{
+				ModelClass* modelClass = new ModelClass;
+				modelClass->Initialize(this->d3d_->GetDevice(), model);
 
-			this->models_->push_back(modelClass);
-		}
-		else if (model.modelType == ModelType::LeafModel) {
-			Leaf* leaf = new Leaf;
-			leaf->Initialize(this->d3d_->GetDevice(), model);
+				this->models_->push_back(modelClass);
+				break;
+			}
+			case ModelType::LeafModel:
+			{
+				Leaf* leaf = new Leaf;
+				leaf->Initialize(this->d3d_->GetDevice(), model);
 
-			this->models_->push_back((ModelClass*)leaf);
-		}
-		else
-		{
+				this->models_->push_back((ModelClass*)leaf);
+				break;
+			}
+			case ModelType::CubeModel:
+			{
+				Cube* cube = new Cube;
 
-			// !!! TEMP
-			Cube* cube = new Cube;
+				cube->SetPosition(model.data[0], model.data[1], model.data[2]);
+				cube->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
+				cube->SetSize(model.data[7], model.data[8], model.data[9]);
+				cube->SetColor(0.32f, 0.19f, 0.0f, 1.0f);		// !!! Trunk color
 
-			cube->SetPosition(model.data[0], model.data[1], model.data[2]);
-			cube->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
-			cube->SetSize(model.data[7], model.data[8], model.data[9]);
-			cube->SetColor(0.32f, 0.19f, 0.0f, 1.0f);		// !!! Trunk color
+				cube->Initialize(this->d3d_->GetDevice());
 
-			cube->Initialize(this->d3d_->GetDevice());
+				delete[] model.data;
 
-			delete[] model.data;
+				this->models_->push_back((ModelClass*)cube);
+				break;
+			}
+			case ModelType::CylinderModel:
+			{
+				Cylinder* cylinder = new Cylinder;
 
-			this->models_->push_back((ModelClass*)cube);
+				cylinder->SetPosition(model.data[0], model.data[1], model.data[2]);
+				cylinder->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
+				cylinder->SetRadius(model.data[7], model.data[8]);
+				cylinder->SetHeight(model.data[9]);
+				cylinder->SetSegment(model.data[10]);
+				cylinder->SetColor(0.32f, 0.19f, 0.0f, 1.0f); // !!! Trunk color
+
+				cylinder->Initialize(this->d3d_->GetDevice());
+
+				Cylinder* cylinderCap = new Cylinder;
+				cylinderCap->SetPosition(model.data[0], model.data[1], model.data[2]);
+				cylinderCap->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
+				cylinderCap->SetRadius(model.data[7], model.data[8]);
+				cylinderCap->SetHeight(model.data[9]);
+				cylinderCap->SetSegment(model.data[10]);
+				cylinderCap->SetColor(0.32f, 0.19f, 0.0f, 1.0f); // !!! Trunk color
+				cylinderCap->GenerateCylinderCap(this->d3d_->GetDevice());
+
+				delete[] model.data;
+
+				this->models_->push_back((ModelClass*)cylinder);
+				this->models_->push_back((ModelClass*)cylinderCap);
+
+				break;
+			}
 		}
 	}
 }
@@ -245,12 +279,6 @@ bool Graphics::Render()
 		DirectX::XMVECTOR quaternion = DirectX::XMLoadFloat4(&quat);
 		DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
 		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, rotMatrix);
-
-		// 당장 짐벌락 발생하지 않는 X->Y->Z 순으로 회전변환 적용
-		// TODO - 짐벌락 해결 위해서는 Quaternion으로 변환 필요
-		// worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, xMatrix);
-		// worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, yMatrix);
-		// worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, zMatrix);
 
 		// 이동 변환
 		Vector3 translation = model->GetPosition();

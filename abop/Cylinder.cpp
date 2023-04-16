@@ -20,8 +20,8 @@ Vector3 CalCylinderVertexPos(float radius, int n, int segment, float z = 0.0f)
 // !!! 테스트용 나중에 지우기
 bool Cylinder::GenerateCylinderCap(ID3D11Device* device)
 {
-    float top = this->position_.z - this->height_ * 0.5f;
-    float bottom = this->position_.z + this->height_ * 0.5f;
+    float top = -this->height_ * 0.5f;
+    float bottom = this->height_ * 0.5f;
 
     return this->GenerateCylinderCap(device, top, bottom);
 }
@@ -50,14 +50,14 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
     // 현재 pos에서 top, bottom만 다름
     vertices[0].position = DirectX::XMFLOAT3
     (
-        this->position_.x,
-        this->position_.y,
+        0.0f,
+        0.0f,
         top
     );
     vertices[this->segment_ + 1].position = DirectX::XMFLOAT3
     (
-        this->position_.x,
-        this->position_.y,
+        0.0f,
+        0.0f,
         bottom
     );
     vertices[0].color = this->color_;
@@ -66,14 +66,15 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
     for (int i = 1; i < this->segment_ + 1; i++)
     {
         // ex. vertex[1]은 top cap 우측 기준 반 시계 방향 0번째(i - 1)
-        Vector3 vt = CalCylinderVertexPos(this->radius_, i - 1, this->segment_);
+        Vector3 vtUp = CalCylinderVertexPos(this->radiusUp_, i - 1, this->segment_);
+        Vector3 vtDown = CalCylinderVertexPos(this->radiusDown_, i - 1, this->segment_);
 
         // top cap 
         // cap mid (0) + cap side ( 1 ~ segment )  
         vertices[i].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
+            vtUp.x,
+            vtUp.y,
             top
         );
 
@@ -81,8 +82,8 @@ bool Cylinder::GenerateCylinderCap(ID3D11Device* device, float top, float bottom
         // cap mid (segment + 1) + cap side ( segment + 2 ~ segment * 2 + 1)
         vertices[i + this->segment_ + 1].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
+            vtDown.x,
+            vtDown.y,
             bottom
         );
 
@@ -172,8 +173,8 @@ bool Cylinder::Initialize(ID3D11Device* device)
 
 bool Cylinder::InitializeBuffers(ID3D11Device* device)
 {
-    float top = this->position_.z - this->height_ * 0.5f;
-    float bottom = this->position_.z + this->height_ * 0.5f;
+    float top = -this->height_ * 0.5f;
+    float bottom = this->height_ * 0.5f;
     //if (!this->GenerateCylinderCap(device, top, bottom))
     //{
     //    // Cap 먼저 생성
@@ -201,20 +202,21 @@ bool Cylinder::InitializeBuffers(ID3D11Device* device)
     for (int i = 0; i < this->segment_; i++)
     {
         // vertex
-        Vector3 vt = CalCylinderVertexPos(this->radius_, i, this->segment_);
+        Vector3 vtUp = CalCylinderVertexPos(this->radiusUp_, i, this->segment_);
+        Vector3 vtDown = CalCylinderVertexPos(this->radiusDown_, i, this->segment_);
 
         vertices[i * 2].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
-            this->position_.z + top
+            vtUp.x,
+            vtUp.y,
+            top
         );
 
         vertices[i * 2 + 1].position = DirectX::XMFLOAT3
         (
-            this->position_.x + vt.x,
-            this->position_.y + vt.y,
-            this->position_.z + bottom
+            vtDown.x,
+            vtDown.y,
+            bottom
         );
 
         // color
@@ -297,12 +299,13 @@ void Cylinder::SetSegment(int segment)
     this->segment_ = segment;
 }
 
-void Cylinder::Setheight(float height)
+void Cylinder::SetHeight(float height)
 {
     this->height_ = height;
 }
 
-void Cylinder::SetRadius(float radius)
+void Cylinder::SetRadius(float radiusDown, float radiusUp)
 {
-    this->radius_ = radius;
+    this->radiusDown_ = radiusDown;
+    this->radiusUp_ = radiusUp;
 }

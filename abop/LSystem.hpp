@@ -12,6 +12,7 @@ private:
     float leafAngleChange_ = 22.5f;
     float leafDistance_ = 0.5f;
     bool drawingLeaf_ = false;
+    Vector3 leafDirection;
     State state_;
 
     DirectX::XMFLOAT3 axisX;
@@ -72,4 +73,9 @@ private:
     void Rotate(const unsigned short&, const float&);
 
     void Reset();
+
+    // Model ฐüทร
+    Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
+    Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
+	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
 };
