@@ -191,8 +191,8 @@ int main(int, char**)
         ImGui::NewFrame();
 
         // Demo Window
-        bool tempp = false;
-        ImGui::ShowDemoWindow(&tempp);
+        //bool tempp = false;
+        //ImGui::ShowDemoWindow(&tempp);
 
 #pragma region UI_Default
         // 1. UI (Default)
@@ -463,7 +463,7 @@ int main(int, char**)
         }
 
         // Multi-line Text 
-        static char word[1024 * 64] = "";
+        static char word[1024 * 256] = "";
         if (isUpdateWord)
         {
             lSystem->GetWord(word);
@@ -477,7 +477,7 @@ int main(int, char**)
             lSystem->SetWord("");
             lSystem->ClearRule();
             lSystem->ClearState();
-            ClearCharArray(1024 * 64, word);
+            ClearCharArray(1024 * 256, word);
             graphics->UpdateModels();
 
             isUpdateRules = true;
