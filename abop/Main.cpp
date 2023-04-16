@@ -191,8 +191,8 @@ int main(int, char**)
         ImGui::NewFrame();
 
         // Demo Window
-        bool tempp = false;
-        ImGui::ShowDemoWindow(&tempp);
+        //bool tempp = false;
+        //ImGui::ShowDemoWindow(&tempp);
 
 #pragma region UI_Default
         // 1. UI (Default)
@@ -463,9 +463,10 @@ int main(int, char**)
         }
 
         // Multi-line Text 
-        static char word[1024 * 64] = "";
+        static char word[1024 * 256] = "";
         if (isUpdateWord)
         {
+            ClearCharArray(1024 * 256, word);
             lSystem->GetWord(word);
             isUpdateWord = false;
         }
@@ -477,7 +478,7 @@ int main(int, char**)
             lSystem->SetWord("");
             lSystem->ClearRule();
             lSystem->ClearState();
-            ClearCharArray(1024 * 64, word);
+            ClearCharArray(1024 * 256, word);
             graphics->UpdateModels();
 
             isUpdateRules = true;
@@ -500,8 +501,11 @@ int main(int, char**)
         if (ImGui::CollapsingHeader("Word"))
         {
             // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
-            ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+            if (ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags))
+            {
+                lSystem->SetWord(word);
+            }
         }
 
         if (ImGui::CollapsingHeader("Rules"))
@@ -749,6 +753,8 @@ void SavePreset(std::string filename, LSystem* lSystem)
 
     std::string ok;
 
+    ok = "distance:" + std::to_string(lSystem->GetDistance()) + '\n';
+    file.write(ok.c_str(), ok.size());
     ok = "angle:" + std::to_string(lSystem->GetAngleChange()) + '\n';
     file.write(ok.c_str(), ok.size());
     ok = "thickness:" + std::to_string(lSystem->GetThickness()) + '\n';
@@ -757,11 +763,8 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.write(ok.c_str(), ok.size());
     ok = "word:" + lSystem->GetWord() + '\n';
     file.write(ok.c_str(), ok.size());
-    ok = "rule" + '\n';
+    ok = "rule\n";
     file.write(ok.c_str(), ok.size());
-
-    char key[16];
-    static char value[128];
 
     for (LRule& rules : lSystem->GetRules())
     {
@@ -772,8 +775,11 @@ void SavePreset(std::string filename, LSystem* lSystem)
         }
     }
 
-    ok = "end";
-    file.write(ok.c_str(), ok.size());
+    if (lSystem->GetRules().size() > 0)
+    {
+        ok = "end";
+        file.write(ok.c_str(), ok.size());
+    }
 
     file.close();
 

@@ -1,7 +1,8 @@
 angle:22.500000
 thickness:0.300000
 deltaThickness:1.000000
-word:
-dX:F-[[X]+X]+F[+FX]-X
+word:X
+rule
+X:F-[[X]+X]+F[+FX]-X
 F:FF
 end

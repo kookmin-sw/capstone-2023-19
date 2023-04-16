@@ -1,0 +1,7 @@
+angle:20.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:F
+rule
+F:F[-&\\F][\\++&F]F[--&/F][+&F]
+end

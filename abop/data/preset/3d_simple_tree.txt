@@ -1,0 +1,10 @@
+word:F
+angle:22.5
+distance:1.5
+thickness:0.5
+deltaThickness:0.9
+rule
+F:F[-&\\[{-G.+G.+G.-|-G.+G.+G.}]FL][\\++&F[{-G.+G.+G.-|-G.+G.+G.}]L]F[--&/F[{-G.+G.+G.-|-G.+G.+G.}]L][+&F[{-G.+G.+G.-|-G.+G.+G.}]L]
+L:[++{-G.+G.+G.-|-G.+G.+G.}]S
+S:[--{-G.+G.+G.-|-G.+G.+G.}]L
+end

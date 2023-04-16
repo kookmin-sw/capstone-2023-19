@@ -547,6 +547,10 @@ void LSystem::LoadPreset(std::string& filename)
             {
                 this->SetDeltaThickness(std::stof(value));
             }
+            else if (key == "distance")
+            {
+                this->SetDistance(std::stof(value));
+            }
         }
     }
 
