@@ -15,7 +15,6 @@ struct State
 {
     Vector3 position;
     Vector3 direction;    // 방향 단위 벡터
-    Vector3 rotation;
 	DirectX::XMVECTOR quaternion;
     float thickness;
 };

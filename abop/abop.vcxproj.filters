@@ -274,6 +274,9 @@
     <ClInclude Include="Leaf.hpp">
       <Filter>DX\Models</Filter>
     </ClInclude>
+    <ClInclude Include="RandomSeed.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">
