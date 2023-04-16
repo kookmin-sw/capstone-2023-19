@@ -100,25 +100,6 @@ int main(int, char**)
         return -1;
     }
 
-    // Init Render
-    /*
-    lSystem->SetWord("F");
-    lSystem->AddRule('F', "FF");
-    lSystem->AddRule('F', "F[-&\\[{+G.-G.-G.+|+G.-G.}]FL][\\++&F[{+G.-G.-G.+|+G.-G.}]L]F[--&/F[{+G.-G.-G.+|+G.-G.}]L][+&F[{+G.-G.-G.+|+G.-G.}]L]");
-    lSystem->AddRule('L', "[++{+G.-G.-G.+|+G.-G.}]S");
-    lSystem->AddRule('S', "[--{+G.-G.-G.+|+G.-G.}]L");
-    lSystem->SetLeafAngleChange(22.5f);
-    lSystem->SetLeafDistance(0.3f);
-    lSystem->SetAngleChange(22.5f);
-    lSystem->SetDistance(1.5f);
-    lSystem->SetThickness(0.5f);
-    lSystem->SetDeltaThickness(0.9f);
-    lSystem->Iterate(4);
-    graphics->UpdateModels();
-    */
-
-    // ----------------
-
     // Show the window
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
