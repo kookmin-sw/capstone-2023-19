@@ -7,10 +7,11 @@ class LRule
 private:
     // 변환 규칙 key가 하나인 경우만 가정
     LLetter* before_;
-    std::vector<LLetter> after_;
+    //std::vector<LLetter> after_;
+    std::vector<std::vector<LLetter>> after_;
 
     std::string key_;
-    std::string value_;
+    std::vector<std::string> values_;
 
 public:
     LRule();
@@ -21,15 +22,16 @@ public:
     LRule(const std::string&, const std::string&);
     ~LRule();
 
+    void SetRule(const char&, const std::string&);
+
     LLetter GetBefore() const;
     std::vector<LLetter> GetAfter() const;
     std::string GetRule() const;
-
     void GetKey(char* out);
     std::string GetKeyString() const;
-    void GetValue(char* out);
-    std::string GetValueString() const;
+    void GetValue(char* out, const int& index);
+    std::string GetValueString(const int& index) const;
+    int GetRuleCount() const;
 
 private:
-    void SetRule(const char&, const std::string&);
 };
