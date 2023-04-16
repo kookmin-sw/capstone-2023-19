@@ -36,7 +36,7 @@ This is the project of creating a plant's growth by algorithm and visualize it w
 |`^`|Pitch up|RL (-angle)|
 |`\\`|Roll left|RH (+angle)|
 |`/`|Roll right|RH (-angle)|
-|`|`|Turn around|RU (+180.0f)|
+|`\|`|Turn around|RU (+180.0f)|
 |`{`|Start drawing a leaf||
 |`.`|Save this position by leaf vertex||
 |`}`|End drawing a leaf||
