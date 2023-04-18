@@ -1,5 +1,8 @@
 #pragma once
 
+// !!! 전방선언 에러 때문에 임시로 추가
+#include <map>
+
 class LRule;
 class LLetter;
 
@@ -19,7 +22,7 @@ private:
     DirectX::XMFLOAT3 axisY;
     DirectX::XMFLOAT3 axisZ;
 
-    std::vector<LRule> rules_;
+    std::map<char, LRule> rules_;
     std::vector<LLetter>* word_;
 
 public:
@@ -30,7 +33,7 @@ public:
     std::string GetWord() const;       // Word text
     void GetWord(char* out);
 
-    std::vector<LRule> GetRules() const;
+    std::map<char, LRule> GetRules();
     std::string GetRuleText() const;
 
     float GetAngleChange() const;
@@ -49,10 +52,10 @@ public:
     void SetLeafDistance(const float&);
     
     // Rule
-    void AddRule(const std::string&);
     void AddRule(const char&, const std::string&);
     void AddRule(const std::string&, const std::string&);
     void DeleteRule(const char&);
+    void DeleteRule(const char&, const std::string&);
     void ClearRule();
 
     void ClearState();
@@ -74,7 +77,7 @@ private:
 
     void Reset();
 
-    // Model ����
+    // Model 관련
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
     Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);

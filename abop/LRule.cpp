@@ -115,3 +115,9 @@ void LRule::SetRule(const char& key, const std::string& value)
     this->after_.push_back(tempLetter);
     this->values_.push_back(tempString);
 }
+
+void LRule::DeleteAfter(const std::string& value)
+{
+    // !!! to be update
+}
+

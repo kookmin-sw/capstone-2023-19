@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <string>
 #include "Stdafx.h"
 #include "D3DClass.hpp"
@@ -86,7 +87,7 @@ int main(int, char**)
     {
         return -1;
     }
-    static std::vector<LRule> rules;
+    static std::map<char, LRule> rules;
 
     // Graphics 초기화
     Graphics* graphics = new Graphics();
@@ -550,18 +551,21 @@ int main(int, char**)
 
             static char key[16];
             static char value[128];
-
-            for (LRule& rule : rules)
+            
+            //for (auto const& [key, value] : lSystem->GetRules())
+            for (auto& [before, after] : rules)
             {
-                for (int i = 0; i < rule.GetRuleCount(); i++)
+                for (int i = 0; i < after.GetRuleCount(); i++)
                 {
-                    rule.GetKey(key);
-                    rule.GetValue(value, i);
+                    after.GetKey(key);
+                    after.GetValue(value, i);
 
                     if (ImGui::Button(key))
                     {
-                        // !!! key가 1개인 경우만 고려
+                        // Rule key의 길이는 1
                         lSystem->DeleteRule(key[0]);
+                        // !!! to be update
+                        //lSystem->DeleteRule(key[0], value);
                         isUpdateRules = true;
                     }
                     ImGui::SameLine();
@@ -766,16 +770,18 @@ void SavePreset(std::string filename, LSystem* lSystem)
     ok = "rule\n";
     file.write(ok.c_str(), ok.size());
 
-    for (LRule& rules : lSystem->GetRules())
+    bool existRule = false;
+    for (auto const& [key, value] : lSystem->GetRules())
     {
-        for (int i = 0; i < rules.GetRuleCount(); i++)
+        for (int i = 0; i < value.GetRuleCount(); i++)
         {
-            ok = rules.GetKeyString() + ":" + rules.GetValueString(i) + '\n';
+            existRule = true;
+            ok = key + ":" + value.GetValueString(i) + '\n';
             file.write(ok.c_str(), ok.size());
         }
     }
 
-    if (lSystem->GetRules().size() > 0)
+    if (existRule)
     {
         ok = "end";
         file.write(ok.c_str(), ok.size());

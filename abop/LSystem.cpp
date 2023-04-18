@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <stack>
 #include <cmath>
 #include "Stdafx.h"
@@ -132,7 +133,7 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
 // Public
 LSystem::LSystem()
 {
-    rules_ = std::vector<LRule>();
+    this->rules_ = std::map<char, LRule>();
     word_ = new std::vector<LLetter>();
 
     axisX = DirectX::XMFLOAT3(1, 0, 0);
@@ -178,7 +179,7 @@ void LSystem::GetWord(char* out)
     }
 }
 
-std::vector<LRule> LSystem::GetRules() const
+std::map<char, LRule> LSystem::GetRules()
 {
     return this->rules_;
 }
@@ -186,9 +187,10 @@ std::vector<LRule> LSystem::GetRules() const
 std::string LSystem::GetRuleText() const
 {
     std::string rulesText;
-    for (const LRule& rule : this->rules_)
+    //for (const LRule& rule : this->rules_)
+    for (auto const& [key, value] : this->rules_)
     {
-        rulesText += rule.GetRule() + '\n';
+        rulesText += value.GetRule() + '\n';
     }
     return rulesText;
 }
@@ -264,34 +266,17 @@ void LSystem::SetDeltaThickness(const float& val)
     this->deltaThickness_ = val;
 }
 
-// Rule
-void LSystem::AddRule(const std::string& ruleText)
-{
-    this->rules_.push_back(LRule(ruleText));
-}
-
 void LSystem::AddRule(const char& key, const std::string& value)
 {
-    bool found = false;
-    int index;
-    for (int i = 0; i < this->rules_.size(); i++)
+    if (this->rules_.count(key))
     {
-        auto& rule = this->rules_[i];
-        if (rule.GetBefore().IsEqual(key))
-        {
-            found = true;
-            index = i;
-            break;
-        }
-    }
-
-    if (!found)
-    {
-        this->rules_.push_back(LRule(key, value));
+        // 동일한 key의 rule이 이미 있는 경우
+        this->rules_[key].SetRule(key, value);
     }
     else
     {
-        this->rules_[index].SetRule(key, value);
+        // 동일한 key의 rule이 없는 경우
+        this->rules_[key] = LRule(key, value);
     }
 }
 
@@ -302,20 +287,19 @@ void LSystem::AddRule(const std::string& key, const std::string& value)
 
 void LSystem::DeleteRule(const char& key)
 {
-    //for (LRule& rule : this->rules_)
-    for (int i = 0; i < this->rules_.size(); i++)
-    {
-        if (this->rules_[i].GetBefore().GetLetter() == key)
-        {
-            this->rules_.erase(this->rules_.begin() + i);
-            break;
-        }
-    }
+    // 동일한 key의 rule 모두 삭제
+    this->rules_.erase(key);
+}
+
+void LSystem::DeleteRule(const char& key, const std::string& value)
+{
+    // after value가 일치하는 rule만 삭제
+    this->rules_[key].DeleteAfter(value);
 }
 
 void LSystem::ClearRule()
 {
-    this->rules_ = std::vector<LRule>();
+    this->rules_.clear();
 }
 
 void LSystem::ClearState()
@@ -337,22 +321,15 @@ void LSystem::Iterate()
 
     for (const LLetter& letter : *(this->word_))
     {
-        changed = false;
-
-        for (const LRule& rule : this->rules_)
+        if (this->rules_.count(letter.GetLetter()))
         {
-            if (rule.GetBefore().IsEqual(letter.GetLetter()))
-            {
-                std::vector<LLetter> letters = rule.GetAfter();
-
-                v->insert(v->end(), letters.begin(), letters.end());
-
-                changed = true;
-                break;
-            }
+            // 해당 key(letter)를 가진 rule이 있는 경우
+            std::vector<LLetter> after = this->rules_[letter.GetLetter()].GetAfter();
+            
+            // !!! result rule로 만들기
+            v->insert(v->end(), after.begin(), after.end());
         }
-
-        if (!changed)
+        else
         {
             v->push_back(letter);
         }

@@ -10,6 +10,7 @@ private:
     //std::vector<LLetter> after_;
     std::vector<std::vector<LLetter>> after_;
 
+    // for UI
     std::string key_;
     std::vector<std::string> values_;
 
@@ -22,7 +23,6 @@ public:
     LRule(const std::string&, const std::string&);
     ~LRule();
 
-    void SetRule(const char&, const std::string&);
 
     LLetter GetBefore() const;
     std::vector<LLetter> GetAfter() const;
@@ -32,6 +32,10 @@ public:
     void GetValue(char* out, const int& index);
     std::string GetValueString(const int& index) const;
     int GetRuleCount() const;
+
+    void SetRule(const char&, const std::string&);
+
+    void DeleteAfter(const std::string& value);
 
 private:
 };
