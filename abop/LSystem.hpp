@@ -25,6 +25,8 @@ private:
     std::map<char, LRule> rules_;
     std::vector<LLetter>* word_;
 
+    std::map<char, bool> mIgnores;
+
 public:
     LSystem();
     ~LSystem();
@@ -58,6 +60,11 @@ public:
 
     void ClearState();
 
+    // Ignore
+    std::map<char, bool> GetIgnores();
+    void AddIgnore(char symbol);
+    void DeleteIgnore(char symbol);
+    
     // Run
     void Iterate();
     void Iterate(int);

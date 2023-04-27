@@ -11,6 +11,7 @@
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
+#pragma region utils
 // Model 관련 
 Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
@@ -129,12 +130,14 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
 
     return model;
 }
+#pragma endregion
 
 // Public
 LSystem::LSystem()
 {
     this->rules_ = std::map<char, LRule>();
     word_ = new std::vector<LLetter>();
+    mIgnores = std::map<char, bool>();
 
     axisX = DirectX::XMFLOAT3(1, 0, 0);
     axisY = DirectX::XMFLOAT3(0, 1, 0);
@@ -356,6 +359,25 @@ void LSystem::ClearState()
     };
 }
 
+// Ignore
+std::map<char, bool> LSystem::GetIgnores()
+{
+    return mIgnores;
+}
+
+void LSystem::AddIgnore(char symbol)
+{
+    mIgnores.insert({ symbol, false });
+}
+
+void LSystem::DeleteIgnore(char symbol)
+{
+    if (mIgnores.find(symbol) != mIgnores.end())
+    {
+        mIgnores.erase(symbol);
+    }
+}
+
 // Run
 void LSystem::Iterate()
 {
@@ -371,9 +393,21 @@ void LSystem::Iterate()
         if (this->rules_.find(before) != this->rules_.end())
         {
             // 해당 key(letter)를 가진 rule이 있는 경우
-            next = i + 1 >= size
-                ? NULL
-                : this->word_->at(i + 1).GetLetter();
+
+            // !!! not good
+            // nextCheck가 ignore에 포함 안되면 갱신, 끝까지 갱신 안되면 NULL
+            char nextCheck;
+            next = NULL;
+            int index = 1;
+            while (i + 1 < size)
+            {
+                nextCheck = this->word_->at(i + index++).GetLetter();
+                if (mIgnores.find(nextCheck) == mIgnores.end())
+                {
+                    next = nextCheck;
+                    break;
+                }
+            }
 
             std::vector<LLetter> after = 
                 this->rules_[before].GetAfter(previous, next);
@@ -385,12 +419,17 @@ void LSystem::Iterate()
             }
 
             iterated->insert(iterated->end(), after.begin(), after.end());
-
-            previous = before;
         }
         else
         {
             iterated->push_back(before);
+        }
+
+        if (mIgnores.find(before) == mIgnores.end())
+        {
+            // ignores에 포함 안되는 경우
+            // 다음 previous 체크 symbol 갱신
+            previous = before;
         }
     }
 

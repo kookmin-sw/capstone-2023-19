@@ -87,8 +87,10 @@ int main(int, char**)
     {
         return -1;
     }
-    //static std::map<char, LRule> rules;
+
+    // rules & ignores
     std::vector<LRule::RuleInfo> ruleInfos = std::vector<LRule::RuleInfo>();
+    std::map<char, bool> ignores = std::map<char, bool>();
 
     // Graphics 초기화
     Graphics* graphics = new Graphics();
@@ -163,6 +165,7 @@ int main(int, char**)
     // Preset load (Init render) 시 아래 변수를 true로 설정해야
     // 다음 frame에서 load 함
     static bool isUpdateRules = true;
+    static bool isUpdateIgnores = true;
     static bool isUpdateWord = true;
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
@@ -510,6 +513,60 @@ int main(int, char**)
 
         if (ImGui::CollapsingHeader("Rules"))
         {
+            static char addIgnore[4] = "";
+            // Ignores
+            if (ImGui::Button("Add Ignores"))
+            {
+                ClearCharArray(4, addIgnore);
+                ImGui::OpenPopup("AddIgnore");
+            }
+
+            if (isUpdateIgnores)
+            {
+                ignores = lSystem->GetIgnores();
+                isUpdateIgnores = false;
+            }
+
+            static char ignore[4];
+
+            for (auto& [ig, _] : ignores)
+            {
+                ImGui::SameLine();
+                ignore[0] = ig;
+
+                if (ImGui::Button(ignore))
+                {
+                    lSystem->DeleteIgnore(ignore[0]);
+
+                    isUpdateIgnores = true;
+                }
+
+                ClearCharArray(4, ignore);
+            }
+
+            // Ignore pop up
+            if (ImGui::BeginPopup("AddIgnore", NULL))
+            {
+                ImGui::InputText("Ignore", addIgnore, IM_ARRAYSIZE(addIgnore));
+
+                if (ImGui::Button("Add"))
+                {
+                    // 첫 글자만 인식
+                    lSystem->AddIgnore(addIgnore[0]);
+
+                    // update
+                    isUpdateIgnores = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Close"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
+            // Rules
             static char addKey[16] = "";
             static char addValue[128] = "";
             if (ImGui::Button("Add"))
@@ -519,6 +576,7 @@ int main(int, char**)
                 ImGui::OpenPopup("AddRules");
             }
             
+            // add rule pop up
             if (ImGui::BeginPopup("AddRules", NULL))
             {
                 ImGui::InputText("key", addKey, IM_ARRAYSIZE(addKey));
