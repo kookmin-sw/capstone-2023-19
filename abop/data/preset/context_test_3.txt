@@ -1,0 +1,9 @@
+distance:1.000000
+angle:90.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:A[+A]A[-A]A[+A]B
+ignore:+-
+rule
+A>B:B
+end

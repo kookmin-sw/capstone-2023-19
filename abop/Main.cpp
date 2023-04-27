@@ -636,7 +636,8 @@ int main(int, char**)
 
                 if (ImGui::Button(key))
                 {
-                    lSystem->DeleteRule(key[2], ruleInfo.id);
+                    std::string keyStr(key);
+                    lSystem->DeleteRule(keyStr.substr(2, keyStr.size()), ruleInfo.id);
 
                     isUpdateRules = true;
                 }
@@ -837,6 +838,16 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.write(ok.c_str(), ok.size());
     ok = "word:" + lSystem->GetWord() + '\n';
     file.write(ok.c_str(), ok.size());
+    if (lSystem->GetIgnores().size() > 0)
+    {
+        ok = "ignore:";
+        for (auto& [symbol, _] : lSystem->GetIgnores())
+        {
+            ok += symbol;
+        }
+        ok += '\n';
+        file.write(ok.c_str(), ok.size());
+    }
     ok = "rule\n";
     file.write(ok.c_str(), ok.size());
 

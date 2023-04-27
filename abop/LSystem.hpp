@@ -55,7 +55,7 @@ public:
     
     // Rule
     void AddRule(std::string, const std::string&);
-    void DeleteRule(const char& before, const int& afterId);
+    void DeleteRule(const std::string& key, const int& afterId);
     void ClearRule();
 
     void ClearState();
