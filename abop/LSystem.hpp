@@ -33,8 +33,8 @@ public:
     std::string GetWord() const;       // Word text
     void GetWord(char* out);
 
+    // { before, LRule } pair
     std::map<char, LRule> GetRules();
-    std::string GetRuleText() const;
 
     float GetAngleChange() const;
     float GetDistance() const;
@@ -52,10 +52,8 @@ public:
     void SetLeafDistance(const float&);
     
     // Rule
-    void AddRule(const char&, const std::string&);
-    void AddRule(const std::string&, const std::string&);
-    void DeleteRule(const char&);
-    void DeleteRule(const char&, const std::string&);
+    void AddRule(std::string, const std::string&);
+    void DeleteRule(const char& before, const int& afterId);
     void ClearRule();
 
     void ClearState();

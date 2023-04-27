@@ -184,17 +184,6 @@ std::map<char, LRule> LSystem::GetRules()
     return this->rules_;
 }
 
-std::string LSystem::GetRuleText() const
-{
-    std::string rulesText;
-    //for (const LRule& rule : this->rules_)
-    for (auto const& [key, value] : this->rules_)
-    {
-        rulesText += value.GetRule() + '\n';
-    }
-    return rulesText;
-}
-
 float LSystem::GetAngleChange() const
 {
     return this->angleChange_;
@@ -266,35 +255,89 @@ void LSystem::SetDeltaThickness(const float& val)
     this->deltaThickness_ = val;
 }
 
-void LSystem::AddRule(const char& key, const std::string& value)
+void LSystem::AddRule(std::string key, const std::string& value)
 {
-    if (this->rules_.count(key))
+    char before;
+    char previous = NULL;
+    char next = NULL;
+    int keySize;
+    // 공백 제거
+    key.erase(remove(key.begin(), key.end(), ' '), key.end());
+    keySize = key.size();
+
+    // only (F, A<F, F>B, A<F>B)
+    if (keySize == 0)
+    {
+        // error
+        //std::cout << "error" << std::endl;
+        return;
+    }
+
+    if (keySize == 1)
+    {
+        before = key[0];
+    }
+    else if (keySize == 3)
+    {
+        if (key[1] == '<')
+        {
+            previous = key[0];
+            before = key[2];
+        }
+        else if (key[1] == '>')
+        {
+            next = key[2];
+            before = key[0];
+        }
+        else
+        {
+            // error
+            //std::cout << "error" << std::endl;
+            return;
+        }
+    }
+    else if (keySize == 5)
+    {
+        previous = key[0];
+        before = key[2];
+        next = key[4];
+    }
+    else
+    {
+        // error
+        //std::cout << "error" << std::endl;
+        return;
+    }
+
+    //if (this->rules_.count(key))
+    if (this->rules_.find(before) != this->rules_.end())
     {
         // 동일한 key의 rule이 이미 있는 경우
-        this->rules_[key].SetRule(key, value);
+        this->rules_[before].AddAfter(previous, next, value);
     }
     else
     {
         // 동일한 key의 rule이 없는 경우
-        this->rules_[key] = LRule(key, value);
+        this->rules_[before] = LRule(previous, before, next, value);
     }
 }
 
-void LSystem::AddRule(const std::string& key, const std::string& value)
+void LSystem::DeleteRule(const char& before, const int& afterId)
 {
-    this->AddRule(key[0], value);
-}
+    auto iter = this->rules_.find(before);
 
-void LSystem::DeleteRule(const char& key)
-{
-    // 동일한 key의 rule 모두 삭제
-    this->rules_.erase(key);
-}
+    if (iter == this->rules_.end())
+    {
+        // 없는 key의 rule을 삭제하는 경우 error
+        return;
+    }
 
-void LSystem::DeleteRule(const char& key, const std::string& value)
-{
-    // after value가 일치하는 rule만 삭제
-    this->rules_[key].DeleteAfter(value);
+    if (iter->second.DeleteAfter(afterId))
+    {
+        // after 삭제 후 남은 after가 없는 경우
+        // L system rule map에서도 삭제
+        this->rules_.erase(before);
+    }
 }
 
 void LSystem::ClearRule()
@@ -316,26 +359,42 @@ void LSystem::ClearState()
 // Run
 void LSystem::Iterate()
 {
-    bool changed;
-    std::vector<LLetter>* v = new std::vector<LLetter>();
+    std::vector<LLetter>* iterated = new std::vector<LLetter>();
 
-    for (const LLetter& letter : *(this->word_))
+    int size = this->word_->size();
+    char previous = NULL;
+    char before;
+    char next;
+    for (int i = 0; i < size; i++)
     {
-        if (this->rules_.count(letter.GetLetter()))
+        before = this->word_->at(i).GetLetter();
+        if (this->rules_.find(before) != this->rules_.end())
         {
             // 해당 key(letter)를 가진 rule이 있는 경우
-            std::vector<LLetter> after = this->rules_[letter.GetLetter()].GetAfter();
+            next = i + 1 >= size
+                ? NULL
+                : this->word_->at(i + 1).GetLetter();
+
+            std::vector<LLetter> after = 
+                this->rules_[before].GetAfter(previous, next);
             
-            // !!! result rule로 만들기
-            v->insert(v->end(), after.begin(), after.end());
+            if (after.size() == 0)
+            {
+                // CS rule이 없는 경우
+                iterated->push_back(before);
+            }
+
+            iterated->insert(iterated->end(), after.begin(), after.end());
+
+            previous = before;
         }
         else
         {
-            v->push_back(letter);
+            iterated->push_back(before);
         }
     }
 
-    this->word_ = v;
+    this->word_ = iterated;
 }
 
 void LSystem::Iterate(int n)
