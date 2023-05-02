@@ -24,19 +24,29 @@ public:
     };
 
 private:
-    char letter_ = 0;
-    Type type_ = None;
+    std::string mLetter = 0;
+    Type mType = None;
+
+    // Parametic
+    bool mIsParam = false;
+    std::vector<std::string> mParameters;
 
 public:
     LLetter();
     LLetter(const char&);
     ~LLetter();
 
-    char GetLetter() const;
-    std::string GetLetterByString() const;
+    std::string GetLetter() const;
     Type GetType() const;
+    std::vector<std::string> GetParameters() const;
 
     void SetLetter(const char&);
+    void SetParameters(std::vector<std::string> param);
 
-    bool IsEqual(const LLetter&);
+    bool IsEmpty() const;
+    // LLetter 비교
+    // 파라미터가 없는 경우 단순히 string 비교
+    // 파라미터가 있는 경우 parameter 개수만 비교 (format만)
+    bool IsEqual(const LLetter&) const;
+    bool IsParametic();
 };

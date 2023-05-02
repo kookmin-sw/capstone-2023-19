@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include "LLetter.hpp"
 
 LLetter::LLetter()
@@ -16,33 +17,60 @@ LLetter::~LLetter()
 
 }
 
-char LLetter::GetLetter() const
+std::string LLetter::GetLetter() const
 {
-    return this->letter_;
-}
-
-std::string LLetter::GetLetterByString() const
-{
-    return std::string(1, this->letter_);
+    return mLetter;
 }
 
 LLetter::Type LLetter::GetType() const
 {
-    return this->type_;
+    return mType;
+}
+
+std::vector<std::string> LLetter::GetParameters() const
+{
+    return mParameters;
 }
 
 void LLetter::SetLetter(const char& letter)
 {
-    this->type_ = static_cast<LLetter::Type> (letter);
-    this->letter_ = letter;
+    mType = static_cast<LLetter::Type> (letter);
+    mLetter = letter;
 }
 
-bool LLetter::IsEqual(const LLetter& other)
+void LLetter::SetParameters(std::vector<std::string> param)
 {
-    if (this->letter_ == other.GetLetter())
+    mParameters = param;
+
+    if (mParameters.size())
     {
-        return true;
+        mIsParam = true;
+    }
+}
+
+bool LLetter::IsEmpty() const
+{
+    return mLetter.empty();
+}
+
+bool LLetter::IsEqual(const LLetter& other) const
+{
+    if (!mIsParam)
+    {
+        // 파라미터가 없는 경우 mLetter만 비교
+        return mLetter == other.GetLetter();
     }
 
-    return false;
+    if (mParameters.size() != other.GetParameters().size())
+    {
+        // parameter size가 다른 경우
+        return false;
+    }
+
+    return true;
+}
+
+bool LLetter::IsParametic()
+{
+    return mIsParam;
 }
