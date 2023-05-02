@@ -4,11 +4,12 @@
 
 LLetter::LLetter()
 {
-
+    InitLetter();
 }
 
-LLetter::LLetter(const char& letter)
+LLetter::LLetter(const std::string& letter)
 {
+    InitLetter();
     this->SetLetter(letter);
 }
 
@@ -19,7 +20,12 @@ LLetter::~LLetter()
 
 std::string LLetter::GetLetter() const
 {
-    return mLetter;
+    if (!mIsParam)
+    {
+        return mLetter;
+    }
+
+    return mLetter + mParametersString;
 }
 
 LLetter::Type LLetter::GetType() const
@@ -32,9 +38,9 @@ std::vector<std::string> LLetter::GetParameters() const
     return mParameters;
 }
 
-void LLetter::SetLetter(const char& letter)
+void LLetter::SetLetter(const std::string& letter)
 {
-    mType = static_cast<LLetter::Type> (letter);
+    mType = static_cast<LLetter::Type> (letter[0]);
     mLetter = letter;
 }
 
@@ -73,4 +79,13 @@ bool LLetter::IsEqual(const LLetter& other) const
 bool LLetter::IsParametic()
 {
     return mIsParam;
+}
+
+void LLetter::InitLetter()
+{
+    mLetter = "";
+    mType = Type::None;
+    mIsParam = false;
+    mParameters = std::vector<std::string>();
+    mParametersString = "";
 }
