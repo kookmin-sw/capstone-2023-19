@@ -1,7 +1,9 @@
 #pragma once
-#include "LLetter.hpp"  // for error
+
+#include "LLetter.hpp";     // 전방 선언 이슈
 
 class LLetter;
+class RuleCondition;
 
 class LRule
 {
@@ -10,6 +12,9 @@ public:
     {
         std::vector<LLetter> letters;
         std::string text;
+        // 정의하지 않은 ~ 에러 발생
+        // 임시로 ptr 사용 (메모리 해제 안함)
+        RuleCondition* condition;
     };
 
     // Context Sensitive
@@ -26,6 +31,7 @@ public:
         int id;
         std::string before;
         std::string after;
+        std::string condition;
     };
 
 private:
@@ -40,11 +46,13 @@ private:
 
 public:
     LRule();
-    LRule(const LLetter& before, const std::vector<LLetter>& after);
+    LRule(const LLetter& before, const std::vector<LLetter>& after,
+          const std::string& condition);
     LRule(const LLetter& previous, 
           const LLetter& before,
           const LLetter& next,
-          const std::vector<LLetter>& after);
+          const std::vector<LLetter>& after,
+          const std::string& condition);
     ~LRule();
 
     LLetter GetBefore() const;
@@ -56,7 +64,8 @@ public:
 
     void AddAfter(const LLetter& previous,
                   const LLetter& next,
-                  const std::vector<LLetter>& after);
+                  const std::vector<LLetter>& after,
+                  const std::string& condition);
 
     bool DeleteAfter(const int& afterId);
 

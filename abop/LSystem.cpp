@@ -355,7 +355,8 @@ void LSystem::AddRule(std::string key, const std::string& value)
         // 동일한 key의 rule이 이미 있는 경우
         mRules[ruleKey.before].AddAfter(LLetter(ruleKey.previous), 
                                         LLetter(ruleKey.next),
-                                        ConvertStringToLLetter(value));
+                                        ConvertStringToLLetter(value),
+                                        ruleKey.condition);
     }
     else
     {
@@ -363,7 +364,8 @@ void LSystem::AddRule(std::string key, const std::string& value)
         mRules.insert({ ruleKey.before, LRule(LLetter(ruleKey.previous), 
                                               LLetter(ruleKey.before),
                                               LLetter(ruleKey.next),
-                                              ConvertStringToLLetter(value)) });
+                                              ConvertStringToLLetter(value),
+                                              ruleKey.condition) });
     }
 }
 

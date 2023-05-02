@@ -5,6 +5,7 @@
 #include "RandomSeed.hpp"
 #include "Utils.hpp"
 #include "LLetter.hpp"
+#include "RuleCondition.hpp"
 #include "LRule.hpp"
 
 // LRule
@@ -12,21 +13,22 @@ LRule::LRule()
 {
 }
 
-LRule::LRule(const LLetter& before, const std::vector<LLetter>& after)
+LRule::LRule(const LLetter& before, const std::vector<LLetter>& after, const std::string& condition)
 {
     this->InitLRule();
     mBefore = before;
     
-    this->AddAfter(LLetter(), LLetter(), after);
+    this->AddAfter(LLetter(), LLetter(), after, condition);
 }
 
 LRule::LRule(const LLetter& previous, const LLetter& before, 
-             const LLetter& next, const std::vector<LLetter>& after)
+             const LLetter& next, const std::vector<LLetter>& after,
+             const std::string& condition)
 {
     this->InitLRule();
     mBefore = before;
 
-    this->AddAfter(previous, next, after);
+    this->AddAfter(previous, next, after, condition);
 }
 
 LRule::~LRule()
@@ -113,6 +115,12 @@ std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
         
         ruleInfo.after = after.after.text;
 
+        ruleInfo.condition = "";
+        if (!after.after.condition->IsEmpty())
+        {
+            ruleInfo.condition = after.after.condition->GetConditionString();
+        }
+
         v.push_back(ruleInfo);
     }
 
@@ -124,6 +132,12 @@ std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
         ruleInfo.before = mBefore.GetLetter();
         ruleInfo.after = after.text;
 
+        ruleInfo.condition = "";
+        if (!after.condition->IsEmpty())
+        {
+            ruleInfo.condition = after.condition->GetConditionString();
+        }
+
         v.push_back(ruleInfo);
     }
 
@@ -132,7 +146,8 @@ std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
 
 void LRule::AddAfter(const LLetter& previous,
                      const LLetter& next,
-                     const std::vector<LLetter>& after)
+                     const std::vector<LLetter>& after,
+                     const std::string& condition)
 {
     if (after.size() == 0)
     {
@@ -142,6 +157,7 @@ void LRule::AddAfter(const LLetter& previous,
 
     // After info 생성
     After afterInfo = After();
+    afterInfo.condition = new RuleCondition(condition);
     afterInfo.letters = after;
 
     afterInfo.text = "";

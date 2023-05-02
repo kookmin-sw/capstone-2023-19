@@ -61,7 +61,7 @@ void LLetter::SetParameters(std::vector<std::string> params)
     if (mParameters.size())
     {
         mIsParam = true;
-        mParametersString = join(mParameters, ", ");
+        mParametersString = "(" + join(mParameters, ", ") + ")";
     }
 }
 

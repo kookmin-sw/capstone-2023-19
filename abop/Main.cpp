@@ -15,6 +15,7 @@
 #include <map>
 #include <string>
 #include "Stdafx.h"
+#include "Utils.hpp"
 #include "D3DClass.hpp"
 #include "Graphics.hpp"
 #include "InputClass.hpp"
@@ -631,6 +632,16 @@ int main(int, char**)
                     j++;
                 }
 
+                if (!ruleInfo.condition.empty())
+                {
+                    key[j++] = '\n';
+                    for (int i = 0; i < ruleInfo.condition.size(); i++)
+                    {
+                        key[j] = ruleInfo.condition[i];
+                        j++;
+                    }
+                }
+
                 for (int i = 0; i < ruleInfo.after.size(); i++)
                 {
                     value[i] = ruleInfo.after[i];
@@ -639,6 +650,7 @@ int main(int, char**)
                 if (ImGui::Button(key))
                 {
                     std::string keyStr(key);
+                    keyStr = split(keyStr, '\n')[0];
                     lSystem->DeleteRule(keyStr.substr(2, keyStr.size()), ruleInfo.id);
 
                     isUpdateRules = true;
