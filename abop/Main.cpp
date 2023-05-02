@@ -503,12 +503,14 @@ int main(int, char**)
 
         if (ImGui::CollapsingHeader("Word"))
         {
-            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
-            if (ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags))
+            if (ImGui::Button("Save"))
             {
                 lSystem->SetWord(word);
             }
+
+            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
+            ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
         }
 
         if (ImGui::CollapsingHeader("Rules"))
@@ -567,11 +569,11 @@ int main(int, char**)
             }
 
             // Rules
-            static char addKey[16] = "";
+            static char addKey[64] = "";
             static char addValue[128] = "";
             if (ImGui::Button("Add"))
             {
-                ClearCharArray(16, addKey);
+                ClearCharArray(64, addKey);
                 ClearCharArray(128, addValue);
                 ImGui::OpenPopup("AddRules");
             }
@@ -612,7 +614,7 @@ int main(int, char**)
                 isUpdateRules = false;
             }
 
-            static char key[16];
+            static char key[64];
             static char value[128];
 
             int ruleIndex = 0;      
@@ -644,7 +646,7 @@ int main(int, char**)
                 ImGui::SameLine();
                 ImGui::Text("%s", value);
 
-                ClearCharArray(16, key);
+                ClearCharArray(64, key);
                 ClearCharArray(128, value);
             }
         }
