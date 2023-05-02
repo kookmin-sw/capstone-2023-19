@@ -143,6 +143,9 @@
     <ClCompile Include="ColorShaderClass.cpp">
       <Filter>DX\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -275,6 +278,9 @@
       <Filter>DX\Models</Filter>
     </ClInclude>
     <ClInclude Include="RandomSeed.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.hpp">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

@@ -34,6 +34,7 @@ private:
 
 public:
     LLetter();
+    LLetter(const char&);
     // 파라미터 포함 안된 symbol만 등록, 1개씩 read
     LLetter(const std::string&);
     ~LLetter();

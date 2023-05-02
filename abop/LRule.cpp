@@ -21,7 +21,7 @@ LRule::LRule(const LLetter& before, const std::vector<LLetter>& after)
 }
 
 LRule::LRule(const LLetter& previous, const LLetter& before, 
-             const LLetter& next, std::vector<LLetter>& after)
+             const LLetter& next, const std::vector<LLetter>& after)
 {
     this->InitLRule();
     mBefore = before;
@@ -31,7 +31,6 @@ LRule::LRule(const LLetter& previous, const LLetter& before,
 
 LRule::~LRule()
 {
-
 }
 
 LLetter LRule::GetBefore() const
@@ -81,7 +80,7 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
     {
         // 일치하는 context sensitive rule이 없고 context free rule이 없는 경우
         // 빈 vector return
-        std::vector<LLetter> temp;
+        std::vector<LLetter> temp = std::vector<LLetter>();
         return temp;
     }
     int index = dist(gen) % total;

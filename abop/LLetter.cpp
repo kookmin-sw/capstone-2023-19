@@ -8,6 +8,14 @@ LLetter::LLetter()
     InitLetter();
 }
 
+LLetter::LLetter(const char& letter)
+{
+    InitLetter();
+    std::string s;
+    s += letter;
+    this->SetLetter(s);
+}
+
 LLetter::LLetter(const std::string& letter)
 {
     InitLetter();

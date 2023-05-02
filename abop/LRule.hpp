@@ -1,4 +1,5 @@
 #pragma once
+#include "LLetter.hpp"  // for error
 
 class LLetter;
 
@@ -43,7 +44,7 @@ public:
     LRule(const LLetter& previous, 
           const LLetter& before,
           const LLetter& next,
-          std::vector<LLetter>& after);
+          const std::vector<LLetter>& after);
     ~LRule();
 
     LLetter GetBefore() const;
