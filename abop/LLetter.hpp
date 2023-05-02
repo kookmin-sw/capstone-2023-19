@@ -44,7 +44,7 @@ public:
 
     void SetLetter(const std::string&);
     // 파라미터 지정, 파라미터 setter는 이 메소드를 통해서만 수행
-    void SetParameters(std::vector<std::string> param);
+    void SetParameters(std::vector<std::string> params);
 
     bool IsEmpty() const;
     // LLetter 비교

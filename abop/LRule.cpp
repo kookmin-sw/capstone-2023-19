@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream> // FORTEST
 #include "RandomSeed.hpp"
+#include "Utils.hpp"
 #include "LLetter.hpp"
 #include "LRule.hpp"
 
@@ -11,28 +12,21 @@ LRule::LRule()
 {
 }
 
-LRule::LRule(const char& before, const std::string& after)
+LRule::LRule(const LLetter& before, const std::vector<LLetter>& after)
 {
     this->InitLRule();
     mBefore = before;
     
-    this->AddAfter(NULL, NULL, after);
+    this->AddAfter(LLetter(), LLetter(), after);
 }
 
-LRule::LRule(const std::string& before, const std::string& after)
-{
-    this->InitLRule();
-    mBefore = before[0];
-
-    this->AddAfter(NULL, NULL, after);
-}
-
-LRule::LRule(char privious, char before, char next, const std::string& after)
+LRule::LRule(const LLetter& previous, const LLetter& before, 
+             const LLetter& next, std::vector<LLetter>& after)
 {
     this->InitLRule();
     mBefore = before;
 
-    this->AddAfter(privious, next, after);
+    this->AddAfter(previous, next, after);
 }
 
 LRule::~LRule()
@@ -40,31 +34,32 @@ LRule::~LRule()
 
 }
 
-char LRule::GetBefore() const
+LLetter LRule::GetBefore() const
 {
     return mBefore;
 }
 
-std::vector<LLetter> LRule::GetAfter(char previous, char next) const
+std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
+                                     const LLetter& next) const
 {
-    if (!(previous == NULL && next == NULL))
+    if (!(previous.IsEmpty() && next.IsEmpty()))
     {
         // Context info가 있는 경우
         for (const CSAfter& csAfter : mSortedCSAfter)
         {
             // !!! 동일한 CS 규칙이 있는 경우 먼저 추가된 규칙 적용
-            if (csAfter.next == NULL)
+            if (csAfter.next.IsEmpty())
             {
                 // previous 규칙
-                if (csAfter.previous == previous)
+                if (csAfter.previous.IsEqual(previous))
                 {
                     return csAfter.after.letters;
                 }
             }
-            else if (csAfter.previous == NULL)
+            else if (csAfter.previous.IsEmpty())
             {
                 // next 규칙
-                if (csAfter.next == next)
+                if (csAfter.next.IsEqual(next))
                 {
                     return csAfter.after.letters;
                 }
@@ -72,7 +67,7 @@ std::vector<LLetter> LRule::GetAfter(char previous, char next) const
             else
             {
                 // previous + next 규칙
-                if (csAfter.previous == previous && csAfter.next == next)
+                if (csAfter.previous.IsEqual(previous) && csAfter.next.IsEqual(next))
                 {
                     return csAfter.after.letters;
                 }
@@ -96,8 +91,6 @@ std::vector<LLetter> LRule::GetAfter(char previous, char next) const
 
 std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
 {
-    // this rule의 모든 정보 return
-    // Ouput RuleInfo는 LRule.hpp에 정
     std::vector<RuleInfo> v = std::vector<RuleInfo>();
 
     // Context sensitive
@@ -107,16 +100,16 @@ std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
         ruleInfo.id = id;
         // A < B > D
         ruleInfo.before = "";
-        if (after.previous != NULL)
+        if (!after.previous.IsEmpty())
         {
-            ruleInfo.before += after.previous;
+            ruleInfo.before += after.previous.GetLetter();
             ruleInfo.before += " < ";
         }
-        ruleInfo.before += mBefore;
-        if (after.next != NULL)
+        ruleInfo.before += mBefore.GetLetter();
+        if (!after.next.IsEmpty())
         {
             ruleInfo.before += " > ";
-            ruleInfo.before += after.next;
+            ruleInfo.before += after.next.GetLetter();
         }
         
         ruleInfo.after = after.after.text;
@@ -124,12 +117,12 @@ std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
         v.push_back(ruleInfo);
     }
 
-    // Context nfree
+    // Context free
     for (auto& [id, after] : mAfter)
     {
         RuleInfo ruleInfo = RuleInfo();
         ruleInfo.id = id;
-        ruleInfo.before = mBefore;
+        ruleInfo.before = mBefore.GetLetter();
         ruleInfo.after = after.text;
 
         v.push_back(ruleInfo);
@@ -138,7 +131,9 @@ std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
     return v;
 }
 
-void LRule::AddAfter(char previous, char next, const std::string& after)
+void LRule::AddAfter(const LLetter& previous,
+                     const LLetter& next,
+                     const std::vector<LLetter>& after)
 {
     if (after.size() == 0)
     {
@@ -148,15 +143,15 @@ void LRule::AddAfter(char previous, char next, const std::string& after)
 
     // After info 생성
     After afterInfo = After();
-    afterInfo.letters = std::vector<LLetter>();
+    afterInfo.letters = after;
 
-    afterInfo.text = after;
-    for (const char& c : after)
+    afterInfo.text = "";
+    for (const LLetter& c : after)
     {
-        afterInfo.letters.push_back(LLetter(c));
+        afterInfo.text += c.GetLetter();
     }
 
-    if (previous == NULL && next == NULL)
+    if (previous.IsEmpty() && next.IsEmpty())
     {
         // Context free
         mAfter.insert({ mNextAfterID, afterInfo });
@@ -185,7 +180,7 @@ void LRule::AddAfter(char previous, char next, const std::string& after)
         std::vector<CSAfter> tv = std::vector<CSAfter>();
         for (auto& [_, csAfter] : mCSAfter)
         {
-            if (csAfter.previous != NULL && csAfter.next != NULL)
+            if (!csAfter.previous.IsEmpty() && !csAfter.next.IsEmpty())
             {
                 mSortedCSAfter.push_back(csAfter);
             }
@@ -227,7 +222,7 @@ bool LRule::DeleteAfter(const int& afterId)
         std::vector<CSAfter> tv = std::vector<CSAfter>();
         for (auto& [_, csAfter] : mCSAfter)
         {
-            if (csAfter.previous != NULL && csAfter.next != NULL)
+            if (!csAfter.previous.IsEmpty() && !csAfter.next.IsEmpty())
             {
                 mSortedCSAfter.push_back(csAfter);
             }

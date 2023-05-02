@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include "Utils.hpp"
 #include "LLetter.hpp"
 
 LLetter::LLetter()
@@ -44,13 +45,15 @@ void LLetter::SetLetter(const std::string& letter)
     mLetter = letter;
 }
 
-void LLetter::SetParameters(std::vector<std::string> param)
+void LLetter::SetParameters(std::vector<std::string> params)
 {
-    mParameters = param;
+    mParameters = params;
+    mParametersString = "";
 
     if (mParameters.size())
     {
         mIsParam = true;
+        mParametersString = join(mParameters, ", ");
     }
 }
 

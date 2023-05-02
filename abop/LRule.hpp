@@ -14,8 +14,8 @@ public:
     // Context Sensitive
     struct CSAfter
     {
-        char previous;
-        char next;
+        LLetter previous;
+        LLetter next;
         After after;
     };
 
@@ -28,7 +28,7 @@ public:
     };
 
 private:
-    char mBefore;
+    LLetter mBefore;
     std::map<int, After> mAfter;
     std::map<int, CSAfter> mCSAfter;
     std::vector<CSAfter> mSortedCSAfter;
@@ -39,17 +39,23 @@ private:
 
 public:
     LRule();
-    LRule(const char&, const std::string&);
-    LRule(const std::string&, const std::string&);
-    LRule(char, char, char, const std::string&);
+    LRule(const LLetter& before, const std::vector<LLetter>& after);
+    LRule(const LLetter& previous, 
+          const LLetter& before,
+          const LLetter& next,
+          std::vector<LLetter>& after);
     ~LRule();
 
-    char GetBefore() const;
-    std::vector<LLetter> GetAfter(char previous, char next) const;
+    LLetter GetBefore() const;
+    std::vector<LLetter> GetAfter(const LLetter& previous,
+                                  const LLetter& next) const;
 
+    // Rule의 모든 정보 return
     std::vector<RuleInfo> GetRuleInfos();
 
-    void AddAfter(char previous, char next, const std::string&);
+    void AddAfter(const LLetter& previous,
+                  const LLetter& next,
+                  const std::vector<LLetter>& after);
 
     bool DeleteAfter(const int& afterId);
 
