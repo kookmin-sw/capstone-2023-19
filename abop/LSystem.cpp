@@ -350,22 +350,49 @@ void LSystem::AddRule(std::string key, const std::string& value)
         return;
     }
 
-    if (mRules.find(ruleKey.before) != mRules.end())
+    std::string formatKey = "";
+    bool startParam = false;
+    for (const char& c : ruleKey.before)
+    {
+        if (startParam)
+        {
+            if (c == ',')
+            {
+                formatKey += c;
+            }
+            else if (c == ')')
+            {
+                startParam = false;
+                formatKey += c;
+            }
+        }
+        else
+        {
+            if (c == '(')
+            {
+                startParam = true;
+            }
+
+            formatKey += c;
+        }
+    }
+
+    if (mRules.find(formatKey) != mRules.end())
     {
         // 동일한 key의 rule이 이미 있는 경우
-        mRules[ruleKey.before].AddAfter(LLetter(ruleKey.previous), 
-                                        LLetter(ruleKey.next),
-                                        ConvertStringToLLetter(value),
-                                        ruleKey.condition);
+        mRules[formatKey].AddAfter(LLetter(ruleKey.previous),
+                                   LLetter(ruleKey.next),
+                                   ConvertStringToLLetter(value),
+                                   ruleKey.condition);
     }
     else
     {
         // 동일한 key의 rule이 없는 경우
-        mRules.insert({ ruleKey.before, LRule(LLetter(ruleKey.previous), 
-                                              LLetter(ruleKey.before),
-                                              LLetter(ruleKey.next),
-                                              ConvertStringToLLetter(value),
-                                              ruleKey.condition) });
+        mRules.insert({ formatKey, LRule(LLetter(ruleKey.previous),
+                                         LLetter(ruleKey.before),
+                                         LLetter(ruleKey.next),
+                                         ConvertStringToLLetter(value),
+                                         ruleKey.condition) });
     }
 }
 
@@ -373,7 +400,7 @@ void LSystem::DeleteRule(const std::string& key, const int& afterId)
 {
     RuleKey ruleKey = ConvertKeyToRuleKey(key);
 
-    auto iter = mRules.find(ruleKey.before);
+    auto iter = mRules.find(LLetter(ruleKey.before).GetFormat());
 
     if (iter == mRules.end())
     {
@@ -438,7 +465,8 @@ void LSystem::Iterate()
     std::string next;
     for (int i = 0; i < size; i++)
     {
-        before = mWord.at(i).GetLetter();
+        LLetter beforeLLetter = mWord.at(i);
+        before = beforeLLetter.GetLetter();
 
         // 괄호가 나오면 depth 조정
         if (before == "[")
@@ -456,7 +484,9 @@ void LSystem::Iterate()
             depth--;
         }
 
-        if (mRules.find(before) != mRules.end())
+        // mRules는 LLetter의 format을 key로 가진 map 구조
+        std::string letterFormat = beforeLLetter.GetFormat();
+        if (mRules.find(letterFormat) != mRules.end())
         {
             // 해당 key(letter)를 가진 rule이 있는 경우
 
@@ -469,7 +499,7 @@ void LSystem::Iterate()
             while (i + index < size)
             {
                 nextCheck = mWord.at(i + index++).GetLetter();
-                
+
                 // before 기준으로 tempDepth 계산
                 if (nextCheck == "[")
                 {
@@ -501,24 +531,26 @@ void LSystem::Iterate()
             {
                 // 현재 depth의 previous 이력이 없는 경우 직전의 분기한 경우
                 // 이전 depth의 previous로 체크
-                after = mRules[before].GetAfter(previousDepth[depth - 1], next);
+                after = mRules[letterFormat].GetAfter(previousDepth[depth - 1], next);
             }
             else
             {
-                after = mRules[before].GetAfter(previousDepth[depth], next);
+                after = mRules[letterFormat].GetAfter(previousDepth[depth], next);
             }
-            
+
             if (after.size() == 0)
             {
                 // CS rule이 없는 경우
-                iterated.push_back(before);
+                iterated.push_back(beforeLLetter);
             }
-
-            iterated.insert(iterated.end(), after.begin(), after.end());
+            else
+            {
+                iterated.insert(iterated.end(), after.begin(), after.end());
+            }
         }
         else
         {
-            iterated.push_back(before);
+            iterated.push_back(beforeLLetter);
         }
 
         if (mIgnores.find(before[0]) == mIgnores.end())

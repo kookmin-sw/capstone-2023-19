@@ -19,7 +19,19 @@ LLetter::LLetter(const char& letter)
 LLetter::LLetter(const std::string& letter)
 {
     InitLetter();
-    this->SetLetter(letter);
+
+
+    if (letter.find('(') != std::string::npos)
+    {
+        // param이 존재 하는 경우
+        this->SetLetter(split(letter, '(')[0]);
+        this->SetParameters(split(split(split(letter, '(')[1], ')')[0], ','));
+    }
+    else
+    {
+        this->SetLetter(letter);
+    }
+
 }
 
 LLetter::~LLetter()
@@ -52,10 +64,16 @@ std::vector<std::string> LLetter::GetParameters() const
     return mParameters;
 }
 
+std::string LLetter::GetFormat() const
+{
+    return mFormat;
+}
+
 void LLetter::SetLetter(const std::string& letter)
 {
     mType = static_cast<LLetter::Type> (letter[0]);
     mLetter = letter;
+    mFormat = letter;
 }
 
 void LLetter::SetParameters(std::vector<std::string> params)
@@ -67,6 +85,13 @@ void LLetter::SetParameters(std::vector<std::string> params)
     {
         mIsParam = true;
         mParametersString = "(" + join(mParameters, ", ") + ")";
+        
+        mFormat += '(';
+        for (int i = 0; i < mParameters.size() - 1; i++)
+        {
+            mFormat += ',';
+        }
+        mFormat += ')';
     }
 }
 

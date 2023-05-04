@@ -31,6 +31,7 @@ private:
     bool mIsParam = false;
     std::vector<std::string> mParameters;
     std::string mParametersString;
+    std::string mFormat;
 
 public:
     LLetter();
@@ -42,6 +43,9 @@ public:
     std::string GetLetter(bool isIncludeParam = true) const;
     Type GetType() const;
     std::vector<std::string> GetParameters() const;
+    // LLetter에 format 형식 반환
+    // F(s, t) -> F(,)
+    std::string GetFormat() const;
 
     void SetLetter(const std::string&);
     // 파라미터 지정, 파라미터 setter는 이 메소드를 통해서만 수행
