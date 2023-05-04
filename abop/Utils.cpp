@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <stack>
 #include <iostream>
 #include <sstream>
 #include <numeric>
@@ -54,4 +55,131 @@ int StringToInt(const std::string& str)
 void RemoveAll(std::string& s, const char& c)
 {
     s.erase(remove(s.begin(), s.end(), ' '), s.end());
+}
+
+void ReplaceAll(std::string& s, const std::string& before, const std::string& after)
+{
+    std::string::size_type pos = 0;
+
+    while ((pos = s.find(before)) != std::string::npos)
+    {
+        s.replace(pos, after.size(), after);
+    }
+}
+
+bool IsOperator(const char& c)
+{
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')';
+}
+
+bool IsOperator(const std::string& s)
+{
+    return s == "+" || s == "-" || s == "*" || s == "/" || s == "(" || s == ")";
+}
+
+std::string charToString(const char& c)
+{
+    std::string res = "";
+    res += c;
+    return res;
+}
+
+float Calculate(const float& a, const std::string& oper, const float& b)
+{
+    if (oper == "+")
+    {
+        return a + b;
+    }
+    else if (oper == "-")
+    {
+        return a - b;
+    }
+    else if (oper == "*")
+    {
+        return a * b;
+    }
+    else if (oper == "/")
+    {
+        return a / b;
+    }
+
+    return 0.0f;
+}
+
+float CalculateString(std::string s)
+{
+    RemoveAll(s, ' ');  // 공백 제거
+
+    std::string number = "";
+    std::vector<std::string> prior = std::vector<std::string>();
+    std::stack<char> operators = std::stack<char>();
+
+    for (const char& c : s)
+    {
+        if (IsOperator(c))
+        {
+            if (number.size() > 0)
+            {
+                prior.push_back(number);
+                number = "";
+            }
+
+            if (c == '*' || c == '/')
+            {
+                if (operators.size() > 0 && (operators.top() == '*' || operators.top() == '/'))
+                {
+                    prior.push_back(charToString(operators.top()));
+                    operators.pop();
+                }
+            }
+            else if (c == ')')
+            {
+                while (operators.top() != '(')
+                {
+                    prior.push_back(charToString(operators.top()));
+                    operators.pop();
+                }
+                operators.pop();
+
+                continue;
+            }
+            operators.push(c);
+        }
+        else
+        {
+            number += c;
+        }
+    }
+
+    if (number.size() > 0)
+    {
+        prior.push_back(number);
+    }
+
+    while (!operators.empty())
+    {
+        prior.push_back(charToString(operators.top()));
+        operators.pop();
+    }
+
+    float sum = 0.0f;
+    std::stack<float> numbers = std::stack<float>();
+
+    for (std::string ts : prior)
+    {
+        if (IsOperator(ts))
+        {
+            float second = numbers.top();
+            numbers.pop();
+            float first = numbers.top();
+            numbers.pop();
+            numbers.push(Calculate(first, ts, second));
+        }
+        else
+        {
+            numbers.push(std::stoi(ts));
+        }
+    }
+
+    return numbers.top();
 }
