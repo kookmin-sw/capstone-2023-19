@@ -868,19 +868,20 @@ void SavePreset(std::string filename, LSystem* lSystem)
     bool existRule = false;
     for (auto& [_, rule] : lSystem->GetRules())
     {
-        for (const LRule::RuleInfo& ruleInfo : rule.GetRuleInfos())
+        for (LRule::RuleInfo ruleInfo : rule.GetRuleInfos())
         {
             existRule = true;
             std::string before = ruleInfo.before;
-            // 공백 제거
-            before.erase(remove(before.begin(), before.end(), ' '), before.end());
+            RemoveAll(before, ' '); // 공백 제거
 
             ok = before;
             if (!ruleInfo.condition.empty())
             {
                 // condition이 있는 경우
+                RemoveAll(ruleInfo.condition, ' '); // 공백 제거
                 ok += ":" + ruleInfo.condition;
             }
+            RemoveAll(ruleInfo.after, ' '); // 공백 제거
             ok += "->" + ruleInfo.after + '\n';
             file.write(ok.c_str(), ok.size());
         }

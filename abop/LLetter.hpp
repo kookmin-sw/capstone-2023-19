@@ -39,7 +39,7 @@ public:
     LLetter(const std::string&);
     ~LLetter();
 
-    std::string GetLetter() const;
+    std::string GetLetter(bool isIncludeParam = true) const;
     Type GetType() const;
     std::vector<std::string> GetParameters() const;
 
@@ -52,7 +52,7 @@ public:
     // 파라미터가 없는 경우 단순히 string 비교
     // 파라미터가 있는 경우 parameter 개수만 비교 (format만)
     bool IsEqual(const LLetter&) const;
-    bool IsParametic();
+    bool IsParametic() const;
 
 private:
     void InitLetter();

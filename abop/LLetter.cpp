@@ -27,14 +27,19 @@ LLetter::~LLetter()
 
 }
 
-std::string LLetter::GetLetter() const
+std::string LLetter::GetLetter(bool isIncludeParam) const
 {
     if (!mIsParam)
     {
         return mLetter;
     }
 
-    return mLetter + mParametersString;
+    if (isIncludeParam)
+    {
+        return mLetter + mParametersString;
+    }
+
+    return mLetter;
 }
 
 LLetter::Type LLetter::GetType() const
@@ -75,19 +80,20 @@ bool LLetter::IsEqual(const LLetter& other) const
     if (!mIsParam)
     {
         // 파라미터가 없는 경우 mLetter만 비교
-        return mLetter == other.GetLetter();
+        return mLetter == other.GetLetter(false);
     }
 
-    if (mParameters.size() != other.GetParameters().size())
+    if ((mLetter == other.GetLetter(false))
+        && (mParameters.size() == other.GetParameters().size()))
     {
-        // parameter size가 다른 경우
-        return false;
+        // letter와 param 개수 모두 같은 경우
+        return true;
     }
 
-    return true;
+    return false;
 }
 
-bool LLetter::IsParametic()
+bool LLetter::IsParametic() const
 {
     return mIsParam;
 }

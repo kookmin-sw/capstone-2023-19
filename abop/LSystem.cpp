@@ -148,9 +148,7 @@ RuleKey ConvertKeyToRuleKey(std::string key)
 {
     // previous, before, next
     RuleKey ruleKey = RuleKey();
-
-    // 공백 제거
-    key.erase(remove(key.begin(), key.end(), ' '), key.end());
+    RemoveAll(key, ' ');    // 공백 제거
 
     int conditionIndex = key.find(':');
     if (conditionIndex != -1)
@@ -186,6 +184,8 @@ RuleKey ConvertKeyToRuleKey(std::string key)
 
 std::vector<LLetter> ConvertStringToLLetter(std::string str)
 {
+    RemoveAll(str, ' ');
+
     std::vector<LLetter> letters = std::vector<LLetter>();
     for (int i = 0; i < str.size(); i++)
     {
@@ -193,7 +193,7 @@ std::vector<LLetter> ConvertStringToLLetter(std::string str)
 
         if (i + 1 <= str.size() && str[i + 1] == '(')
         {
-            int end = str.find(')');
+            int end = str.find(')', i);
 
             if (!end)
             {
@@ -208,7 +208,7 @@ std::vector<LLetter> ConvertStringToLLetter(std::string str)
                 parameterString.end());
             letter.SetParameters(split(parameterString, ','));
 
-            i = end + 1;    // 괄호 이후
+            i = end;    // 괄호 위치 (다음 iter에서 i++ 됨)
         }
 
         letters.push_back(LLetter(letter));

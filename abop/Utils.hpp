@@ -1,3 +1,4 @@
 std::string join(const std::vector<std::string>& strings, std::string delim);
 std::vector<std::string> split(std::string str, char delimiter);
 int StringToInt(const std::string& str);
+void RemoveAll(std::string& s, const char& c);

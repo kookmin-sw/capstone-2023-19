@@ -76,9 +76,8 @@ RuleCondition::RuleCondition(std::string str)
     // 관계식 < > = >= <=
 
     // 공백 제거
-    str.erase(remove(str.begin(), str.end(), ' '), str.end());
+    RemoveAll(str, ' ');
     mCondsString = str;
-    //key.erase(remove(key.begin(), key.end(), ' '), key.end());
 
     while (str.find("&") != std::string::npos || str.find("|") != std::string::npos)
     {

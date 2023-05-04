@@ -50,3 +50,8 @@ int StringToInt(const std::string& str)
 
     return sum;
 }
+
+void RemoveAll(std::string& s, const char& c)
+{
+    s.erase(remove(s.begin(), s.end(), ' '), s.end());
+}
