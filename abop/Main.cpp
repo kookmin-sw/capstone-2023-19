@@ -875,7 +875,13 @@ void SavePreset(std::string filename, LSystem* lSystem)
             // 공백 제거
             before.erase(remove(before.begin(), before.end(), ' '), before.end());
 
-            ok = before + ":" + ruleInfo.after + '\n';
+            ok = before;
+            if (!ruleInfo.condition.empty())
+            {
+                // condition이 있는 경우
+                ok += ":" + ruleInfo.condition;
+            }
+            ok += "->" + ruleInfo.after + '\n';
             file.write(ok.c_str(), ok.size());
         }
     }

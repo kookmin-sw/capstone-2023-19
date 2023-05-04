@@ -745,8 +745,8 @@ void LSystem::LoadPreset(std::string& filename)
                     break;
                 }
 
-                int index = inp.find(':');
-                this->AddRule(inp.substr(0, index), inp.substr(index + 1, inp.size()));
+                int index = inp.find("->");
+                this->AddRule(inp.substr(0, index), inp.substr(index + 2, inp.size()));
             }
         }
         else

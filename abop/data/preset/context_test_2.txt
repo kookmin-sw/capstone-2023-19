@@ -5,5 +5,5 @@ deltaThickness:1.000000
 word:B[+A]A[-A]A[+A]A
 ignore:+-
 rule
-B<A:B
+B<A->B
 end

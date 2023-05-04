@@ -3,6 +3,6 @@ thickness:0.300000
 deltaThickness:1.000000
 word:X
 rule
-X:F-[[X]+X]+F[+FX]-X
-F:FF
+X->F-[[X]+X]+F[+FX]-X
+F->FF
 end
