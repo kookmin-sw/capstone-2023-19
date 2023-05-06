@@ -1,0 +1,11 @@
+distance:1.000000
+angle:90.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:B(2)A(4, 4)
+rule
+A(x,y):y<=3->A(x*2,x+y)
+A(x,y):y>3->B(x)A(x/y,0)
+B(x):x<1->C
+B(x):x>=1->B(x-1)
+end

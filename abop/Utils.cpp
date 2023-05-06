@@ -69,12 +69,12 @@ void ReplaceAll(std::string& s, const std::string& before, const std::string& af
 
 bool IsOperator(const char& c)
 {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')' || c == 'u';
 }
 
 bool IsOperator(const std::string& s)
 {
-    return s == "+" || s == "-" || s == "*" || s == "/" || s == "(" || s == ")";
+    return s == "+" || s == "-" || s == "*" || s == "/" || s == "(" || s == ")" || s == "u";
 }
 
 std::string charToString(const char& c)
@@ -101,6 +101,12 @@ float Calculate(const float& a, const std::string& oper, const float& b)
     else if (oper == "/")
     {
         return a / b;
+    }
+    //else if (oper == "^")
+    else if (oper == "p")
+    {
+        // pitch up ^ 이미 있어서 임시로 p 사용
+        return pow(a, b);
     }
 
     return 0.0f;
