@@ -4,34 +4,55 @@ class LLetter;
 
 class LRule
 {
-private:
-    // 변환 규칙 key가 하나인 경우만 가정
-    LLetter* before_;
-    //std::vector<LLetter> after_;
-    std::vector<std::vector<LLetter>> after_;
+public:
+    struct After
+    {
+        std::vector<LLetter> letters;
+        std::string text;
+    };
 
-    std::string key_;
-    std::vector<std::string> values_;
+    // Context Sensitive
+    struct CSAfter
+    {
+        char previous;
+        char next;
+        After after;
+    };
+
+    // for output
+    struct RuleInfo
+    {
+        int id;
+        std::string before;
+        std::string after;
+    };
+
+private:
+    char mBefore;
+    std::map<int, After> mAfter;
+    std::map<int, CSAfter> mCSAfter;
+    std::vector<CSAfter> mSortedCSAfter;
+    std::vector<After> mSortedAfter;
+
+    int mNextAfterID;
+    int mRuleCount;
 
 public:
     LRule();
-    // Full Text (ex. "A->ABAB")
-    LRule(const std::string&);
-    // Key & value (ex. 'A', "ABAB")
     LRule(const char&, const std::string&);
     LRule(const std::string&, const std::string&);
+    LRule(char, char, char, const std::string&);
     ~LRule();
 
-    void SetRule(const char&, const std::string&);
+    char GetBefore() const;
+    std::vector<LLetter> GetAfter(char previous, char next) const;
 
-    LLetter GetBefore() const;
-    std::vector<LLetter> GetAfter() const;
-    std::string GetRule() const;
-    void GetKey(char* out);
-    std::string GetKeyString() const;
-    void GetValue(char* out, const int& index);
-    std::string GetValueString(const int& index) const;
-    int GetRuleCount() const;
+    std::vector<RuleInfo> GetRuleInfos();
+
+    void AddAfter(char previous, char next, const std::string&);
+
+    bool DeleteAfter(const int& afterId);
 
 private:
+    void InitLRule();
 };

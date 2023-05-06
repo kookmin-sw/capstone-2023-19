@@ -1,35 +1,38 @@
 #include <vector>
+#include <map>
 #include <string>
+#include <iostream> // FORTEST
 #include "RandomSeed.hpp"
 #include "LLetter.hpp"
 #include "LRule.hpp"
 
+// LRule
 LRule::LRule()
 {
-
 }
 
-LRule::LRule(const std::string& text)
+LRule::LRule(const char& before, const std::string& after)
 {
-    int split = text.find("->");
+    this->InitLRule();
+    mBefore = before;
     
-    if (split < 0)
-    {
-        // !!! valid check 추가하기
-        throw "Invalid rule format";
-    }
-
-    this->SetRule(text[0], text.substr(split + 2));
+    this->AddAfter(NULL, NULL, after);
 }
 
-LRule::LRule(const char& key, const std::string& value)
+LRule::LRule(const std::string& before, const std::string& after)
 {
-    this->SetRule(key, value);
+    this->InitLRule();
+    mBefore = before[0];
+
+    this->AddAfter(NULL, NULL, after);
 }
 
-LRule::LRule(const std::string& keyStr, const std::string& value)
+LRule::LRule(char privious, char before, char next, const std::string& after)
 {
-    this->SetRule(keyStr[0], value);
+    this->InitLRule();
+    mBefore = before;
+
+    this->AddAfter(privious, next, after);
 }
 
 LRule::~LRule()
@@ -37,81 +40,220 @@ LRule::~LRule()
 
 }
 
-LLetter LRule::GetBefore() const
+char LRule::GetBefore() const
 {
-    return *(this->before_);
+    return mBefore;
 }
 
-std::vector<LLetter> LRule::GetAfter() const
+std::vector<LLetter> LRule::GetAfter(char previous, char next) const
 {
-    int total = this->after_.size();
+    if (!(previous == NULL && next == NULL))
+    {
+        // Context info가 있는 경우
+        for (const CSAfter& csAfter : mSortedCSAfter)
+        {
+            // !!! 동일한 CS 규칙이 있는 경우 먼저 추가된 규칙 적용
+            if (csAfter.next == NULL)
+            {
+                // previous 규칙
+                if (csAfter.previous == previous)
+                {
+                    return csAfter.after.letters;
+                }
+            }
+            else if (csAfter.previous == NULL)
+            {
+                // next 규칙
+                if (csAfter.next == next)
+                {
+                    return csAfter.after.letters;
+                }
+            }
+            else
+            {
+                // previous + next 규칙
+                if (csAfter.previous == previous && csAfter.next == next)
+                {
+                    return csAfter.after.letters;
+                }
+            }
+        }
+    }
+
+    // 확률형 after 적용
+    int total = mSortedAfter.size();
+    if (total == 0)
+    {
+        // 일치하는 context sensitive rule이 없고 context free rule이 없는 경우
+        // 빈 vector return
+        std::vector<LLetter> temp;
+        return temp;
+    }
     int index = dist(gen) % total;
-
-    return this->after_[index];
+    
+    return mSortedAfter[index].letters;
 }
 
-std::string LRule::GetRule() const
+std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
 {
-    std::string ruleText = "";
-    ruleText += this->before_->GetLetter();
-    ruleText += " -> ";
+    // this rule의 모든 정보 return
+    // Ouput RuleInfo는 LRule.hpp에 정
+    std::vector<RuleInfo> v = std::vector<RuleInfo>();
 
-    int total = this->after_.size();
-    int index = dist(gen) % total;
-
-    for (const LLetter& let : this->after_[index])
+    // Context sensitive
+    for (auto& [id, after] : mCSAfter)
     {
-        ruleText += let.GetLetter();
+        RuleInfo ruleInfo = RuleInfo();
+        ruleInfo.id = id;
+        // A < B > D
+        ruleInfo.before = "";
+        if (after.previous != NULL)
+        {
+            ruleInfo.before += after.previous;
+            ruleInfo.before += " < ";
+        }
+        ruleInfo.before += mBefore;
+        if (after.next != NULL)
+        {
+            ruleInfo.before += " > ";
+            ruleInfo.before += after.next;
+        }
+        
+        ruleInfo.after = after.after.text;
+
+        v.push_back(ruleInfo);
     }
 
-    return ruleText;
-}
-
-void LRule::GetKey(char* out)
-{
-    for (int i = 0; i < this->key_.size(); i++)
+    // Context nfree
+    for (auto& [id, after] : mAfter)
     {
-        out[i] = this->key_[i];
-    }
-}
+        RuleInfo ruleInfo = RuleInfo();
+        ruleInfo.id = id;
+        ruleInfo.before = mBefore;
+        ruleInfo.after = after.text;
 
-std::string LRule::GetKeyString() const
-{
-    return this->key_;
-}
-
-void LRule::GetValue(char* out, const int& index)
-{
-    for (int i = 0; i < this->values_[index].size(); i++)
-    {
-        out[i] = this->values_[index][i];
-    }
-}
-
-std::string LRule::GetValueString(const int& index) const
-{
-    return this->values_[index];
-}
-
-int LRule::GetRuleCount() const
-{
-    return this->values_.size();
-}
-
-void LRule::SetRule(const char& key, const std::string& value)
-{
-    this->before_ = new LLetter(key);
-    this->key_ = key;
-
-    auto tempLetter = std::vector<LLetter>();
-    std::string tempString = "";
-
-    for (const char& ch : value)
-    {
-        tempLetter.push_back(LLetter(ch));
-        tempString += ch;
+        v.push_back(ruleInfo);
     }
 
-    this->after_.push_back(tempLetter);
-    this->values_.push_back(tempString);
+    return v;
+}
+
+void LRule::AddAfter(char previous, char next, const std::string& after)
+{
+    if (after.size() == 0)
+    {
+        // error
+        return;
+    }
+
+    // After info 생성
+    After afterInfo = After();
+    afterInfo.letters = std::vector<LLetter>();
+
+    afterInfo.text = after;
+    for (const char& c : after)
+    {
+        afterInfo.letters.push_back(LLetter(c));
+    }
+
+    if (previous == NULL && next == NULL)
+    {
+        // Context free
+        mAfter.insert({ mNextAfterID, afterInfo });
+
+        // !!! not good
+        // insert(or delete)할 때마다 새로운 after vector 생성
+        mSortedAfter = std::vector<After>();
+        for (auto& [_, csAfter] : mAfter)
+        {
+            mSortedAfter.push_back(csAfter);
+        }
+    }
+    else
+    {
+        // Context sensitive
+        CSAfter csAfterInfo = CSAfter();
+        csAfterInfo.after = afterInfo;
+        csAfterInfo.previous = previous;
+        csAfterInfo.next = next;
+
+        mCSAfter.insert({ mNextAfterID, csAfterInfo });
+
+        // !!! not good
+        // previous와 next 모두 있는 경우 앞에 배치
+        mSortedCSAfter = std::vector<CSAfter>();
+        std::vector<CSAfter> tv = std::vector<CSAfter>();
+        for (auto& [_, csAfter] : mCSAfter)
+        {
+            if (csAfter.previous != NULL && csAfter.next != NULL)
+            {
+                mSortedCSAfter.push_back(csAfter);
+            }
+            else
+            {
+                tv.push_back(csAfter);
+            }
+        }
+        mSortedCSAfter.insert(mSortedCSAfter.end(), tv.begin(), tv.end());
+    }
+
+    mNextAfterID++;
+    mRuleCount++;
+}
+
+bool LRule::DeleteAfter(const int& afterId)
+{
+    if (mAfter.find(afterId) != mAfter.end())
+    {
+        mAfter.erase(afterId);
+        mRuleCount--;
+
+        // !!! not good
+        // insert(or delete)할 때마다 새로운 after vector 생성
+        mSortedAfter = std::vector<After>();
+        for (auto& [_, csAfter] : mAfter)
+        {
+            mSortedAfter.push_back(csAfter);
+        }
+    }
+    else if (mCSAfter.find(afterId) != mCSAfter.end())
+    {
+        mCSAfter.erase(afterId);
+        mRuleCount--;
+
+        // !!! not good
+        // insert(or delete)할 때마다 새로운 after vector 생성
+        mSortedCSAfter = std::vector<CSAfter>();
+        std::vector<CSAfter> tv = std::vector<CSAfter>();
+        for (auto& [_, csAfter] : mCSAfter)
+        {
+            if (csAfter.previous != NULL && csAfter.next != NULL)
+            {
+                mSortedCSAfter.push_back(csAfter);
+            }
+            else
+            {
+                tv.push_back(csAfter);
+            }
+        }
+        mSortedCSAfter.insert(mSortedCSAfter.end(), tv.begin(), tv.end());
+    }
+
+    if (mRuleCount == 0)
+    {
+        // after 삭제 후 남은 after가 없는 경우 true return
+        return true;
+    }
+
+    return false;
+}
+
+// private
+void LRule::InitLRule()
+{
+    mAfter = std::map<int, After>();
+    mCSAfter = std::map<int, CSAfter>();
+
+    mNextAfterID = 0;
+    mRuleCount = 0;
 }

@@ -1,6 +1,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <iostream>
 #include <stack>
 #include <cmath>
 #include "Stdafx.h"
@@ -10,6 +12,7 @@
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
+#pragma region Model
 // Model 관련 
 Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
@@ -128,12 +131,73 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
 
     return model;
 }
+#pragma endregion
+
+#pragma region utils
+char* DivideKey(std::string key)
+{
+    // previous, before, next
+    char pbn[3] = { NULL };
+
+    int keySize;
+    // 공백 제거
+    key.erase(remove(key.begin(), key.end(), ' '), key.end());
+    keySize = key.size();
+
+    // only (F, A<F, F>B, A<F>B)
+    if (keySize == 0)
+    {
+        // error
+        //std::cout << "error" << std::endl;
+        return { NULL };
+    }
+
+    if (keySize == 1)
+    {
+        pbn[1] = key[0];
+    }
+    else if (keySize == 3)
+    {
+        if (key[1] == '<')
+        {
+            pbn[0] = key[0];
+            pbn[1] = key[2];
+        }
+        else if (key[1] == '>')
+        {
+            pbn[2] = key[2];
+            pbn[1] = key[0];
+        }
+        else
+        {
+            // error
+            //std::cout << "error" << std::endl;
+            return { NULL };
+        }
+    }
+    else if (keySize == 5)
+    {
+        pbn[0] = key[0];
+        pbn[1] = key[2];
+        pbn[2] = key[4];
+    }
+    else
+    {
+        // error
+        //std::cout << "error" << std::endl;
+        return { NULL };
+    }
+
+    return pbn;
+}
+#pragma endregion
 
 // Public
 LSystem::LSystem()
 {
-    rules_ = std::vector<LRule>();
+    this->rules_ = std::map<char, LRule>();
     word_ = new std::vector<LLetter>();
+    mIgnores = std::map<char, bool>();
 
     axisX = DirectX::XMFLOAT3(1, 0, 0);
     axisY = DirectX::XMFLOAT3(0, 1, 0);
@@ -178,19 +242,9 @@ void LSystem::GetWord(char* out)
     }
 }
 
-std::vector<LRule> LSystem::GetRules() const
+std::map<char, LRule> LSystem::GetRules()
 {
     return this->rules_;
-}
-
-std::string LSystem::GetRuleText() const
-{
-    std::string rulesText;
-    for (const LRule& rule : this->rules_)
-    {
-        rulesText += rule.GetRule() + '\n';
-    }
-    return rulesText;
 }
 
 float LSystem::GetAngleChange() const
@@ -264,58 +318,52 @@ void LSystem::SetDeltaThickness(const float& val)
     this->deltaThickness_ = val;
 }
 
-// Rule
-void LSystem::AddRule(const std::string& ruleText)
+void LSystem::AddRule(std::string key, const std::string& value)
 {
-    this->rules_.push_back(LRule(ruleText));
-}
+    char* pbn = DivideKey(key);
+    char previous = pbn[0];
+    char before = pbn[1];
+    char next = pbn[2];
+    pbn = nullptr;
 
-void LSystem::AddRule(const char& key, const std::string& value)
-{
-    bool found = false;
-    int index;
-    for (int i = 0; i < this->rules_.size(); i++)
+    //if (this->rules_.count(key))
+    if (this->rules_.find(before) != this->rules_.end())
     {
-        auto& rule = this->rules_[i];
-        if (rule.GetBefore().IsEqual(key))
-        {
-            found = true;
-            index = i;
-            break;
-        }
-    }
-
-    if (!found)
-    {
-        this->rules_.push_back(LRule(key, value));
+        // 동일한 key의 rule이 이미 있는 경우
+        this->rules_[before].AddAfter(previous, next, value);
     }
     else
     {
-        this->rules_[index].SetRule(key, value);
+        // 동일한 key의 rule이 없는 경우
+        this->rules_.insert({ before, LRule(previous, before, next, value) });
     }
 }
 
-void LSystem::AddRule(const std::string& key, const std::string& value)
+void LSystem::DeleteRule(const std::string& key, const int& afterId)
 {
-    this->AddRule(key[0], value);
-}
+    char* pbn = DivideKey(key);
+    char before = pbn[1];
+    pbn = nullptr;
 
-void LSystem::DeleteRule(const char& key)
-{
-    //for (LRule& rule : this->rules_)
-    for (int i = 0; i < this->rules_.size(); i++)
+    auto iter = this->rules_.find(before);
+
+    if (iter == this->rules_.end())
     {
-        if (this->rules_[i].GetBefore().GetLetter() == key)
-        {
-            this->rules_.erase(this->rules_.begin() + i);
-            break;
-        }
+        // 없는 key의 rule을 삭제하는 경우 error
+        return;
+    }
+
+    if (iter->second.DeleteAfter(afterId))
+    {
+        // after 삭제 후 남은 after가 없는 경우
+        // L system rule map에서도 삭제
+        this->rules_.erase(before);
     }
 }
 
 void LSystem::ClearRule()
 {
-    this->rules_ = std::vector<LRule>();
+    this->rules_.clear();
 }
 
 void LSystem::ClearState()
@@ -329,36 +377,135 @@ void LSystem::ClearState()
     };
 }
 
+// Ignore
+std::map<char, bool> LSystem::GetIgnores()
+{
+    return mIgnores;
+}
+
+void LSystem::AddIgnore(char symbol)
+{
+    mIgnores.insert({ symbol, false });
+}
+
+void LSystem::DeleteIgnore(char symbol)
+{
+    if (mIgnores.find(symbol) != mIgnores.end())
+    {
+        mIgnores.erase(symbol);
+    }
+}
+
 // Run
 void LSystem::Iterate()
 {
-    bool changed;
-    std::vector<LLetter>* v = new std::vector<LLetter>();
+    std::vector<LLetter>* iterated = new std::vector<LLetter>();
 
-    for (const LLetter& letter : *(this->word_))
+    int size = this->word_->size();
+    //char previous = NULL;
+    int depth = 0;
+    std::vector<char> previousDepth = std::vector<char>();
+    previousDepth.push_back(NULL);  // 시작 depth에 NULL 추가
+    char before;
+    char next;
+    for (int i = 0; i < size; i++)
     {
-        changed = false;
+        before = this->word_->at(i).GetLetter();
 
-        for (const LRule& rule : this->rules_)
+        // 괄호가 나오면 depth 조정
+        if (before == '[')
         {
-            if (rule.GetBefore().IsEqual(letter.GetLetter()))
+            depth++;
+
+            if (previousDepth.size() < depth + 1)
             {
-                std::vector<LLetter> letters = rule.GetAfter();
-
-                v->insert(v->end(), letters.begin(), letters.end());
-
-                changed = true;
-                break;
+                // depth가 커지면 previous vector에 NULL 추가
+                previousDepth.push_back(NULL);
             }
         }
-
-        if (!changed)
+        else if (before == ']')
         {
-            v->push_back(letter);
+            depth--;
+        }
+
+        if (this->rules_.find(before) != this->rules_.end())
+        {
+            // 해당 key(letter)를 가진 rule이 있는 경우
+
+            // !!! not good
+            // nextCheck가 ignore에 포함 안되면 갱신, 끝까지 갱신 안되면 NULL
+            char nextCheck;
+            next = NULL;
+            int index = 1;
+            int tempDepth = depth;
+            while (i + index < size)
+            {
+                nextCheck = this->word_->at(i + index++).GetLetter();
+                
+                // before 기준으로 tempDepth 계산
+                if (nextCheck == '[')
+                {
+                    tempDepth++;
+                }
+                else if (nextCheck == ']')
+                {
+                    tempDepth--;
+                }
+
+                if (mIgnores.find(nextCheck) == mIgnores.end())
+                {
+                    if (nextCheck != '[' && nextCheck != ']')
+                    {
+                        // 괄호는 ignore에 추가
+
+                        if (depth == tempDepth)
+                        {
+                            // before의 depth와 tempDepth가 일치하는 경우
+                            next = nextCheck;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            std::vector<LLetter> after;
+            if (previousDepth[depth] == NULL && depth - 1 >= 0)
+            {
+                // 현재 depth의 previous 이력이 없는 경우 직전의 분기한 경우
+                // 이전 depth의 previous로 체크
+                after = this->rules_[before].GetAfter(previousDepth[depth - 1], next);
+            }
+            else
+            {
+                after = this->rules_[before].GetAfter(previousDepth[depth], next);
+            }
+            
+            if (after.size() == 0)
+            {
+                // CS rule이 없는 경우
+                iterated->push_back(before);
+            }
+
+            iterated->insert(iterated->end(), after.begin(), after.end());
+        }
+        else
+        {
+            iterated->push_back(before);
+        }
+
+        if (mIgnores.find(before) == mIgnores.end())
+        {
+            // ignores에 포함 안되는 경우
+            // 다음 depth별 previous 체크 symbol 갱신
+            if (before != '[' && before != ']')
+            {
+                // [, ] 도 ignore에 포함
+                previousDepth[depth] = before;
+            }
         }
     }
 
-    this->word_ = v;
+    this->word_ = iterated;
 }
 
 void LSystem::Iterate(int n)
@@ -598,6 +745,13 @@ void LSystem::LoadPreset(std::string& filename)
             else if (key == "distance")
             {
                 this->SetDistance(std::stof(value));
+            }
+            else if (key == "ignore")
+            {
+                for (const char& c : value)
+                {
+                    this->AddIgnore(c);
+                }
             }
         }
     }
