@@ -108,6 +108,7 @@ float Calculate(const float& a, const std::string& oper, const float& b)
 
 float CalculateString(std::string s)
 {
+    // !!! 음수에 대한 연산 예외 처리를 안했음 (ex. 1 + -1)
     RemoveAll(s, ' ');  // 공백 제거
 
     std::string number = "";

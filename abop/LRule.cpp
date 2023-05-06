@@ -41,7 +41,8 @@ LLetter LRule::GetBefore() const
 }
 
 std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
-                                     const LLetter& next) const
+                                     const LLetter& next,
+                                     const LLetter& compare) const
 {
     if (!(previous.IsEmpty() && next.IsEmpty()))
     {
@@ -86,6 +87,44 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
         return temp;
     }
     int index = dist(gen) % total;
+
+    if (compare.IsParametic())
+    {
+        // compare (beforeLLetter)에 parametic이 있는 경우
+        // 변환된 letter의 값에 파라미터 적용
+        // ex. 
+        // rule: f(t) -> f(t + 1)
+        // f(3) to f(4)
+        // ruleBefore의 paramSize와 beforeLLetter의 paramSize는 동일
+        std::vector<LLetter> result = std::vector<LLetter>();
+        std::map<std::string, std::string> valueParams = std::map<std::string, std::string>();
+        std::vector<std::string> paramKey = mBefore.GetParameters();
+        std::vector<std::string> paramValue = compare.GetParameters();
+
+        // !!! condition check
+
+        for (int i = 0; i < paramKey.size(); i++)
+        {
+            valueParams.insert({ paramKey[i], paramValue[i] });
+        }
+
+        for (LLetter letter : mSortedAfter[index].letters)
+        {
+            if (letter.IsParametic())
+            {
+                // after letter에 param이 있는 경우
+                // param key value map을 통해 변환
+                letter.CalculateParameter(valueParams);
+            }
+
+            result.push_back(letter);
+        }
+
+        return result;
+    }
+
+    // rule before(key)의 파라미터가 없는 경우
+    // 변환된 after 모두 iterated에 추가
     
     return mSortedAfter[index].letters;
 }

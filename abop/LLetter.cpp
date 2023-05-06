@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <map>
 #include "Utils.hpp"
 #include "LLetter.hpp"
 
@@ -80,6 +81,7 @@ void LLetter::SetParameters(std::vector<std::string> params)
 {
     mParameters = params;
     mParametersString = "";
+    mFormat = mLetter;
 
     if (mParameters.size())
     {
@@ -121,6 +123,30 @@ bool LLetter::IsEqual(const LLetter& other) const
 bool LLetter::IsParametic() const
 {
     return mIsParam;
+}
+
+void LLetter::CalculateParameter(std::map<std::string, std::string> valueParams)
+{
+    if (!IsParametic())
+    {
+        // 파라미터가 없는 경우
+        return;
+    }
+
+    std::vector<std::string> newParams = std::vector<std::string>();
+
+    for (const auto& [key, value] : valueParams)
+    {
+        ReplaceAll(mParametersString, key, value);
+    }
+    mParametersString = mParametersString.substr(1, mParametersString.size() - 2);    // '(', ')' 제외
+    for (const std::string& p : split(mParametersString, ','))
+    {
+        // int 고정
+        newParams.push_back(std::to_string((int)CalculateString(p)));
+    }
+
+    SetParameters(newParams);
 }
 
 void LLetter::InitLetter()

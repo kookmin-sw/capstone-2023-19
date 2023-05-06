@@ -58,6 +58,8 @@ public:
     bool IsEqual(const LLetter&) const;
     bool IsParametic() const;
 
+    void CalculateParameter(std::map<std::string, std::string> valueParams);
+
 private:
     void InitLetter();
 };

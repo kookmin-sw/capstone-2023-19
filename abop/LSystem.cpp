@@ -531,11 +531,11 @@ void LSystem::Iterate()
             {
                 // 현재 depth의 previous 이력이 없는 경우 직전의 분기한 경우
                 // 이전 depth의 previous로 체크
-                after = mRules[letterFormat].GetAfter(previousDepth[depth - 1], next);
+                after = mRules[letterFormat].GetAfter(previousDepth[depth - 1], next, beforeLLetter);
             }
             else
             {
-                after = mRules[letterFormat].GetAfter(previousDepth[depth], next);
+                after = mRules[letterFormat].GetAfter(previousDepth[depth], next, beforeLLetter);
             }
 
             if (after.size() == 0)

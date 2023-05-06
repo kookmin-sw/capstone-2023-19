@@ -56,8 +56,15 @@ public:
     ~LRule();
 
     LLetter GetBefore() const;
+    // previous, next 조건이 맞는 경우 rule after로 변환함
+    // 이 때 compare가 parametic인 경우 이 값을 기준으로 after를 수정
+    // condition이 있을 경우 condition이 true인 경우
+    // rule: f(t) -> f(t + 1)s(t - 1)
+    // compare: f(5), 이 때 compare과 ruleBefore의 format은 동일해야 함
+    // result: f(6)s(4)
     std::vector<LLetter> GetAfter(const LLetter& previous,
-                                  const LLetter& next) const;
+                                  const LLetter& next,
+                                  const LLetter& compare) const;
 
     // Rule의 모든 정보 return
     std::vector<RuleInfo> GetRuleInfos();
