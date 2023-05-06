@@ -100,12 +100,25 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
         std::map<std::string, std::string> valueParams = std::map<std::string, std::string>();
         std::vector<std::string> paramKey = mBefore.GetParameters();
         std::vector<std::string> paramValue = compare.GetParameters();
-
-        // !!! condition check
-
         for (int i = 0; i < paramKey.size(); i++)
         {
             valueParams.insert({ paramKey[i], paramValue[i] });
+        }
+
+        // condition check
+        // !!! t > 0, t < 10 여러 개의 condition이 있을 때 (free의 경우)
+        // random으로 하나 선택 후 condition 비교를 함
+        // 개선 필요 : 조건에 맞는 condition 수행
+        if (!mSortedAfter[index].condition->IsEmpty())
+        {
+            // condition이 있는 경우
+            if (!mSortedAfter[index].condition->CheckCondition(valueParams))
+            {
+                // condition 결과가 false인 경우
+                result.push_back(compare);
+
+                return result;
+            }
         }
 
         for (LLetter letter : mSortedAfter[index].letters)

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <map>
 #include <vector>
 #include "Utils.hpp"
 #include "RuleCondition.hpp"
@@ -130,7 +131,64 @@ std::string RuleCondition::GetConditionString() const
     return mCondsString;
 }
 
-bool RuleCondition::IsEmpty()
+bool RuleCondition::IsEmpty() const
 {
     return mEmpty;
+}
+
+bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParams) const
+{
+    float value;
+    // Condition의 target과 valueParams key는 매핑 되어야 함
+    // !!! &, | 에 대한 처리가 안되어 있음 (기본 &)
+    for (const Condition& c : mConds)
+    {
+        value = std::stoi(valueParams[c.target]);
+        
+        switch (c.sign)
+        {
+            case Sign::Same:
+            {
+                if (!(value == c.compare))
+                {
+                    return false;
+                }
+                break;
+            }
+            case Sign::More:
+            {
+                if (!(value > c.compare))
+                {
+                    return false;
+                }
+                break;
+            }
+            case Sign::Less:
+            {
+                if (!(value < c.compare))
+                {
+                    return false;
+                }
+                break;
+            }
+            case Sign::MoreSame:
+            {
+                if (!(value >= c.compare))
+                {
+                    return false;
+                }
+                break;
+            }
+            case Sign::LessSame:
+            {
+                if (!(value <= c.compare))
+                {
+                    return false;
+                }
+                break;
+            }
+        }
+    }
+
+    return true;
 }

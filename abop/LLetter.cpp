@@ -21,8 +21,7 @@ LLetter::LLetter(const std::string& letter)
 {
     InitLetter();
 
-
-    if (letter.find('(') != std::string::npos)
+    if (letter.size() > 1 && (letter.find('(') != std::string::npos))
     {
         // param이 존재 하는 경우
         this->SetLetter(split(letter, '(')[0]);

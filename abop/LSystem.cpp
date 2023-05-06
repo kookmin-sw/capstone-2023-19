@@ -535,7 +535,7 @@ void LSystem::Iterate()
             }
             else
             {
-                after = mRules[letterFormat].GetAfter(previousDepth[depth], next, beforeLLetter);
+                after = mRules[letterFormat].GetAfter(LLetter(previousDepth[depth]), LLetter(next), beforeLLetter);
             }
 
             if (after.size() == 0)

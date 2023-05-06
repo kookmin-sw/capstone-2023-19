@@ -23,7 +23,8 @@ public:
     ~RuleCondition();
 
     std::string GetConditionString() const;
-    bool IsEmpty();
+    bool IsEmpty() const;
+    bool CheckCondition(std::map<std::string, std::string> valueParams) const;
 
 private:
     std::vector<Condition> mConds;

@@ -63,7 +63,7 @@ void ReplaceAll(std::string& s, const std::string& before, const std::string& af
 
     while ((pos = s.find(before)) != std::string::npos)
     {
-        s.replace(pos, after.size(), after);
+        s.replace(pos, before.size(), after);
     }
 }
 
