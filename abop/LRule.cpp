@@ -45,9 +45,9 @@ char LRule::GetBefore() const
     return mBefore;
 }
 
-std::vector<LLetter> LRule::GetAfter(char previous, char next) const
+std::vector<LLetter> LRule::GetAfter(char previous, std::set<char>& next) const
 {
-    if (!(previous == NULL && next == NULL))
+    if (!(previous == NULL && next.size() == 0))
     {
         // Context info가 있는 경우
         for (const CSAfter& csAfter : mSortedCSAfter)
@@ -64,7 +64,7 @@ std::vector<LLetter> LRule::GetAfter(char previous, char next) const
             else if (csAfter.previous == NULL)
             {
                 // next 규칙
-                if (csAfter.next == next)
+                if (next.find(csAfter.next) != next.end())
                 {
                     return csAfter.after.letters;
                 }
@@ -72,7 +72,7 @@ std::vector<LLetter> LRule::GetAfter(char previous, char next) const
             else
             {
                 // previous + next 규칙
-                if (csAfter.previous == previous && csAfter.next == next)
+                if (csAfter.previous == previous && next.find(csAfter.next) != next.end())
                 {
                     return csAfter.after.letters;
                 }
