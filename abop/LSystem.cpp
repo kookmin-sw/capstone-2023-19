@@ -466,30 +466,10 @@ void LSystem::Iterate()
                 leftContext[i] = depthVector[leftDepth][locations[i].second - 1].origIndex;
 
 
-            // 역참조로 right Context info도 채워주기 - TEMP
+            // 역참조로 right Context info도 채워주기
             if (locations[i].second != 0)
 				rightContext[leftContext[i]].emplace(this->word_->at(i).GetLetter());
         }
-    }
-
-    std::cout << "debug " << "\n";
-    for (int i = 0; i < size; i++)
-    {
-        char cur = this->word_->at(i).GetLetter();
-        if (mIgnores.find(cur) != mIgnores.end())
-            continue;
-        if (cur == ']' || cur == '[')
-            continue;
-
-        std::cout << "index : " << i << ", Letter : " << cur << ", Depth : " << locations[i].first << ", Index in current Depth : " << locations[i].second <<
-            ", Left Context : ";
-        if (leftContext[i] >= 0)
-            std::cout << this->word_->at(leftContext[i]).GetLetter() << ", ";
-
-    	std::cout << "Right Context : ";
-        for (auto it = rightContext[i].begin(); it != rightContext[i].end(); it++)
-            std::cout << *it << ", ";
-        std::cout << "\n";
     }
 
     // STEP 2. create Iterated
