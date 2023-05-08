@@ -116,6 +116,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="RuleCondition.cpp" />
     <ClCompile Include="Square.cpp" />
     <ClCompile Include="SystemClass.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -127,6 +128,7 @@
     <ClCompile Include="TextureClass.cpp" />
     <ClCompile Include="TextureShaderClass.cpp" />
     <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +222,7 @@
     </ClInclude>
     <ClInclude Include="Plane.hpp" />
     <ClInclude Include="RandomSeed.hpp" />
+    <ClInclude Include="RuleCondition.hpp" />
     <ClInclude Include="Square.hpp" />
     <ClInclude Include="Stdafx.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -243,6 +246,7 @@
     <ClInclude Include="TextureClass.hpp" />
     <ClInclude Include="TextureShaderClass.hpp" />
     <ClInclude Include="Triangle.hpp" />
+    <ClInclude Include="Utils.hpp" />
     <ClInclude Include="Vector3.hpp" />
   </ItemGroup>
   <ItemGroup>
