@@ -69,12 +69,12 @@ void ReplaceAll(std::string& s, const std::string& before, const std::string& af
 
 bool IsOperator(const char& c)
 {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')' || c == 'u';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')' || c == 'p';
 }
 
 bool IsOperator(const std::string& s)
 {
-    return s == "+" || s == "-" || s == "*" || s == "/" || s == "(" || s == ")" || s == "u";
+    return s == "+" || s == "-" || s == "*" || s == "/" || s == "(" || s == ")" || s == "p";
 }
 
 std::string charToString(const char& c)
@@ -184,7 +184,7 @@ float CalculateString(std::string s)
         }
         else
         {
-            numbers.push(std::stoi(ts));
+            numbers.push(std::stof(ts));
         }
     }
 

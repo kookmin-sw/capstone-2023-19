@@ -142,7 +142,16 @@ void LLetter::CalculateParameter(std::map<std::string, std::string> valueParams)
     for (const std::string& p : split(mParametersString, ','))
     {
         // int 고정
-        newParams.push_back(std::to_string((int)CalculateString(p)));
+
+        float calculResult = CalculateString(p);
+        if (calculResult == int(calculResult))
+        {
+            newParams.push_back(std::to_string((int)calculResult));
+        }
+        else
+        {
+            newParams.push_back(std::to_string(calculResult));
+        }
     }
 
     SetParameters(newParams);
