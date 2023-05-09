@@ -850,7 +850,9 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.write(ok.c_str(), ok.size());
     ok = "deltaThickness:" + std::to_string(lSystem->GetDeltaThickness()) + '\n';
     file.write(ok.c_str(), ok.size());
-    ok = "word:" + lSystem->GetWord() + '\n';
+    std::string words = lSystem->GetWord();
+    RemoveAll(words, ' ');  // 공백 제거
+    ok = "word:" + words + '\n';
     file.write(ok.c_str(), ok.size());
     if (lSystem->GetIgnores().size() > 0)
     {
