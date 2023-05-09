@@ -43,6 +43,8 @@ private:
 
     int mNextAfterID;
     int mRuleCount;
+    int mCFConditionCount; // Condition 이 존재하는 Context-Free 규칙의 개수 - Only Used In Parametic L-Rules
+    int mCFNoConditionCount;
 
 public:
     LRule();
@@ -78,4 +80,5 @@ public:
 
 private:
     void InitLRule();
+    static bool CustomSort(After& a, After& b);
 };
