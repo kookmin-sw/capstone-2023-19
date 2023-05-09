@@ -9,6 +9,7 @@
 #include "Stdafx.h"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
+#include "Constants.hpp"
 #include "Utils.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"

@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <iostream> // FORTEST
+#include "Constants.hpp"
 #include "RandomSeed.hpp"
 #include "Utils.hpp"
 #include "LLetter.hpp"
