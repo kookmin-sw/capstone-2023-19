@@ -112,6 +112,24 @@ float Calculate(const float& a, const std::string& oper, const float& b)
     return 0.0f;
 }
 
+int prec(char op)
+{
+    switch (op)
+    {
+        case '(':
+        case ')':
+            return 0;
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+    }
+
+    return -1;
+}
+
 float CalculateString(std::string s)
 {
     // !!! 음수에 대한 연산 예외 처리를 안했음 (ex. 1 + -1)
@@ -131,15 +149,17 @@ float CalculateString(std::string s)
                 number = "";
             }
 
-            if (c == '*' || c == '/')
+            //if (c == '*' || c == '/')
+            while (!operators.empty() && prec(c) <= prec(operators.top()))
             {
-                if (operators.size() > 0 && (operators.top() == '*' || operators.top() == '/'))
-                {
+                //if (operators.size() > 0 && (operators.top() == '*' || operators.top() == '/'))
+                //{
                     prior.push_back(charToString(operators.top()));
                     operators.pop();
-                }
+                //}
             }
-            else if (c == ')')
+
+            if (c == ')')
             {
                 while (operators.top() != '(')
                 {
@@ -150,6 +170,7 @@ float CalculateString(std::string s)
 
                 continue;
             }
+
             operators.push(c);
         }
         else
