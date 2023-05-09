@@ -184,7 +184,16 @@ float CalculateString(std::string s)
         }
         else
         {
-            numbers.push(std::stof(ts));
+            if (ts[0] == '~')
+            {
+                // 음수인 경우
+                std::string tts = ts.substr(1, ts.size() - 1);
+                numbers.push(std::stof(tts) * -1);
+            }
+            else
+            {
+                numbers.push(std::stof(ts));
+            }
         }
     }
 

@@ -133,10 +133,13 @@ void LLetter::CalculateParameter(std::map<std::string, std::string> valueParams)
     }
 
     std::vector<std::string> newParams = std::vector<std::string>();
-
+    std::string val;
     for (const auto& [key, value] : valueParams)
     {
-        ReplaceAll(mParametersString, key, value);
+        // value 값이 음수인 경우 '-' 기호를 '~'로 수정
+        val = value;
+        ReplaceAll(val, "-", "~");
+        ReplaceAll(mParametersString, key, val);
     }
     mParametersString = mParametersString.substr(1, mParametersString.size() - 2);    // '(', ')' 제외
     for (const std::string& p : split(mParametersString, ','))
