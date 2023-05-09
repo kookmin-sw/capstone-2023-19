@@ -248,23 +248,6 @@ void LRule::AddAfter(const LLetter& previous,
             mCFConditionCount++;
         else
             mCFNoConditionCount++;
-
-        // !!! DEBUG
-        //std::cout << "debug : add after" << "\n";
-        //for (int i = 0; i < mSortedAfter.size(); i++)
-        //{
-        //    auto cur = mSortedAfter[i];
-        //    std::cout << "index : " << i << ", Condition : ";
-        //    if (cur.condition->IsEmpty())
-        //        std::cout << "Empty";
-        //    else
-        //        std::cout << cur.condition->GetConditionString();
-
-        //    std::cout << ", " << cur.text << "\n";
-        //}
-
-        //std::cout << "Count Debug => Condition YES : " << mCFConditionCount << ", NO : " << mCFNoConditionCount << ", TOTAL : " << mSortedAfter.size() << "\n";
-
     }
     else
     {
@@ -321,23 +304,6 @@ bool LRule::DeleteAfter(const int& afterId)
 
         // Condition 존재하는 case가 앞쪽에 오게 sort
         std::sort(mSortedAfter.begin(), mSortedAfter.end(), CustomSort);
-
-        // !!! DEBUG
-        //std::cout << "debug : delete after" << "\n";
-        //for (int i = 0; i < mSortedAfter.size(); i++)
-        //{
-        //    auto cur = mSortedAfter[i];
-        //    std::cout << "index : " << i << ", Condition : ";
-        //    if (cur.condition->IsEmpty())
-        //        std::cout << "Empty";
-        //    else
-        //        std::cout << cur.condition->GetConditionString();
-
-        //    std::cout << ", " << cur.text << "\n";
-        //}
-
-        //std::cout << "Count Debug => Condition YES : " << mCFConditionCount << ", NO : " << mCFNoConditionCount << ", TOTAL : " << mSortedAfter.size() << "\n";
-
     }
     else if (mCSAfter.find(afterId) != mCSAfter.end())
     {
