@@ -461,7 +461,7 @@ void LSystem::Iterate()
     int maxDepth = 0, tempDepth = 0;
     for (int i = 0; i < size; i++)
     {
-        std::string cur = mWord.at(i).GetLetter();
+        std::string cur = mWord[i].GetLetter();
         if (cur == "[")
         {
             tempDepth++;
@@ -568,20 +568,9 @@ void LSystem::Iterate()
         LLetter right;
         std::vector<LLetter> letterAfter;
         if (leftContext[i] != -1)
-            left = mWord[i];
+            left = mWord[leftContext[i]];
 
         right = rightContext[i];
-
-        // !!! DEBUG
-        std::cout << "Debug\nLeft : " << left.GetLetter() << ", Current : " << cur.GetLetter() << ", Right : " << right.GetLetter() << "\n";
-
-        letterAfter = mRules[cur.GetFormat()].GetAfter(left, right, cur);
-        std::cout << "After : ";
-        for (auto& letter : letterAfter)
-        {
-            std::cout << letter.GetLetter();
-        }
-        std::cout << "\n";
 
         if (letterAfter.size() > 0)
         {
