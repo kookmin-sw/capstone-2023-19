@@ -40,10 +40,10 @@ LLetter LRule::GetBefore() const
 }
 
 std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
-                                     const LLetter& next,
+                                     const std::vector<LLetter>& next,
                                      const LLetter& compare) const
 {
-    if (!(previous.IsEmpty() && next.IsEmpty()))
+    if (!(previous.IsEmpty() && next.size() == 0))
     {
         // Context info가 있는 경우
         for (const CSAfter& csAfter : mSortedCSAfter)
@@ -60,17 +60,26 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
             else if (csAfter.previous.IsEmpty())
             {
                 // next 규칙
-                if (csAfter.next.IsEqual(next))
+                for (const LLetter& nextLetter : next)
                 {
-                    return csAfter.after.letters;
+                    if (csAfter.next.IsEqual(nextLetter))
+                    {
+                        return csAfter.after.letters;
+                    }
                 }
             }
             else
             {
                 // previous + next 규칙
-                if (csAfter.previous.IsEqual(previous) && csAfter.next.IsEqual(next))
+                if (csAfter.previous.IsEqual(previous))
                 {
-                    return csAfter.after.letters;
+                    for (const LLetter& nextLetter : next)
+                    {
+                        if (csAfter.next.IsEqual(nextLetter))
+                        {
+                            return csAfter.after.letters;
+                        }
+                    }
                 }
             }
         }
