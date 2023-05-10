@@ -2,7 +2,7 @@
 #include <vector>
 #include <map>
 #include "Utils.hpp"
-#include "GlobalVariable.hpp"
+#include "Constants.hpp"
 #include "LLetter.hpp"
 
 LLetter::LLetter()

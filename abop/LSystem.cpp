@@ -1,15 +1,13 @@
 #include <fstream>
-#include <string>
 #include <vector>
-#include <map>
 #include <iostream>
 #include <sstream>
 #include <stack>
 #include <cmath>
 #include "Stdafx.h"
+#include "Constants.hpp"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
-#include "Constants.hpp"
 #include "Utils.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"

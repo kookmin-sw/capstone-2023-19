@@ -1,0 +1,10 @@
+distance:1.000000
+angle:90.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:A(1)
+rule
+A(t):t>0->A(t-1)
+A(t):t=0->BA(-10)A(10)
+A(t):t<0->A(t+1)
+end
