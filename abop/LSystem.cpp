@@ -456,112 +456,140 @@ void LSystem::Iterate()
     std::vector<LLetter> iterated = std::vector<LLetter>();
 
     int size = mWord.size();
-    //char previous = NULL;
-    int depth = 0;
-    std::vector<std::string> previousDepth = std::vector<std::string>();
-    previousDepth.push_back("");  // 시작 depth에 NULL 추가
-    std::string before;
-    std::string next;
+
+    // maxDepth 판단 - depthVector 만들기 위함
+    int maxDepth = 0, tempDepth = 0;
     for (int i = 0; i < size; i++)
     {
-        LLetter beforeLLetter = mWord.at(i);
-        before = beforeLLetter.GetLetter();
-
-        // 괄호가 나오면 depth 조정
-        if (before == "[")
+        std::string cur = mWord.at(i).GetLetter();
+        if (cur == "[")
         {
-            depth++;
-
-            if (previousDepth.size() < depth + 1)
-            {
-                // depth가 커지면 previous vector에 NULL 추가
-                previousDepth.push_back("");
-            }
+            tempDepth++;
+            maxDepth = max(tempDepth, maxDepth);
         }
-        else if (before == "]")
+        if (cur == "]")
+            tempDepth--;
+    }
+
+    std::vector<std::vector<int>> depthVector(maxDepth + 1, std::vector<int>());
+    // index 마다 각 depth, index 바로 찾아가게 해주는 vector
+    std::vector<std::pair<int, int>> locations(size, std::make_pair(-1, -1));
+    // a < b > c 에서 a 가 위치한 index 를 담은 vector
+    std::vector<int> leftContext(size, -1);
+    // a < b > c 에서 c 를 전부 담은 vector
+    // TODO - 다른 Depth의 After 가 있는 Test Case?
+    std::vector<LLetter> rightContext(size);
+
+    // 1. 파싱하면서 Location, LeftContext, RightContext 정보 생성
+    int currentDepth = 0, count = 0;
+    for (int i = 0; i < size; i++)
+    {
+        LLetter& cur = mWord[i];
+        std::string curString = cur.GetLetter();
+
+        if (curString == "[")
         {
-            depth--;
+            currentDepth++;
+            continue;
+        }
+        if (curString == "]")
+        {
+            depthVector[currentDepth].clear();
+            currentDepth--;
+            continue;
         }
 
-        // mRules는 LLetter의 format을 key로 가진 map 구조
-        std::string letterFormat = beforeLLetter.GetFormat();
-        if (mRules.find(letterFormat) != mRules.end())
+        // TODO - 만약 Parametric L-Letter가 Ignore라면?
+        if (mIgnores.find(curString[0]) != mIgnores.end())
+            continue;
+
+        count++;
+
+        // 정보 업데이트
+        depthVector[currentDepth].emplace_back(i);
+        locations[i].first = currentDepth;
+        locations[i].second = depthVector[currentDepth].size() - 1;
+
+        // Left-Context 넣어주기
+        int leftDepth = currentDepth;
+        if (count != 1)
         {
-            // 해당 key(letter)를 가진 rule이 있는 경우
-
-            // !!! not good
-            // nextCheck가 ignore에 포함 안되면 갱신, 끝까지 갱신 안되면 NULL
-            std::string nextCheck;
-            next = "";
-            int index = 1;
-            int tempDepth = depth;
-            while (i + index < size)
+            // 각 depth의 0번 index 친구라면 위쪽 depth에서 찾아야 함
+            if (locations[i].second == 0)
             {
-                nextCheck = mWord.at(i + index++).GetLetter();
-
-                // before 기준으로 tempDepth 계산
-                if (nextCheck == "[")
+                do
                 {
-                    tempDepth++;
-                }
-                else if (nextCheck == "]")
-                {
-                    tempDepth--;
-                }
-
-                if (mIgnores.find(nextCheck[0]) == mIgnores.end())
-                {
-                    if (nextCheck[0] != '[' && nextCheck[0] != ']')
-                    {
-                        // 괄호는 ignore에 추가
-
-                        if (depth == tempDepth)
-                        {
-                            // before의 depth와 tempDepth가 일치하는 경우
-                            next = nextCheck;
-                            break;
-                        }
-                    }
-                }
+                    leftDepth--;
+                } while (depthVector.size() == 0);
+                leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1];
             }
+            // 각 depth의 0번 index 친구가 아니라면 같은 depth에서 찾으면 됨
+            else
+                leftContext[i] = depthVector[leftDepth][locations[i].second - 1];
 
-            std::vector<LLetter> after;
-            if (previousDepth[depth].empty() && depth - 1 >= 0)
+            // 역참조로 right Context Info도 채워주기 - 단, 같은 depth 일 때만
+            if (locations[i].second != 0)
+                rightContext[leftContext[i]] = mWord[i];
+        }
+    }
+
+    // 2. 파싱하며 LRule 적용
+    currentDepth = 0;
+    for (int i = 0; i < size; i++)
+    {
+        LLetter& cur = mWord[i];
+        std::string curString = cur.GetLetter();
+
+        // 1. 괄호
+        if (curString == "[" || curString == "]")
+        {
+            iterated.emplace_back(cur);
+            continue;
+        }
+
+        // 2. mIgnore에 걸리는 모든 문자
+    	// TODO - 만약 Parametric L-Letter가 Ignore라면?
+        if (mIgnores.find(curString[0]) != mIgnores.end())
+        {
+            auto after = mRules[curString].GetAfter(NULL, NULL, cur);
+            if (after.size() > 0)
             {
-                // 현재 depth의 previous 이력이 없는 경우 직전의 분기한 경우
-                // 이전 depth의 previous로 체크
-                after = mRules[letterFormat].GetAfter(previousDepth[depth - 1], next, beforeLLetter);
+                for (auto& letter : after)
+                    iterated.emplace_back(letter);
             }
             else
-            {
-                after = mRules[letterFormat].GetAfter(LLetter(previousDepth[depth]), LLetter(next), beforeLLetter);
-            }
+                iterated.emplace_back(cur);
 
-            if (after.size() == 0)
-            {
-                // CS rule이 없는 경우
-                iterated.push_back(beforeLLetter);
-            }
-            else
-            {
-                iterated.insert(iterated.end(), after.begin(), after.end());
-            }
+            continue;
+        }
+
+        // 3. Context-Sensitive, Context-Free 전부
+        LLetter left;
+        LLetter right;
+        std::vector<LLetter> letterAfter;
+        if (leftContext[i] != -1)
+            left = mWord[i];
+
+        right = rightContext[i];
+
+        // !!! DEBUG
+        std::cout << "Debug\nLeft : " << left.GetLetter() << ", Current : " << cur.GetLetter() << ", Right : " << right.GetLetter() << "\n";
+
+        letterAfter = mRules[cur.GetFormat()].GetAfter(left, right, cur);
+        std::cout << "After : ";
+        for (auto& letter : letterAfter)
+        {
+            std::cout << letter.GetLetter();
+        }
+        std::cout << "\n";
+
+        if (letterAfter.size() > 0)
+        {
+            for (auto& letter : letterAfter)
+                iterated.emplace_back(letter);
         }
         else
-        {
-            iterated.push_back(beforeLLetter);
-        }
-
-        if (mIgnores.find(before[0]) == mIgnores.end())
-        {
-            // ignores에 포함 안되는 경우
-            // 다음 depth별 previous 체크 symbol 갱신
-            if (before[0] != '[' && before[0] != ']')
-            {
-                // [, ] 도 ignore에 포함
-                previousDepth[depth] = before;
-            }
-        }
+            iterated.emplace_back(cur);
     }
 
     mWord = iterated;
