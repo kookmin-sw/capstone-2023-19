@@ -572,6 +572,8 @@ void LSystem::Iterate()
 
         right = rightContext[i];
 
+        letterAfter = mRules[cur.GetFormat()].GetAfter(left, right, cur);
+
         if (letterAfter.size() > 0)
         {
             for (auto& letter : letterAfter)
