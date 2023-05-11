@@ -143,6 +143,7 @@
     <ClCompile Include="ColorShaderClass.cpp">
       <Filter>DX\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="imgui\imGuIZMOquat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -277,6 +278,11 @@
     <ClInclude Include="RandomSeed.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="imgui\imGuIZMOquat.h" />
+    <ClInclude Include="imgui\vGizmo.h" />
+    <ClInclude Include="imgui\vGizmoMath.h" />
+    <ClInclude Include="imgui\vgConfig.h" />
+    <ClInclude Include="imgui\vgMath.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">

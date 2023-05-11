@@ -3,6 +3,8 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_internal.h"
 
+#include "imgui/imGuIZMOquat.h"
+
 #include <d3d11.h>
 #include <tchar.h>
 
@@ -165,6 +167,8 @@ int main(int, char**)
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
 
+    quat qRot = quat(1.f, 0.f, 0.f, 0.f);
+    
     LoadPresetList();
 
     // Main loop
@@ -251,6 +255,10 @@ int main(int, char**)
             static float cameraRotation[4] = { 0.0f, 0.0f, 0.0f };
             static float cameraSpeed = 0.3f;
             static float cameraSensitivity = 0.01f;
+
+            const float w = ImGui::GetContentRegionAvailWidth();
+            const float half = w / 2.f;
+
             
             if (isUpdateCamera)
             {
@@ -320,6 +328,29 @@ int main(int, char**)
                 }
                 graphics->SetCameraSensitivity(cameraSensitivity);
             }
+
+            // Camera Arm
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n\n<Camera Arm>");
+            ImGui::PopStyleColor();
+
+            if (ImGui::Button("Arm On"))
+            {
+                //graphics->SetCameraPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Arm Off"))
+            {
+
+            }
+            ImGui::SameLine(half);
+            
+            if (ImGui::gizmo3D("##gizmo1", qRot, 150 /*, mode */))
+            {
+                graphics->SetCameraPosition(cameraPosition[0] + qRot.x, cameraPosition[1] + qRot.y, cameraPosition[2] + qRot.z);
+            }
+            //mat4 modelMatrix = mat4_cast(qRot);
+
 
             ImGui::End();
 

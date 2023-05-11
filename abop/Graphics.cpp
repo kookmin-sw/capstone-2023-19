@@ -249,6 +249,11 @@ void Graphics::SetCameraSpeed(float& speed)
 	this->cameraSpeed_ = speed;
 }
 
+
+
+
+
+
 bool Graphics::Render()
 {
 	DirectX::XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;

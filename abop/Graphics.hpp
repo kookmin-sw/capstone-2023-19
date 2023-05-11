@@ -22,6 +22,8 @@ public:
 	void SetCameraRotation(float, float, float);
 	void SetCameraSensitivity(float&);
 	void SetCameraSpeed(float&);
+	void CameraArmOn(float, float, float);
+	void CameraArmOff();
 private:
 	bool Render();
 
