@@ -10,6 +10,8 @@
 #include <fstream>
 #include <filesystem>
 
+#include <chrono>
+
 #include <string>
 #include <vector>
 #include <map>
@@ -35,6 +37,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void ClearCharArray(int size, char* out);
 std::vector<std::string> LoadPresetList();
 void SavePreset(std::string filename, LSystem* lsystem);
+unsigned long long timeSinceEpochMiliisec();
 
 // Main code
 int main(int, char**)
@@ -171,10 +174,17 @@ int main(int, char**)
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
 
+    // ----
+    bool running = false;
+    float runningTime = 0.0f;
+    unsigned long long lastTick;
+
     // Main loop
     bool done = false;
     while (!done)
     {
+        lastTick = timeSinceEpochMiliisec();
+
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
         MSG msg;
@@ -500,6 +510,32 @@ int main(int, char**)
             lSystem->SetWord(word);
             lSystem->ClearState();
             graphics->UpdateModels();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Run"))
+        {
+            running = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Stop"))
+        {
+            running = false;
+            runningTime = 0.f;
+        }
+
+        if (running)
+        {
+            if (runningTime > 5)
+            {
+                ClearCharArray(1024 * 64, word);
+                lSystem->Iterate(1);
+                lSystem->GetWord(word);
+                lSystem->SetWord(word);
+                lSystem->ClearState();
+                graphics->UpdateModels();
+                runningTime = 0.f;
+            }
+            runningTime += timeSinceEpochMiliisec() - lastTick;
         }
 
         if (ImGui::CollapsingHeader("Word"))
@@ -898,4 +934,9 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.close();
 
     return;
+}
+
+unsigned long long timeSinceEpochMiliisec()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
