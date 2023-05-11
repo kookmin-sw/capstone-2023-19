@@ -35,23 +35,6 @@ std::vector<std::string> split(std::string str, char delimiter)
     return result;
 }
 
-int StringToInt(const std::string& str)
-{
-    int sum = 0;
-    int iterate = 1;
-    std::string text = str;
-
-    while (text.size())
-    {
-        sum += (text[text.size() - 1] - '0') * iterate;
-        iterate *= 10;
-
-        text = text.substr(0, text.size() - 1);
-    }
-
-    return sum;
-}
-
 void RemoveAll(std::string& s, const char& c)
 {
     s.erase(remove(s.begin(), s.end(), ' '), s.end());

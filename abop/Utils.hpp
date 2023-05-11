@@ -1,6 +1,5 @@
 std::string join(const std::vector<std::string>& strings, std::string delim);
 std::vector<std::string> split(std::string str, char delimiter);
-int StringToInt(const std::string& str);
 void RemoveAll(std::string& s, const char& c);
 void ReplaceAll(std::string&s, const std::string& before, const std::string& after);
 float CalculateString(std::string s);

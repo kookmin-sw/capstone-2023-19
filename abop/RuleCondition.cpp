@@ -11,38 +11,35 @@ RuleCondition::Condition ConvertStringToCondition(std::string str)
     RuleCondition::Condition cond;
     cond.target = "";
 
-    std::cout << str.find('=') << std::endl;
-    std::cout << (str.find('=') > -1) << std::endl;
-
     if (str.find(">=") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::MoreSame;
         cond.target = str.substr(0, str.find(">="));
-        cond.compare = StringToInt(str.substr(str.find(">=") + 2, str.size() - str.find(">=")));
+        cond.compare = std::stof(str.substr(str.find(">=") + 2, str.size() - str.find(">=")));
     }
     else if (str.find("<=") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::LessSame;
         cond.target = str.substr(0, str.find("<="));
-        cond.compare = StringToInt(str.substr(str.find("<=") + 2, str.size() - str.find("<=")));
+        cond.compare = std::stof(str.substr(str.find("<=") + 2, str.size() - str.find("<=")));
     }
     else if (str.find(">") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::More;
         cond.target = str.substr(0, str.find(">"));
-        cond.compare = StringToInt(str.substr(str.find(">") + 1, str.size() - str.find(">")));
+        cond.compare = std::stof(str.substr(str.find(">") + 1, str.size() - str.find(">")));
     }
     else if (str.find("<") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::Less;
         cond.target = str.substr(0, str.find("<"));
-        cond.compare = StringToInt(str.substr(str.find("<") + 1, str.size() - str.find("<")));
+        cond.compare = std::stof(str.substr(str.find("<") + 1, str.size() - str.find("<")));
     }
     else if (str.find('=') != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::Same;
         cond.target = str.substr(0, str.find("="));
-        cond.compare = StringToInt(str.substr(str.find("=") + 1, str.size() - str.find("=")));
+        cond.compare = std::stof(str.substr(str.find("=") + 1, str.size() - str.find("=")));
     }
 
     // error
