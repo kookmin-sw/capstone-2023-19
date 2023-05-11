@@ -222,29 +222,39 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
 
         // condition check
         // !!! t > 0, t < 10 여러 개의 condition이 있을 때 (free의 경우)
-        // Condition 만족하는 규칙 + Condition 없는 규칙 전부 합쳐서 랜덤 선택
-        std::vector<int> ableIndex; // 가능한 규칙의 Index를 담는 vector
+        // 우선순위 : 먼저 들어온 Condition true인 규칙 > 나중에 들어온 Condition true인 규칙 > Condition 없는 규칙(얘네끼리는 랜덤 선택)
 
-        // Condition 없는 규칙은 전부 변환 가능
-        for (int i = mCFConditionCount; i < total; i++)
-            ableIndex.push_back(i);
-
-        // Condition 있는 규칙은 만족할 경우만 변환 가능
+        // Condition 있는 규칙 먼저 체크
         for (int i = 0; i < mCFConditionCount; i++)
         {
-            // Condition 결과가 True 인 경우는 ableIndex에 넣어주기
+            // Condition 결과가 True 인 경우는 바로 Return
             if (mSortedAfter[i].condition->CheckCondition(valueParams))
-                ableIndex.push_back(i);
+            {
+                for (LLetter letter : mSortedAfter[i].letters)
+                {
+                    if (letter.IsParametic())
+                    {
+                    	// after letter에 param이 있는 경우
+                        // param key value map을 통해 변환
+                        letter.CalculateParameter(valueParams);
+                    }
+
+                    result.push_back(letter);
+                }
+
+                return result;
+            }
         }
 
-        // 하나도 만족하는 규칙이 없다면 compare return
-        if (ableIndex.empty())
+        // Condition true인 규칙 x, Condition 없는 규칙이 없다면 원래 것 그대로 return
+        if (mCFNoConditionCount == 0)
         {
             result.push_back(compare);
             return result;
         }
 
-        int index = ableIndex[dist(gen) % ableIndex.size()];
+        // Context-Free, No Condition 규칙은 랜덤 선택
+        int index = dist(gen) % mCFNoConditionCount + mCFConditionCount;
 
         for (LLetter letter : mSortedAfter[index].letters)
         {
