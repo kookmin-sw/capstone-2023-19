@@ -171,7 +171,6 @@
     <ClInclude Include="FontClass.hpp" />
     <ClInclude Include="FontShaderClass.hpp" />
     <ClInclude Include="FpsClass.hpp" />
-    <ClInclude Include="Constants.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsClass.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

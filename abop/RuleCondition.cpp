@@ -11,8 +11,8 @@ RuleCondition::Condition ConvertStringToCondition(std::string str)
     RuleCondition::Condition cond;
     cond.target = "";
 
-    std::cout << str.find('=') << std::endl;
-    std::cout << (str.find('=') > -1) << std::endl;
+    //std::cout << str.find('=') << std::endl;
+    //std::cout << (str.find('=') > -1) << std::endl;
 
     if (str.find(">=") != std::string::npos)
     {
@@ -154,41 +154,14 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             }
         }
 
-        // 파싱 : 당장은 +, -만 지원
-    	// TODO : 연산자 우선순위에 따라 *, / 까지 계산되게 파싱
+        // 파싱
         if (needsParsing)
         {
-            std::string temp = "";
-            std::vector<int> operands;
-            std::vector<char> operators;
-            int calculatedValue = 0;
-            for (int i = 0; i < c.target.length(); i++)
-            {
-                if (!isalpha(c.target[i]))
-                {
-                    operands.push_back(std::stoi(valueParams[temp]));
-                    operators.push_back(c.target[i]);
-                    temp = "";
-                }
-                else
-                    temp.push_back(c.target[i]);
-            }
+            for (auto it = valueParams.begin(); it != valueParams.end(); it++)
+                ReplaceAll(c.target, it->first, it->second);
 
-            if (temp != "")
-                operands.push_back(std::stoi(valueParams[temp]));
-
-            // 계산
-            calculatedValue = operands[0];
-            for (int i = 0; i < operators.size(); i++)
-            {
-                int second = operands[i + 1];
-                if (operators[i] == '+')
-                    calculatedValue += second;
-                else if (operators[i] == '-')
-                    calculatedValue -= second;
-            }
-
-            c.target = std::to_string(calculatedValue);
+            // TODO - Float로 변경 (에러나서 int로 임시 변환)
+            c.target = std::to_string((int)CalculateString(c.target));
         }
 
         // Condition 체크 시작

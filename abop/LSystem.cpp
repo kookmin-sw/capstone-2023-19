@@ -4,8 +4,9 @@
 #include <sstream>
 #include <stack>
 #include <cmath>
+#include <map>
+#include <string>
 #include "Stdafx.h"
-#include "Constants.hpp"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
 #include "Utils.hpp"
@@ -602,7 +603,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
     }
 
     float width = 0.5;
-    std::stack<State> ss;
+    std::stack<StateInfo> ss;
     std::vector<Vector3>* leaf = nullptr;
     std::stack<std::vector<Vector3>*> leafstack;
 
@@ -720,14 +721,15 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::Push:
             {
                 // 현재 State 저장
-                ss.push(mState);
+                ss.push({ mState, mLeafDirection });
                 break;
             }
             case LLetter::Type::Pop:
             {
                 // 이전 State 복원
                 // 위치도 같이 옮겨지는 경우 No draw
-                mState = ss.top();
+                mState = ss.top().treeState;
+                mLeafDirection = ss.top().leafDirection;
                 ss.pop();
                 startPos = mState.position;
                 break;

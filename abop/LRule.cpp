@@ -1,8 +1,10 @@
 #include <vector>
 #include <iostream> // FORTEST
+#include <vector>
+#include <map>
+#include <string>
 #include "RandomSeed.hpp"
 #include "Utils.hpp"
-#include "Constants.hpp"
 #include "LLetter.hpp"
 #include "RuleCondition.hpp"
 #include "LRule.hpp"

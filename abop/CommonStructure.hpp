@@ -19,6 +19,13 @@ struct State
     float thickness;
 };
 
+struct StateInfo
+{
+    State treeState;
+    Vector3 leafDirection;
+};
+
+
 struct VertexType
 {
     Vector3 position;
