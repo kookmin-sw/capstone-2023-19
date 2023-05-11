@@ -622,72 +622,119 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             }
             case LLetter::Type::RollLeft:
             {
-                // mAngleChange 만큼 x축 회전
-                if (mDrawingLeaf) {
-                    this->Rotate(0, mLeafAngleChange);
+                if (letter.IsParametic())
+                {
+                    this->Rotate(0, std::stof(letter.GetParameters()[0]));
+                    break;
                 }
-                else {
-                    this->Rotate(0, mAngleChange);
+                else
+                {
+                    // mAngleChange 만큼 x축 회전
+                    if (mDrawingLeaf) {
+                        this->Rotate(0, mLeafAngleChange);
+                    }
+                    else {
+                        this->Rotate(0, mAngleChange);
+                    }
                 }
                 break;
             }
             case LLetter::Type::RollRight:
             {
-                // -mAngleChange 만큼 x축 회전
-                if (mDrawingLeaf) {
-                    this->Rotate(0, -mLeafAngleChange);
+                if (letter.IsParametic())
+                {
+                    this->Rotate(0, -1 * std::stof(letter.GetParameters()[0]));
+                    break;
                 }
-                else {
-                    this->Rotate(0,- mAngleChange);
+                else
+                {
+                    // -mAngleChange 만큼 x축 회전
+                    if (mDrawingLeaf) {
+                        this->Rotate(0, -mLeafAngleChange);
+                    }
+                    else {
+                        this->Rotate(0, -mAngleChange);
+                    }
                 }
                 break;
             }
             case LLetter::Type::PitchUp:
             {
-                // mAngleChange 만큼 y축 회전
-                if (mDrawingLeaf) {
-                    this->Rotate(1, mLeafAngleChange);
+                if (letter.IsParametic())
+                {
+                    this->Rotate(1, std::stof(letter.GetParameters()[0]));
+                    break;
                 }
-                else {
-                    this->Rotate(1, mAngleChange);
+                else
+                {
+                    // mAngleChange 만큼 y축 회전
+                    if (mDrawingLeaf) {
+                        this->Rotate(1, mLeafAngleChange);
+                    }
+                    else {
+                        this->Rotate(1, mAngleChange);
+                    }
                 }
                 break;
             }
             case LLetter::Type::PitchDown:
             {
-                // -mAngleChange 만큼 y축 회전
-                if (mDrawingLeaf) {
-                    this->Rotate(1, -mLeafAngleChange);
+                if (letter.IsParametic())
+                {
+                    this->Rotate(1, -1 * std::stof(letter.GetParameters()[0]));
+                    break;
                 }
-                else {
-                    this->Rotate(1, -mAngleChange);
+                else
+                {
+                    // -mAngleChange 만큼 y축 회전
+                    if (mDrawingLeaf) {
+                        this->Rotate(1, -mLeafAngleChange);
+                    }
+                    else {
+                        this->Rotate(1, -mAngleChange);
+                    }
                 }
                 break;
             }
             case LLetter::Type::TurnLeft:
             {
-                // mAngleChange 만큼 z축 회전
-                //this->Rotate(2, mAngleChange);
-
-                if (mDrawingLeaf) {
-                    this->Rotate(2, mLeafAngleChange);
+                if (letter.IsParametic())
+                {
+                    this->Rotate(2, std::stof(letter.GetParameters()[0]));
+                    break;
                 }
-                else {
-                    this->Rotate(2, mAngleChange);
-                }
+                else
+                {
+                    // mAngleChange 만큼 z축 회전
+                    //this->Rotate(2, mAngleChange);
 
+                    if (mDrawingLeaf) {
+                        this->Rotate(2, mLeafAngleChange);
+                    }
+                    else {
+                        this->Rotate(2, mAngleChange);
+                    }
+                }
                 break;
             }
             case LLetter::Type::TurnRight:
             {
-                // -mAngleChange 만큼 z축 회전
-                //this->Rotate(2, -mAngleChange);
-
-                if (mDrawingLeaf) {
-                    this->Rotate(2, -mLeafAngleChange);
+                if (letter.IsParametic())
+                {
+                    this->Rotate(2, -1 * std::stof(letter.GetParameters()[0]));
+                    break;
                 }
-                else {
-                    this->Rotate(2, -mAngleChange);
+                else
+                {
+                    // -mAngleChange 만큼 z축 회전
+                    //this->Rotate(2, -mAngleChange);
+
+                    if (mDrawingLeaf) {
+                        this->Rotate(2, -mLeafAngleChange);
+                    }
+                    else {
+                        this->Rotate(2, -mAngleChange);
+                    }
                 }
 
                 break;
