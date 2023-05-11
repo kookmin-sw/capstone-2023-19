@@ -204,9 +204,9 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
 
         // 위에서 파싱한 경우 
         if (isNumber)
-            value = std::stoi(c.target);
+            value = std::stof(c.target);
         else // 일반적인 단일 문자인 경우
-			value = std::stoi(valueParams[c.target]);
+			value = std::stof(valueParams[c.target]);
         
         switch (c.sign)
         {

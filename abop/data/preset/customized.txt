@@ -1,0 +1,9 @@
+distance:1.000000
+angle:90.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:F(1)F(1,0.1)
+rule
+F(s,t)->F(s+0.1,t+0.01)
+F(s,t):t>0.3->F(s)
+end
