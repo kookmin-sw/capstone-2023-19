@@ -141,9 +141,72 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
     float value;
     // Condition의 target과 valueParams key는 매핑 되어야 함
     // !!! &, | 에 대한 처리가 안되어 있음 (기본 &)
-    for (const Condition& c : mConds)
+    for (Condition c : mConds)
     {
-        value = std::stoi(valueParams[c.target]);
+        // target가 계산식인 경우 따로 핸들링 - ex) x+y+z
+        bool needsParsing = false;
+        for (int i = 0; i < c.target.length(); i++)
+        {
+            if (!isalpha(c.target[i]))
+            {
+                needsParsing = true;
+                break;
+            }
+        }
+
+        // 파싱 : 당장은 +, -만 지원
+    	// TODO : 연산자 우선순위에 따라 *, / 까지 계산되게 파싱
+        if (needsParsing)
+        {
+            std::string temp = "";
+            std::vector<int> operands;
+            std::vector<char> operators;
+            int calculatedValue = 0;
+            for (int i = 0; i < c.target.length(); i++)
+            {
+                if (!isalpha(c.target[i]))
+                {
+                    operands.push_back(std::stoi(valueParams[temp]));
+                    operators.push_back(c.target[i]);
+                    temp = "";
+                }
+                else
+                    temp.push_back(c.target[i]);
+            }
+
+            if (temp != "")
+                operands.push_back(std::stoi(valueParams[temp]));
+
+            // 계산
+            calculatedValue = operands[0];
+            for (int i = 0; i < operators.size(); i++)
+            {
+                int second = operands[i + 1];
+                if (operators[i] == '+')
+                    calculatedValue += second;
+                else if (operators[i] == '-')
+                    calculatedValue -= second;
+            }
+
+            c.target = std::to_string(calculatedValue);
+        }
+
+        // Condition 체크 시작
+        bool isNumber = true;
+        for (int i = 0; i < c.target.length(); i++)
+        {
+            if (!isdigit(c.target[i]))
+            {
+                isNumber = false;
+                break;
+            }
+        }
+
+        // 위에서 파싱한 경우 
+        if (isNumber)
+            value = std::stoi(c.target);
+        else // 일반적인 단일 문자인 경우
+			value = std::stoi(valueParams[c.target]);
         
         switch (c.sign)
         {
