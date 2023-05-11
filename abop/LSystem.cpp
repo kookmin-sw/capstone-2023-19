@@ -512,7 +512,7 @@ void LSystem::Iterate()
 
         // Left-Context 넣어주기
         int leftDepth = currentDepth;
-        if (count != 1)
+        if (count != 1 && depthVector[0].size() > 0)
         {
             // 각 depth의 0번 index 친구라면 위쪽 depth에서 찾아야 함
             if (locations[i].second == 0)
@@ -520,7 +520,7 @@ void LSystem::Iterate()
                 do
                 {
                     leftDepth--;
-                } while (depthVector.size() == 0);
+                } while (depthVector[leftDepth].size() == 0);
                 leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1];
             }
             // 각 depth의 0번 index 친구가 아니라면 같은 depth에서 찾으면 됨
