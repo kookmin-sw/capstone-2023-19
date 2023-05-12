@@ -18,31 +18,31 @@ RuleCondition::Condition ConvertStringToCondition(std::string str)
     {
         cond.sign = RuleCondition::Sign::MoreSame;
         cond.target = str.substr(0, str.find(">="));
-        cond.compare = StringToInt(str.substr(str.find(">=") + 2, str.size() - str.find(">=")));
+        cond.compare = std::stof(str.substr(str.find(">=") + 2, str.size() - str.find(">=")));
     }
     else if (str.find("<=") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::LessSame;
         cond.target = str.substr(0, str.find("<="));
-        cond.compare = StringToInt(str.substr(str.find("<=") + 2, str.size() - str.find("<=")));
+        cond.compare = std::stof(str.substr(str.find("<=") + 2, str.size() - str.find("<=")));
     }
     else if (str.find(">") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::More;
         cond.target = str.substr(0, str.find(">"));
-        cond.compare = StringToInt(str.substr(str.find(">") + 1, str.size() - str.find(">")));
+        cond.compare = std::stof(str.substr(str.find(">") + 1, str.size() - str.find(">")));
     }
     else if (str.find("<") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::Less;
         cond.target = str.substr(0, str.find("<"));
-        cond.compare = StringToInt(str.substr(str.find("<") + 1, str.size() - str.find("<")));
+        cond.compare = std::stof(str.substr(str.find("<") + 1, str.size() - str.find("<")));
     }
     else if (str.find('=') != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::Same;
         cond.target = str.substr(0, str.find("="));
-        cond.compare = StringToInt(str.substr(str.find("=") + 1, str.size() - str.find("=")));
+        cond.compare = std::stof(str.substr(str.find("=") + 1, str.size() - str.find("=")));
     }
 
     // error
@@ -177,9 +177,9 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
 
         // 위에서 파싱한 경우 
         if (isNumber)
-            value = std::stoi(c.target);
+            value = std::stof(c.target);
         else // 일반적인 단일 문자인 경우
-			value = std::stoi(valueParams[c.target]);
+			value = std::stof(valueParams[c.target]);
         
         switch (c.sign)
         {

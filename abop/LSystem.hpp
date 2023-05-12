@@ -77,6 +77,7 @@ public:
 
 private:
     void Move();
+    void MoveParam(const float& distance);
     void Move(float distance);
     void Rotate(const unsigned short&, const float&);
 
