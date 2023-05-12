@@ -25,6 +25,13 @@ struct VertexType
     Vector4 color;          
 };
 
+struct TextureVertex
+{
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT2 texture;
+    DirectX::XMFLOAT3 normalVector;
+};
+
 enum ModelType
 {
     Custom,
@@ -45,6 +52,7 @@ struct Model
     int vertexCount;
     int indexCount;
     VertexType* vertexTypes = nullptr;
+    TextureVertex* texVertexTypes = nullptr;
     int* indices = nullptr;
 
     // For LeafModel

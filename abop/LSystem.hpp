@@ -67,6 +67,8 @@ public:
     // Preset
     void LoadPreset(std::string&);
 
+    bool LoadModel(std::vector<Model>*);
+
 private:
     void Move();
     void Move(float distance);
@@ -78,4 +80,5 @@ private:
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
     Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
+    Model CreateModel(std::vector<TextureVertex>*);
 };

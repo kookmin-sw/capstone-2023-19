@@ -9,6 +9,8 @@
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
+#include <fbxsdk.h>
+#include <iostream>
 
 // Model 관련 
 Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
@@ -127,6 +129,198 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
     // model.indices[--i] = 1;
 
     return model;
+}
+
+Model LSystem::CreateModel(std::vector<TextureVertex>* vertices) 
+{
+    int size = vertices->size();
+    Vector4 color{ 0.0f, 0.0f, 0.0f, 0.0f };
+    Vector3 position;
+
+    Model model;
+    model.modelType = ModelType::Custom;
+    model.vertexCount = size;
+    model.vertexTypes = new VertexType[size];
+    model.texVertexTypes = new TextureVertex[size];
+    model.indexCount = size * 3;
+    model.indices = new int[model.indexCount];
+
+    model.dataCount = 4;
+    model.data = new float[4];
+    model.data[0] = DirectX::XMVectorGetX(this->state_.quaternion);
+    model.data[1] = DirectX::XMVectorGetY(this->state_.quaternion);
+    model.data[2] = DirectX::XMVectorGetZ(this->state_.quaternion);
+    model.data[3] = DirectX::XMVectorGetW(this->state_.quaternion);
+
+    for (int i = 0; i < size; i++) 
+    {
+        position.x = (*vertices)[i].position.x, position.y = (*vertices)[i].position.y, position.z = (*vertices)[i].position.z;
+        model.vertexTypes[i] = VertexType{ position, color };
+        model.texVertexTypes[i] = TextureVertex{ (*vertices)[i].position, (*vertices)[i].texture, (*vertices)[i].normalVector };
+    }
+
+    int i = 0;
+    int vertex = 0;
+    while (i < size * 3 - 1)
+    {
+        model.indices[i++] = vertex++;
+        model.indices[i++] = vertex++;
+        model.indices[i++] = vertex;
+    }
+
+    return model;
+}
+
+bool LSystem::LoadModel(std::vector<Model>* out)
+{
+
+    std::vector<TextureVertex>* vertices = new std::vector<TextureVertex>();
+
+    FbxManager* manager = FbxManager::Create();
+
+    FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
+    manager->SetIOSettings(ios);
+
+    FbxImporter* importer = FbxImporter::Create(manager, "");
+    FbxScene* mFbxScene = FbxScene::Create(manager, "");
+    
+    bool status = importer->Initialize("./data/source/LastVerstionHibiscus5.fbx", -1, manager->GetIOSettings());
+    if (status == false) 
+    {
+        std::cout << "(initialize)status: false -> return false" << '\n';
+        return false;
+    }
+    
+    status = importer->Import(mFbxScene);
+    if (status == false)
+    {
+        std::cout << "(import)status: false -> return false" << '\n';
+        return false;
+    }
+
+    importer->Destroy();
+
+    FbxNode* rootNode = mFbxScene->GetRootNode();
+
+    if (rootNode) 
+    {
+        for (int i = 0; i < rootNode->GetChildCount(); i++)
+        {
+            FbxNode* childNode = rootNode->GetChild(i);
+
+            if (childNode->GetNodeAttribute() == NULL)
+                continue;
+
+            FbxNodeAttribute::EType AttributeType = childNode->GetNodeAttribute()->GetAttributeType();
+            
+            if (AttributeType != FbxNodeAttribute::eMesh)
+                continue;
+
+            FbxMesh* mesh = (FbxMesh*)childNode->GetNodeAttribute();
+
+            FbxVector4* pVertices = mesh->GetControlPoints();
+
+            const int VertexCount = mesh->GetControlPointsCount();
+            const int PolygonCount = mesh->GetPolygonCount();
+            int vertexCounter = 0;
+            FbxGeometryElementNormal* normalEl = mesh->GetElementNormal();
+
+            for (int PolygonIndex = 0; PolygonIndex < PolygonCount; PolygonIndex++)
+            {
+                const int VerticeCount = mesh->GetPolygonSize(PolygonIndex);
+                for (int VerticeIndex = 0; VerticeIndex < VerticeCount; VerticeIndex++)
+                {
+                    DirectX::XMFLOAT3 position;
+                    DirectX::XMFLOAT2 texture;
+                    DirectX::XMFLOAT3 normalvector;
+
+                    auto index = mesh->GetPolygonVertex(PolygonIndex, VerticeIndex);
+                    position.x = (float)pVertices[index].mData[0];
+                    position.y = (float)pVertices[index].mData[1];
+                    position.z = (float)pVertices[index].mData[2];
+
+                    FbxVector4 normal = normalEl->GetDirectArray().GetAt(vertexCounter++);
+                    normalvector.x = (float)normal[0];
+                    normalvector.y = (float)normal[1];
+                    normalvector.z = (float)normal[2];
+
+                    FbxVector2 fbxTexCoord;
+                    FbxStringList UVSetNameList;
+                    for (int k = 0; k < mesh->GetElementUVCount(); ++k)
+                    {
+                        FbxGeometryElementUV* eUV = mesh->GetElementUV(k);
+                        int TextureUVIndex = mesh->GetTextureUVIndex(PolygonIndex, VerticeIndex);
+                        fbxTexCoord = eUV->GetDirectArray().GetAt(TextureUVIndex);
+                        texture.x = static_cast<float>(fbxTexCoord[0]);
+                        texture.y = static_cast<float>(fbxTexCoord[1]);
+                    }
+
+                    //std::cout << "position : " << position.x << " " << position.y << " " << position.z << '\n';
+                    //std::cout << "normalvector : " << normalvector.x << " " << normalvector.y << " " << normalvector.z << '\n';
+                    //std::cout << "texture : " << texture.x << " " << texture.y << '\n';
+
+                    vertices->push_back({ position, texture, normalvector });
+
+                }
+            }
+        }
+
+
+    }
+
+    out->push_back(CreateModel(vertices));
+    std::cout << "model push_back" << '\n';
+
+    /*
+    FbxMesh* mesh = rootNode->GetMesh();
+    const int VertexCount = mesh->GetControlPointsCount();
+    const int PolygonCount = mesh->GetPolygonCount();
+    int vertexCounter = 0;
+    FbxGeometryElementNormal* normalEl = mesh->GetElementNormal();
+
+    for(int PolygonIndex=0; PolygonIndex < PolygonCount; PolygonIndex++)
+    {
+        const int VerticeCount = mesh->GetPolygonSize(PolygonIndex);
+        for(int VerticeIndex=0; VerticeIndex < VerticeCount; VerticeIndex++)
+        {
+            DirectX::XMFLOAT3 position;
+            DirectX::XMFLOAT2 texture;
+            DirectX::XMFLOAT3 normalvector;
+
+            auto index = mesh->GetPolygonVertex(PolygonIndex, VerticeIndex);
+            position.x = mesh->GetControlPointAt(index).mData[0];
+            position.y = mesh->GetControlPointAt(index).mData[1];
+            position.z = mesh->GetControlPointAt(index).mData[2];
+
+            FbxVector4 normal = normalEl->GetDirectArray().GetAt(vertexCounter);
+            normalvector.x = (float)normal[0];
+            normalvector.y = (float)normal[1];
+            normalvector.z = (float)normal[2];
+
+            FbxVector2 fbxTexCoord;
+            FbxStringList UVSetNameList;
+            for (int i = 0; i < mesh->GetElementUVCount(); ++i) 
+            {
+                FbxGeometryElementUV* eUV = mesh->GetElementUV(i);
+                int TextureUVIndex = mesh->GetTextureUVIndex(PolygonIndex, VerticeIndex);
+                fbxTexCoord = eUV->GetDirectArray().GetAt(TextureUVIndex);
+                texture.x = static_cast<float>(fbxTexCoord[0]);
+                texture.y = static_cast<float>(fbxTexCoord[1]);
+            }
+
+            std::cout << "position : " << position.x << " " << position.y << " " << position.z << '\n';
+            std::cout << "normalvector : " << normalvector.x << " " << normalvector.y << " " << normalvector.z << '\n';
+            //std::cout << "texture : " << texture.x << " " << texture.y << '\n';
+
+            
+            //vertices.push_back({ position, texture, normalvector });
+
+        }
+    }
+    */
+
+    return true;
+
 }
 
 // Public

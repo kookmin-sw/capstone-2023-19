@@ -155,6 +155,7 @@ void Graphics::UpdateModels()
 	}
 
 	this->lSystem_->GetResultVertex(models);
+	this->lSystem_->LoadModel(models);
 	for (const Model& model : *models)
 	{
 		switch (model.modelType)
@@ -162,6 +163,7 @@ void Graphics::UpdateModels()
 			case ModelType::Custom:
 			{
 				ModelClass* modelClass = new ModelClass;
+				modelClass->SetQuaternion(model.data[0], model.data[1], model.data[2], model.data[3]);
 				modelClass->Initialize(this->d3d_->GetDevice(), model);
 
 				this->models_->push_back(modelClass);
