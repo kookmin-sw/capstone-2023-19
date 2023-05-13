@@ -20,6 +20,8 @@ public:
     Vector3& operator-(const Vector3&);
     Vector3& operator*(const float&);
     Vector3& operator/(const float&);
+    bool operator==(const Vector3&);
+    bool operator!=(const Vector3&);
 
 public:
     float x = 0.0f;

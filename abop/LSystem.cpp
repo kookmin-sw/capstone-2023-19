@@ -133,6 +133,36 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
 
     return model;
 }
+
+Model LSystem::CreateLeafSegment(std::vector<Vector3>* leaf)
+{
+    int size = leaf->size();
+
+    Vector4 green{ 0.19f, 0.35f, 0.15f, 0.0f };
+
+    Model model;
+
+    model.modelType = ModelType::LeafModel;
+    model.vertexCount = size;
+    model.vertexTypes = new VertexType[size];
+    model.indexCount = 6;
+    model.indices = new int[model.indexCount];
+
+    // TEMP
+    for (int i = 0; i < size; i++)
+        model.vertexTypes[i] = VertexType{ leaf->at(i), green };
+
+    int i = 0;
+    int vertex = 1;
+    model.indices[0] = 0;
+    model.indices[1] = 1;
+    model.indices[2] = 2;
+    model.indices[3] = 0;
+    model.indices[4] = 2;
+    model.indices[5] = 1;
+
+    return model;
+}
 #pragma endregion
 
 #pragma region utils
@@ -646,14 +676,14 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             }
             case LLetter::Type::NoDrawForward: {
                 this->Move();
-                endPos = mState.position;
+                startPos = mState.position;
                 break;
             }
             case LLetter::Type::NoDrawForward2:
             {
                 // No Draw + Move foward
-                this->Move(mLeafDistance);
-                //endPos = mState.position;
+                this->Move();
+                startPos = mState.position;
                 //out->push_back(CreateLineModel(startPos, endPos));
                 break;
             }
@@ -802,22 +832,24 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 leaf = new std::vector<Vector3>();
 
-                leaf->push_back(mState.position);
+                //leaf->push_back(mState.position);
 
-                mDrawingLeaf = true;
+                //mDrawingLeaf = true;
 
                 leafstack.push(leaf);
                 break;
             }
             case LLetter::Type::MarkingPoint:
             {
-                leaf->push_back(mState.position);
+                if (leaf->size() == 0 || leaf->at(leaf->size() - 1) != mState.position)
+                    leaf->push_back(mState.position);
 
                 break;
             }
             case LLetter::Type::EndingPoint:
             {
-                out->push_back(CreateLeaf(leaf, mState.direction));
+                if (leaf->size() >= 3)
+                    out->push_back(CreateLeafSegment(leaf));
 
                 if (!leafstack.empty()) {
                     leaf = leafstack.top();
@@ -827,8 +859,8 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     leaf = nullptr;
                 }
 
-                mDrawingLeaf = false;
-                mLeafDirection = { 0.0f, 1.0f, 0.0f };
+                //mDrawingLeaf = false;
+                //mLeafDirection = { 0.0f, 1.0f, 0.0f };
 
                 break;
             }
