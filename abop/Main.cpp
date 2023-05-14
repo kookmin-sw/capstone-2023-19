@@ -22,6 +22,8 @@
 #include "LSystem.hpp"
 #include "LRule.hpp"
 
+#include <windows.h>
+
 // Data
 std::string PATH = "./data/preset/";
 
@@ -460,39 +462,6 @@ int main(int, char**)
             ImGui::EndMenuBar();
         }
 
-        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
-        if (ImGui::Button("Save As"))
-        {
-            ImGui::OpenPopup("SaveAs");
-        }
-
-        if (ImGui::BeginPopup("SaveAs", NULL))
-        {
-            std::string filename = "";
-            static char buffer[128];
-
-            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
-    
-            if (ImGui::Button("Save"))
-            {
-                filename = buffer;
-
-                // !!! 배포할 때에는 경로를 직접 수정
-                SavePreset(filename, lSystem);
-                ClearCharArray(128, buffer);
-
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
-            {
-                ClearCharArray(128, buffer);
-                ImGui::CloseCurrentPopup();
-            }
-
-            ImGui::EndPopup();
-        }
-
         // Multi-line Text 
         static char word[1024 * 256] = "";
         if (isUpdateWord)
@@ -501,6 +470,71 @@ int main(int, char**)
             lSystem->GetWord(word);
             isUpdateWord = false;
         }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n < Auto Render >");
+        ImGui::PopStyleColor();
+        
+        static int frequency = 1;
+
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Start")) // render
+        {
+
+            for (int i = 0; i < frequency; i++)
+            {
+
+            }
+                //iterate
+                ClearCharArray(1024 * 64, word);
+                lSystem->Iterate(frequency);
+                lSystem->GetWord(word);
+
+                //render
+                lSystem->SetWord(word);
+                lSystem->ClearState();
+                graphics->UpdateModels();
+
+                //Sleep(2000);
+                
+            
+        }
+        ImGui::PopStyleColor(3);
+
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
+        if (ImGui::Button("Stop"))
+        {
+            //
+        }
+        ImGui::PopStyleColor(3);
+
+
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("  frequency :");
+        ImGui::SameLine();
+        float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+        ImGui::Text("%d", frequency);
+        ImGui::SameLine();
+        ImGui::PushButtonRepeat(true);
+        if (ImGui::ArrowButton("##left", ImGuiDir_Left)) 
+        { 
+            frequency--;
+            if (frequency < 1) { frequency = 1; }
+        }
+        ImGui::SameLine(0.0f, spacing);
+        if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { frequency++; }
+        ImGui::PopButtonRepeat();
+
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n < Manual Render >");
+        ImGui::PopStyleColor();
 
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 
@@ -529,11 +563,49 @@ int main(int, char**)
             graphics->UpdateModels();
         }
 
+        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Save As"))
+        {
+            ImGui::OpenPopup("SaveAs");
+        }
+
+        if (ImGui::BeginPopup("SaveAs", NULL))
+        {
+            std::string filename = "";
+            static char buffer[128];
+
+            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
+
+            if (ImGui::Button("Save"))
+            {
+                filename = buffer;
+
+                // !!! 배포할 때에는 경로를 직접 수정
+                SavePreset(filename, lSystem);
+                ClearCharArray(128, buffer);
+
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ClearCharArray(128, buffer);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::PopStyleColor(3);
+
+
         if (ImGui::CollapsingHeader("Word"))
         {
             // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
             if (ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags))
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4), flags))
             {
                 lSystem->SetWord(word);
             }
