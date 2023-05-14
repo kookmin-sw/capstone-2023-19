@@ -687,6 +687,58 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 //out->push_back(CreateLineModel(startPos, endPos));
                 break;
             }
+            case LLetter::Type::MakeLeaf: // Leaf Model Set 1
+            {
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    float distance = std::stof(params[0]);
+                    float scale = params.size() > 1 ?
+                        std::stof(params[1])
+                        : 1.0f;
+
+                    this->MoveParam(distance);
+                    endPos = mState.position;
+
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(
+                        CreateTrunk(startPos, startPos + mState.direction * scale, mState.quaternion,
+                            scale, scale));
+                }
+                else
+                {
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
+                }
+
+                break;
+            }
+            case LLetter::Type::MakeLeaf2: // Leaf Model Set 2
+            {
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    float distance = std::stof(params[0]);
+                    float scale = params.size() > 1 ?
+                        std::stof(params[1])
+                        : 0.3f;
+
+                    this->MoveParam(distance);
+                    endPos = mState.position;
+
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(
+                        CreateTrunk(startPos, endPos, mState.quaternion,
+                            scale, scale));
+                }
+                else
+                {
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
+                }
+
+                break;
+            }
             case LLetter::Type::RollLeft:
             {
                 if (letter.IsParametic())

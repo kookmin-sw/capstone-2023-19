@@ -9,6 +9,8 @@ public:
         Forward = 'F',
         NoDrawForward = 'f',
         NoDrawForward2 = 'G',
+        MakeLeaf = 'J',
+        MakeLeaf2 = 'K',
         TurnLeft = '+',
         TurnRight = '-',
         PitchUp = '^',
