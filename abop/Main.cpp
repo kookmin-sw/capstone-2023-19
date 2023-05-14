@@ -603,7 +603,8 @@ int main(int, char**)
 
         if (ImGui::CollapsingHeader("Word"))
         {
-            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
+            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정 -> 긴 텍스트에서 문제발생 - imgui에서 지원X https://github.com/ocornut/imgui/issues/952
+            // 렌더링된 텍스트를 따로 출력해서 볼 수 있도록 하단에 text width 만듬
             if (ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
                 ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4), flags))
             {
@@ -711,6 +712,24 @@ int main(int, char**)
                 lSystem->SetDeltaThickness(nextThickness);
             }
         }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+        ImGui::Text("\nRendering with this L-System code.");
+        ImGui::PopStyleColor();
+
+        static float wrap_width = 200.0f;
+        ImGui::SliderFloat("width", &wrap_width, 0, 500, "%.0f");
+
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
+        ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+
+        ImGui::Text(word, wrap_width);
+
+        draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(0, 255, 0, 255));
+        ImGui::PopTextWrapPos();
 
         ImGui::End();
 #pragma endregion L-System
