@@ -161,6 +161,8 @@ int main(int, char**)
     static bool show_location_window = false;
     static bool show_console_window = false;
     static bool show_light_window = false;
+    
+    static bool show_mouse_window = false;
 
     // Preset load (Init render) 시 아래 변수를 true로 설정해야
     // 다음 frame에서 load 함
@@ -257,10 +259,6 @@ int main(int, char**)
             static float cameraRotation[4] = { 0.0f, 0.0f, 0.0f };
             static float cameraSpeed = 0.3f;
             static float cameraSensitivity = 0.01f;
-
-            const float w = ImGui::GetContentRegionAvailWidth();
-            const float half = w / 2.f;
-
             
             if (isUpdateCamera)
             {
@@ -274,6 +272,11 @@ int main(int, char**)
             }
 
             ImGui::Begin("Camera Location Window", &show_location_window);
+
+            ImGui::Text(" ");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 225));
+            ImGui::Checkbox("Mouse Drag Window", &show_mouse_window);
+            ImGui::PopStyleColor();
 
             // Camera Position
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
@@ -333,7 +336,7 @@ int main(int, char**)
 
             // Camera Arm
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
-            ImGui::Text("\n\n<Camera Arm>");
+            ImGui::Text("\n<Camera Arm>");
             ImGui::PopStyleColor();
 
             if (ImGui::Button("Arm On"))
@@ -345,14 +348,41 @@ int main(int, char**)
             {
 
             }
-            ImGui::SameLine(half);
-            
-            if (ImGui::gizmo3D("##gizmo1", qRot, 150 /*, mode */))
-            {
-                graphics->SetCameraPosition(cameraPosition[0] + qRot.x, cameraPosition[1] + qRot.y, cameraPosition[2] + qRot.z);
-            }
-            //mat4 modelMatrix = mat4_cast(qRot);
 
+            if (show_mouse_window)
+            {
+
+
+                ImGui::Begin("Mouse Drag Window", &show_mouse_window);
+
+                const float w = ImGui::GetContentRegionAvailWidth();
+                const float half = w / 2.f;
+                const float third = w / 3.f;
+
+                static float resSolid = 1.0;
+                static float axesLen = .95;
+                static float axesThickness = 1.0;
+                vec3 resAxes(axesLen, axesThickness, axesThickness);
+
+                ImGui::PushItemWidth(third);
+                ImGui::DragFloat("##res1", &axesLen, 0.01f, 0.0, 1.0, "len %.2f");
+                ImGui::SameLine();
+                ImGui::DragFloat("##res2", &axesThickness, 0.01f, 0.0, 8.0, "thick %.2f");
+                ImGui::SameLine();
+                ImGui::DragFloat("##res3", &resSolid, 0.01f, 0.0, 8.0, "solids %.2f");
+                ImGui::PopItemWidth();
+
+                imguiGizmo::resizeAxesOf(resAxes);
+                imguiGizmo::resizeSolidOf(resSolid);
+                if (ImGui::gizmo3D("##gizmo1", qRot, w /*, mode */))
+                {
+                    // !! 수정해야 함
+                    graphics->SetCameraPosition(cameraPosition[0] + qRot.x, cameraPosition[1] + qRot.y, cameraPosition[2] + qRot.z);
+                }
+                //mat4 modelMatrix = mat4_cast(qRot);
+
+                ImGui::End();
+            }
 
             ImGui::End();
 
@@ -482,11 +512,13 @@ int main(int, char**)
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
         if (ImGui::Button("Start")) // render
         {
-
+           
             for (int i = 0; i < frequency; i++)
             {
-
+                // frequency별 처리
             }
+     
+                /*
                 //iterate
                 ClearCharArray(1024 * 64, word);
                 lSystem->Iterate(frequency);
@@ -498,7 +530,7 @@ int main(int, char**)
                 graphics->UpdateModels();
 
                 //Sleep(2000);
-                
+                */
             
         }
         ImGui::PopStyleColor(3);
@@ -509,7 +541,7 @@ int main(int, char**)
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
         if (ImGui::Button("Stop"))
         {
-            //
+            // Auto render stop
         }
         ImGui::PopStyleColor(3);
 
