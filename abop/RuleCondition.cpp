@@ -189,7 +189,7 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
         // c.compare 상수인 경우 float로 바꿔주기
         float compare;
 
-        if (CONSTANT.find(c.compare) != CONSTANT.end())
+        if (IsConstant(c.compare))
             compare = std::stof(CONSTANT[c.compare]);
         else
             compare = std::stof(c.compare);
