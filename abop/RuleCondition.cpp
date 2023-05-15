@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include "Utils.hpp"
+#include "Constant.hpp"
 #include "RuleCondition.hpp"
 
 // 단일식 string을 Condition struct로 변환 (Condition struct는 LRule.hpp 선언)
@@ -18,31 +19,31 @@ RuleCondition::Condition ConvertStringToCondition(std::string str)
     {
         cond.sign = RuleCondition::Sign::MoreSame;
         cond.target = str.substr(0, str.find(">="));
-        cond.compare = std::stof(str.substr(str.find(">=") + 2, str.size() - str.find(">=")));
+        cond.compare = str.substr(str.find(">=") + 2, str.size() - str.find(">="));
     }
     else if (str.find("<=") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::LessSame;
         cond.target = str.substr(0, str.find("<="));
-        cond.compare = std::stof(str.substr(str.find("<=") + 2, str.size() - str.find("<=")));
+        cond.compare = str.substr(str.find("<=") + 2, str.size() - str.find("<="));
     }
     else if (str.find(">") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::More;
         cond.target = str.substr(0, str.find(">"));
-        cond.compare = std::stof(str.substr(str.find(">") + 1, str.size() - str.find(">")));
+        cond.compare = str.substr(str.find(">") + 1, str.size() - str.find(">"));
     }
     else if (str.find("<") != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::Less;
         cond.target = str.substr(0, str.find("<"));
-        cond.compare = std::stof(str.substr(str.find("<") + 1, str.size() - str.find("<")));
+        cond.compare = str.substr(str.find("<") + 1, str.size() - str.find("<"));
     }
     else if (str.find('=') != std::string::npos)
     {
         cond.sign = RuleCondition::Sign::Same;
         cond.target = str.substr(0, str.find("="));
-        cond.compare = std::stof(str.substr(str.find("=") + 1, str.size() - str.find("=")));
+        cond.compare = str.substr(str.find("=") + 1, str.size() - str.find("="));
     }
 
     // error
@@ -157,8 +158,12 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
         // 파싱
         if (needsParsing)
         {
+            // parameter 변경
             for (auto it = valueParams.begin(); it != valueParams.end(); it++)
                 ReplaceAll(c.target, it->first, it->second);
+
+            // Constant 변경
+            ReplaceConstant(c.target);
 
             // TODO - Float로 변경 (에러나서 int로 임시 변환)
             c.target = std::to_string((int)CalculateString(c.target));
@@ -180,12 +185,20 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             value = std::stof(c.target);
         else // 일반적인 단일 문자인 경우
 			value = std::stof(valueParams[c.target]);
+
+        // c.compare 상수인 경우 float로 바꿔주기
+        float compare;
+
+        if (CONSTANT.find(c.compare) != CONSTANT.end())
+            compare = std::stof(CONSTANT[c.compare]);
+        else
+            compare = std::stof(c.compare);
         
         switch (c.sign)
         {
             case Sign::Same:
             {
-                if (!(value == c.compare))
+                if (!(value == compare))
                 {
                     return false;
                 }
@@ -193,7 +206,7 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             }
             case Sign::More:
             {
-                if (!(value > c.compare))
+                if (!(value > compare))
                 {
                     return false;
                 }
@@ -201,7 +214,7 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             }
             case Sign::Less:
             {
-                if (!(value < c.compare))
+                if (!(value < compare))
                 {
                     return false;
                 }
@@ -209,7 +222,7 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             }
             case Sign::MoreSame:
             {
-                if (!(value >= c.compare))
+                if (!(value >= compare))
                 {
                     return false;
                 }
@@ -217,7 +230,7 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             }
             case Sign::LessSame:
             {
-                if (!(value <= c.compare))
+                if (!(value <= compare))
                 {
                     return false;
                 }

@@ -32,6 +32,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Constant.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="D3DClass.cpp">
@@ -153,6 +154,7 @@
     </ClInclude>
     <ClInclude Include="CommonStructure.hpp" />
     <ClInclude Include="CommonVariable.hpp" />
+    <ClInclude Include="Constant.hpp" />
     <ClInclude Include="Cube.hpp" />
     <ClInclude Include="Cylinder.hpp" />
     <ClInclude Include="D3DClass.hpp">

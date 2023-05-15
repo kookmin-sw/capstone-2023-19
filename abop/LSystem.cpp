@@ -10,6 +10,7 @@
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
 #include "Utils.hpp"
+#include "Constant.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"

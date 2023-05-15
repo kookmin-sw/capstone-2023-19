@@ -149,6 +149,9 @@
     <ClCompile Include="RuleCondition.cpp">
       <Filter>LSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Constant.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -288,6 +291,9 @@
     </ClInclude>
     <ClInclude Include="RuleCondition.hpp">
       <Filter>LSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Constant.hpp">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,7 @@
 #include "RandomSeed.hpp"
 #include "Utils.hpp"
 #include "LLetter.hpp"
+#include "Constant.hpp"
 #include "RuleCondition.hpp"
 #include "LRule.hpp"
 
