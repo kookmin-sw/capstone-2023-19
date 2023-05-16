@@ -2,8 +2,8 @@ distance:1.000000
 angle:90.000000
 thickness:0.300000
 deltaThickness:1.000000
-word:baaaaaaaa
+word:f(11)
 rule
-b<a->b
-b->a
+f(t):t>10->f(t+1)
+f(t):t>=20->f(t-1)
 end

@@ -3,6 +3,8 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_internal.h"
 
+#include "imgui/imGuIZMOquat.h"
+
 #include <d3d11.h>
 #include <tchar.h>
 
@@ -10,16 +12,21 @@
 #include <fstream>
 #include <filesystem>
 
+#include <chrono>
+
 #include <string>
 #include <vector>
 #include <map>
 #include <string>
 #include "Stdafx.h"
+#include "Utils.hpp"
 #include "D3DClass.hpp"
 #include "Graphics.hpp"
 #include "InputClass.hpp"
 #include "LSystem.hpp"
 #include "LRule.hpp"
+
+#include <windows.h>
 
 // Data
 std::string PATH = "./data/preset/";
@@ -34,6 +41,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void ClearCharArray(int size, char* out);
 std::vector<std::string> LoadPresetList();
 void SavePreset(std::string filename, LSystem* lsystem);
+unsigned long long timeSinceEpochMiliisec();
 
 // Main code
 int main(int, char**)
@@ -161,6 +169,8 @@ int main(int, char**)
     static bool show_location_window = false;
     static bool show_console_window = false;
     static bool show_light_window = false;
+    
+    static bool show_mouse_window = false;
 
     // Preset load (Init render) 시 아래 변수를 true로 설정해야
     // 다음 frame에서 load 함
@@ -170,10 +180,17 @@ int main(int, char**)
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
 
+    bool running = false;
+    float runningTime = 0.0f;
+    unsigned long long lastTick;
+    quat qRot = quat(1.f, 0.f, 0.f, 0.f);
+
     // Main loop
     bool done = false;
     while (!done)
     {
+        lastTick = timeSinceEpochMiliisec();
+
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
         MSG msg;
@@ -268,6 +285,11 @@ int main(int, char**)
 
             ImGui::Begin("Camera Location Window", &show_location_window);
 
+            ImGui::Text(" ");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 225));
+            ImGui::Checkbox("Mouse Drag Window", &show_mouse_window);
+            ImGui::PopStyleColor();
+
             // Camera Position
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Position>");
@@ -322,6 +344,56 @@ int main(int, char**)
                     cameraSensitivity = 0.1f;
                 }
                 graphics->SetCameraSensitivity(cameraSensitivity);
+            }
+
+            // Camera Arm
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Arm>");
+            ImGui::PopStyleColor();
+
+            if (ImGui::Button("Arm On"))
+            {
+                //graphics->SetCameraPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Arm Off"))
+            {
+
+            }
+
+            if (show_mouse_window)
+            {
+
+
+                ImGui::Begin("Mouse Drag Window", &show_mouse_window);
+
+                const float w = ImGui::GetContentRegionAvailWidth();
+                const float half = w / 2.f;
+                const float third = w / 3.f;
+
+                static float resSolid = 1.0;
+                static float axesLen = .95;
+                static float axesThickness = 1.0;
+                vec3 resAxes(axesLen, axesThickness, axesThickness);
+
+                ImGui::PushItemWidth(third);
+                ImGui::DragFloat("##res1", &axesLen, 0.01f, 0.0, 1.0, "len %.2f");
+                ImGui::SameLine();
+                ImGui::DragFloat("##res2", &axesThickness, 0.01f, 0.0, 8.0, "thick %.2f");
+                ImGui::SameLine();
+                ImGui::DragFloat("##res3", &resSolid, 0.01f, 0.0, 8.0, "solids %.2f");
+                ImGui::PopItemWidth();
+
+                imguiGizmo::resizeAxesOf(resAxes);
+                imguiGizmo::resizeSolidOf(resSolid);
+                if (ImGui::gizmo3D("##gizmo1", qRot, w /*, mode */))
+                {
+                    // !! 수정해야 함
+                    graphics->SetCameraPosition(cameraPosition[0] + qRot.x, cameraPosition[1] + qRot.y, cameraPosition[2] + qRot.z);
+                }
+                //mat4 modelMatrix = mat4_cast(qRot);
+
+                ImGui::End();
             }
 
             ImGui::End();
@@ -432,39 +504,6 @@ int main(int, char**)
             ImGui::EndMenuBar();
         }
 
-        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
-        if (ImGui::Button("Save As"))
-        {
-            ImGui::OpenPopup("SaveAs");
-        }
-
-        if (ImGui::BeginPopup("SaveAs", NULL))
-        {
-            std::string filename = "";
-            static char buffer[128];
-
-            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
-    
-            if (ImGui::Button("Save"))
-            {
-                filename = buffer;
-
-                // !!! 배포할 때에는 경로를 직접 수정
-                SavePreset(filename, lSystem);
-                ClearCharArray(128, buffer);
-
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
-            {
-                ClearCharArray(128, buffer);
-                ImGui::CloseCurrentPopup();
-            }
-
-            ImGui::EndPopup();
-        }
-
         // Multi-line Text 
         static char word[1024 * 256] = "";
         if (isUpdateWord)
@@ -473,6 +512,71 @@ int main(int, char**)
             lSystem->GetWord(word);
             isUpdateWord = false;
         }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n < Auto Render >");
+        ImGui::PopStyleColor();
+        
+        static int frequency = 5;
+
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Start")) // render
+        {
+            running = true;
+            
+        }
+        ImGui::PopStyleColor(3);
+
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
+        if (ImGui::Button("Stop"))
+        {
+            // Auto render stop
+            running = false;
+            runningTime = 0.f;
+        }
+        ImGui::PopStyleColor(3);
+        
+        if (running)
+        {
+            if (runningTime > frequency)
+            {
+                ClearCharArray(1024 * 64, word);
+                lSystem->Iterate(1);
+                lSystem->GetWord(word);
+                lSystem->SetWord(word);
+                lSystem->ClearState();
+                graphics->UpdateModels();
+                runningTime = 0.f;
+            }
+            runningTime += timeSinceEpochMiliisec() - lastTick;
+        }
+
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("  frequency :");
+        ImGui::SameLine();
+        float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+        ImGui::Text("%d", frequency);
+        ImGui::SameLine();
+        ImGui::PushButtonRepeat(true);
+        if (ImGui::ArrowButton("##left", ImGuiDir_Left)) 
+        { 
+            frequency--;
+            if (frequency < 1) { frequency = 1; }
+        }
+        ImGui::SameLine(0.0f, spacing);
+        if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { frequency++; }
+        ImGui::PopButtonRepeat();
+
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n < Manual Render >");
+        ImGui::PopStyleColor();
 
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 
@@ -501,14 +605,54 @@ int main(int, char**)
             graphics->UpdateModels();
         }
 
+        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Save As"))
+        {
+            ImGui::OpenPopup("SaveAs");
+        }
+
+        if (ImGui::BeginPopup("SaveAs", NULL))
+        {
+            std::string filename = "";
+            static char buffer[128];
+
+            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
+
+            if (ImGui::Button("Save"))
+            {
+                filename = buffer;
+
+                // !!! 배포할 때에는 경로를 직접 수정
+                SavePreset(filename, lSystem);
+                ClearCharArray(128, buffer);
+
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ClearCharArray(128, buffer);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::PopStyleColor(3);
+
+
         if (ImGui::CollapsingHeader("Word"))
         {
-            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
-            if (ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags))
+            if (ImGui::Button("Save"))
             {
                 lSystem->SetWord(word);
             }
+
+            // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
+            ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4), flags);
         }
 
         if (ImGui::CollapsingHeader("Rules"))
@@ -567,11 +711,11 @@ int main(int, char**)
             }
 
             // Rules
-            static char addKey[16] = "";
+            static char addKey[64] = "";
             static char addValue[128] = "";
             if (ImGui::Button("Add"))
             {
-                ClearCharArray(16, addKey);
+                ClearCharArray(64, addKey);
                 ClearCharArray(128, addValue);
                 ImGui::OpenPopup("AddRules");
             }
@@ -612,7 +756,7 @@ int main(int, char**)
                 isUpdateRules = false;
             }
 
-            static char key[16];
+            static char key[64];
             static char value[128];
 
             int ruleIndex = 0;      
@@ -629,6 +773,16 @@ int main(int, char**)
                     j++;
                 }
 
+                if (!ruleInfo.condition.empty())
+                {
+                    key[j++] = '\n';
+                    for (int i = 0; i < ruleInfo.condition.size(); i++)
+                    {
+                        key[j] = ruleInfo.condition[i];
+                        j++;
+                    }
+                }
+
                 for (int i = 0; i < ruleInfo.after.size(); i++)
                 {
                     value[i] = ruleInfo.after[i];
@@ -637,6 +791,7 @@ int main(int, char**)
                 if (ImGui::Button(key))
                 {
                     std::string keyStr(key);
+                    keyStr = split(keyStr, '\n')[0];
                     lSystem->DeleteRule(keyStr.substr(2, keyStr.size()), ruleInfo.id);
 
                     isUpdateRules = true;
@@ -644,7 +799,7 @@ int main(int, char**)
                 ImGui::SameLine();
                 ImGui::Text("%s", value);
 
-                ClearCharArray(16, key);
+                ClearCharArray(64, key);
                 ClearCharArray(128, value);
             }
         }
@@ -683,6 +838,24 @@ int main(int, char**)
                 lSystem->SetDeltaThickness(nextThickness);
             }
         }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+        ImGui::Text("\nRendering with this L-System code.");
+        ImGui::PopStyleColor();
+
+        static float wrap_width = 200.0f;
+        ImGui::SliderFloat("width", &wrap_width, 0, 500, "%.0f");
+
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+        ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
+        ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+
+        ImGui::Text(word, wrap_width);
+
+        draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(0, 255, 0, 255));
+        ImGui::PopTextWrapPos();
 
         ImGui::End();
 #pragma endregion L-System
@@ -836,7 +1009,9 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.write(ok.c_str(), ok.size());
     ok = "deltaThickness:" + std::to_string(lSystem->GetDeltaThickness()) + '\n';
     file.write(ok.c_str(), ok.size());
-    ok = "word:" + lSystem->GetWord() + '\n';
+    std::string words = lSystem->GetWord();
+    RemoveAll(words, ' ');  // 공백 제거
+    ok = "word:" + words + '\n';
     file.write(ok.c_str(), ok.size());
     if (lSystem->GetIgnores().size() > 0)
     {
@@ -854,14 +1029,21 @@ void SavePreset(std::string filename, LSystem* lSystem)
     bool existRule = false;
     for (auto& [_, rule] : lSystem->GetRules())
     {
-        for (const LRule::RuleInfo& ruleInfo : rule.GetRuleInfos())
+        for (LRule::RuleInfo ruleInfo : rule.GetRuleInfos())
         {
             existRule = true;
             std::string before = ruleInfo.before;
-            // 공백 제거
-            before.erase(remove(before.begin(), before.end(), ' '), before.end());
+            RemoveAll(before, ' '); // 공백 제거
 
-            ok = before + ":" + ruleInfo.after + '\n';
+            ok = before;
+            if (!ruleInfo.condition.empty())
+            {
+                // condition이 있는 경우
+                RemoveAll(ruleInfo.condition, ' '); // 공백 제거
+                ok += ":" + ruleInfo.condition;
+            }
+            RemoveAll(ruleInfo.after, ' '); // 공백 제거
+            ok += "->" + ruleInfo.after + '\n';
             file.write(ok.c_str(), ok.size());
         }
     }
@@ -875,4 +1057,9 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.close();
 
     return;
+}
+
+unsigned long long timeSinceEpochMiliisec()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }

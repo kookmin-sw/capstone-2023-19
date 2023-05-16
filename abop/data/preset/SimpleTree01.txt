@@ -4,8 +4,8 @@ thickness:0.500000
 deltaThickness:0.900000
 word:F
 rule
-F:FF
-F:F[-&\\[{+G.-G.-G.+|+G.-G.}]FL][\\++&F[{+G.-G.-G.+|+G.-G.}]L]F[--&/F[{+G.-G.-G.+|+G.-G.}]L][+&F[{+G.-G.-G.+|+G.-G.}]L]
-L:[++{+G.-G.-G.+|+G.-G.}]S
-S:[--{+G.-G.-G.+|+G.-G.}]L
+F->FF
+F->F[-&\\[{+G.-G.-G.+|+G.-G.}]FL][\\++&F[{+G.-G.-G.+|+G.-G.}]L]F[--&/F[{+G.-G.-G.+|+G.-G.}]L][+&F[{+G.-G.-G.+|+G.-G.}]L]
+L->[++{+G.-G.-G.+|+G.-G.}]S
+S->[--{+G.-G.-G.+|+G.-G.}]L
 end
