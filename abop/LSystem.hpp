@@ -8,6 +8,23 @@ class LLetter;
 
 class LSystem
 {
+public:
+    //struct UEState
+    //{
+    //    Vector3 position;
+    //    Vector3 direction;    // 방향 단위 벡터
+    //    DirectX::XMVECTOR quaternion;
+    //    float thickness;
+    //};
+
+    struct UEModel
+    {
+        int type;
+        Vector3 position;
+        Vector4 rotation;
+        Vector3 scale;
+    };
+
 private:
     float mAngleChange = 90;
     float mDistance = 1.0f;
@@ -71,6 +88,7 @@ public:
 
     // Result
     void GetResultVertex(std::vector<Model>*);
+    void GetResultUEInfos(std::vector<UEModel>*);
 
     // Preset
     void LoadPreset(std::string&);
