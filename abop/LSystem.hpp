@@ -6,6 +6,12 @@
 class LRule;
 class LLetter;
 
+struct info
+{
+    char letter;
+    int origIndex;
+};
+
 class LSystem
 {
 private:
