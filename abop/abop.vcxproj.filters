@@ -298,13 +298,7 @@
     <ClInclude Include="imgui\vgMath.h">
       <Filter>DX\ImGui\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\vgConfig.h">
-      <Filter>DX\ImGui\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\vGizmo.h">
-      <Filter>DX\ImGui\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\vGizmoMath.h">
       <Filter>DX\ImGui\imgui</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imGuIZMOquat.h">
