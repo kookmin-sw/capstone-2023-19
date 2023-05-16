@@ -165,8 +165,7 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             // Constant 변경
             ReplaceConstant(c.target);
 
-            // TODO - Float로 변경 (에러나서 int로 임시 변환)
-            c.target = std::to_string((int)CalculateString(c.target));
+            c.target = std::to_string(CalculateString(c.target));
         }
 
         // Condition 체크 시작
