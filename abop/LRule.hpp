@@ -1,5 +1,9 @@
 #pragma once
 
+// !!! TEMP
+#include <map>
+#include <set>
+
 class LLetter;
 
 class LRule
@@ -45,7 +49,7 @@ public:
     ~LRule();
 
     char GetBefore() const;
-    std::vector<LLetter> GetAfter(char previous, char next) const;
+    std::vector<LLetter> GetAfter(char previous, std::set<char>& next) const;
 
     std::vector<RuleInfo> GetRuleInfos();
 
