@@ -40,37 +40,162 @@ LLetter LRule::GetBefore() const
 }
 
 std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
-                                     const LLetter& next,
-                                     const LLetter& compare) const
+    const LLetter& next,
+    const LLetter& compare) const
 {
+    // Parametric에서 사용되는 변수
+    std::vector<LLetter> result = std::vector<LLetter>();
+    std::map<std::string, std::string> valueParams = std::map<std::string, std::string>();
+    std::vector<std::string> paramKey = mBefore.GetParameters();
+    std::vector<std::string> paramValue = compare.GetParameters();
+
+    // Parametric 이면 우선 valueParams에 compare의 정보 담아두기
+    if (compare.IsParametic())
+    {
+        for (int i = 0; i < paramKey.size(); i++)
+        {
+            valueParams.insert({ paramKey[i], paramValue[i] });
+        }
+    }
+
+    // Context info가 있는 경우
     if (!(previous.IsEmpty() && next.IsEmpty()))
     {
-        // Context info가 있는 경우
-        for (const CSAfter& csAfter : mSortedCSAfter)
+        // Context-Sensitive Parametric L-System
+        if (compare.IsParametic())
         {
-            // !!! 동일한 CS 규칙이 있는 경우 먼저 추가된 규칙 적용
-            if (csAfter.next.IsEmpty())
+            std::vector<std::string> previousParamKey;
+            std::vector<std::string> previousParamValue;
+            std::vector<std::string> nextParamKey;
+            std::vector<std::string> nextParamValue;
+
+            for (const CSAfter& csAfter : mSortedCSAfter)
             {
-                // previous 규칙
-                if (csAfter.previous.IsEqual(previous))
+                // 1. 계산에 앞서 우선 상황에 따라 변수 할당
+                if (!csAfter.previous.IsEmpty())
                 {
-                    return csAfter.after.letters;
+                    previousParamKey = csAfter.previous.GetParameters();
+                    previousParamValue = previous.GetParameters();
+                }
+                if (!csAfter.next.IsEmpty())
+                {
+                    nextParamKey = csAfter.next.GetParameters();
+                    nextParamValue = next.GetParameters();
+                }
+
+                // 2. 규칙 체크
+                if (csAfter.next.IsEmpty())
+                {
+	                // previous 규칙만 존재하는 경우
+                    if (csAfter.previous.IsEqual(previous))
+                    {
+                        // valueParams에 값 삽입
+                    	for (int i = 0; i < previousParamValue.size(); i++)
+                        {
+                            valueParams.insert({ previousParamKey[i], previousParamValue[i] });
+                        }
+
+                        // 계산 후 반환
+                        if (csAfter.after.condition->CheckCondition(valueParams))
+                        {
+                            for (LLetter letter : csAfter.after.letters) 
+                            {
+                                if (letter.IsParametic())
+                                {
+                                    letter.CalculateParameter(valueParams);
+                                }
+
+                                result.push_back(letter);
+                            }
+                            return result;
+                        }
+                    }
+                }
+                else if (csAfter.previous.IsEmpty())
+                {
+	                // next 규칙만 존재하는 경우
+                    if (csAfter.next.IsEqual(next))
+                    {
+                        // valueParams에 값 삽입
+                        for (int i = 0; i < nextParamValue.size(); i++)
+                        {
+                            valueParams.insert({ nextParamKey[i], nextParamValue[i] });
+                        }
+
+                        // 계산 후 반환
+                        if (csAfter.after.condition->CheckCondition(valueParams))
+                        {
+	                        for (LLetter letter : csAfter.after.letters)
+	                        {
+		                        if (letter.IsParametic())
+		                        {
+                                    letter.CalculateParameter(valueParams);
+		                        }
+
+                                result.push_back(letter);
+	                        }
+                            return result;
+                        }
+                    }
+                }
+                else
+                {
+	                // previous + next 규칙
+                    if (csAfter.previous.IsEqual(previous) && csAfter.next.IsEqual(next))
+                    {
+                        // valueParams에 값 삽입
+                        for (int i = 0; i < previousParamValue.size(); i++)
+                            valueParams.insert({ previousParamKey[i], previousParamValue[i] });
+                        for (int i = 0; i < nextParamValue.size(); i++)
+                            valueParams.insert({ nextParamKey[i], nextParamValue[i] });
+
+                        // 계산 후 반환 - 식 체크할 수 있는 Condition 구현 필요 TODO
+                        if (csAfter.after.condition->CheckCondition(valueParams))
+                        {
+                            for (LLetter letter : csAfter.after.letters)
+                            {
+                                //std::cout << letter.GetLetter() << "\n";
+                                if (letter.IsParametic())
+                                {
+                                    letter.CalculateParameter(valueParams);
+                                }
+
+                                result.push_back(letter);
+                            }
+                            return result;
+                        }
+                    }
                 }
             }
-            else if (csAfter.previous.IsEmpty())
+        }
+        else // Context-Sensitive 단일 문자 L-System 
+        {
+            for (const CSAfter& csAfter : mSortedCSAfter)
             {
-                // next 규칙
-                if (csAfter.next.IsEqual(next))
+                // !!! 동일한 CS 규칙이 있는 경우 먼저 추가된 규칙 적용
+                if (csAfter.next.IsEmpty())
                 {
-                    return csAfter.after.letters;
+                    // previous 규칙
+                    if (csAfter.previous.IsEqual(previous))
+                    {
+                        return csAfter.after.letters;
+                    }
                 }
-            }
-            else
-            {
-                // previous + next 규칙
-                if (csAfter.previous.IsEqual(previous) && csAfter.next.IsEqual(next))
+                else if (csAfter.previous.IsEmpty())
                 {
-                    return csAfter.after.letters;
+                    // next 규칙
+                    if (csAfter.next.IsEqual(next))
+                    {
+                        return csAfter.after.letters;
+                    }
+                }
+                else
+                {
+                    // previous + next 규칙
+                    if (csAfter.previous.IsEqual(previous) && csAfter.next.IsEqual(next))
+                    {
+                        return csAfter.after.letters;
+                    }
                 }
             }
         }
@@ -94,40 +219,42 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
         // rule: f(t) -> f(t + 1)
         // f(3) to f(4)
         // ruleBefore의 paramSize와 beforeLLetter의 paramSize는 동일
-        std::vector<LLetter> result = std::vector<LLetter>();
-        std::map<std::string, std::string> valueParams = std::map<std::string, std::string>();
-        std::vector<std::string> paramKey = mBefore.GetParameters();
-        std::vector<std::string> paramValue = compare.GetParameters();
-        for (int i = 0; i < paramKey.size(); i++)
-        {
-            valueParams.insert({ paramKey[i], paramValue[i] });
-        }
 
         // condition check
         // !!! t > 0, t < 10 여러 개의 condition이 있을 때 (free의 경우)
-        // Condition 만족하는 규칙 + Condition 없는 규칙 전부 합쳐서 랜덤 선택
-        std::vector<int> ableIndex; // 가능한 규칙의 Index를 담는 vector
+        // 우선순위 : 먼저 들어온 Condition true인 규칙 > 나중에 들어온 Condition true인 규칙 > Condition 없는 규칙(얘네끼리는 랜덤 선택)
 
-        // Condition 없는 규칙은 전부 변환 가능
-        for (int i = mCFConditionCount; i < total; i++)
-            ableIndex.push_back(i);
-
-        // Condition 있는 규칙은 만족할 경우만 변환 가능
+        // Condition 있는 규칙 먼저 체크
         for (int i = 0; i < mCFConditionCount; i++)
         {
-            // Condition 결과가 True 인 경우는 ableIndex에 넣어주기
+            // Condition 결과가 True 인 경우는 바로 Return
             if (mSortedAfter[i].condition->CheckCondition(valueParams))
-                ableIndex.push_back(i);
+            {
+                for (LLetter letter : mSortedAfter[i].letters)
+                {
+                    if (letter.IsParametic())
+                    {
+                    	// after letter에 param이 있는 경우
+                        // param key value map을 통해 변환
+                        letter.CalculateParameter(valueParams);
+                    }
+
+                    result.push_back(letter);
+                }
+
+                return result;
+            }
         }
 
-        // 하나도 만족하는 규칙이 없다면 compare return
-        if (ableIndex.empty())
+        // Condition true인 규칙 x, Condition 없는 규칙이 없다면 원래 것 그대로 return
+        if (mCFNoConditionCount == 0)
         {
             result.push_back(compare);
             return result;
         }
 
-        int index = ableIndex[dist(gen) % ableIndex.size()];
+        // Context-Free, No Condition 규칙은 랜덤 선택
+        int index = dist(gen) % mCFNoConditionCount + mCFConditionCount;
 
         for (LLetter letter : mSortedAfter[index].letters)
         {

@@ -65,7 +65,7 @@ public:
     // compare: f(5), 이 때 compare과 ruleBefore의 format은 동일해야 함
     // result: f(6)s(4)
     std::vector<LLetter> GetAfter(const LLetter& previous,
-                                  const LLetter& next,
+								  const LLetter& next,
                                   const LLetter& compare) const;
 
     // Rule의 모든 정보 return

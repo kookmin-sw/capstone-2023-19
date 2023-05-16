@@ -2,7 +2,9 @@ distance:1.000000
 angle:90.000000
 thickness:0.300000
 deltaThickness:1.000000
-word:A(4)B(5)C(6)
+word:{[+G.-G.-G.][-G.+G.+G.]}
 rule
-A(x)<B(y)>C(z):x+y+z>10->E(x/2+y/2)F(y/2+z/2)
+A->[+A{.].C.}
+B->[-B{.].C.}
+C->GC
 end
