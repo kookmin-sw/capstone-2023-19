@@ -15,21 +15,21 @@ struct info
 class LSystem
 {
 private:
-    float angleChange_ = 90;
-    float distance_ = 1.0f;
-    float deltaThickness_ = 1.0f;
-    float leafAngleChange_ = 22.5f;
-    float leafDistance_ = 0.5f;
-    bool drawingLeaf_ = false;
-    Vector3 leafDirection;
-    State state_;
+    float mAngleChange = 90;
+    float mDistance = 1.0f;
+    float mDeltaThickness = 1.0f;
+    float mLeafAngleChange = 22.5f;
+    float mLeafDistance = 0.5f;
+    bool mDrawingLeaf = false;
+    Vector3 mLeafDirection;
+    State mState;
 
     DirectX::XMFLOAT3 axisX;
     DirectX::XMFLOAT3 axisY;
     DirectX::XMFLOAT3 axisZ;
 
-    std::map<char, LRule> rules_;
-    std::vector<LLetter>* word_;
+    std::map<std::string, LRule> mRules;
+    std::vector<LLetter> mWord;
 
     std::map<char, bool> mIgnores;
 
@@ -42,7 +42,7 @@ public:
     void GetWord(char* out);
 
     // { before, LRule } pair
-    std::map<char, LRule> GetRules();
+    std::map<std::string, LRule> GetRules();
 
     float GetAngleChange() const;
     float GetDistance() const;
@@ -83,6 +83,7 @@ public:
 
 private:
     void Move();
+    void MoveParam(const float& distance);
     void Move(float distance);
     void Rotate(const unsigned short&, const float&);
 
