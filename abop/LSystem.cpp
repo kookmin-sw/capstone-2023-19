@@ -1,6 +1,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <set>
+#include <iostream>
 #include <stack>
 #include <cmath>
 #include "Stdafx.h"
@@ -10,6 +12,7 @@
 #include "LLetter.hpp"
 #include "LSystem.hpp"
 
+#pragma region Model
 // Model 관련 
 Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
@@ -42,7 +45,7 @@ Model LSystem::CreateCylinder(Vector3& startPos, Vector3& endPos, DirectX::XMVEC
     model.data = new float[11];
 
     Vector3 position = (startPos + endPos) / 2.0f;
-	float radiusUp = radiusDown * this->deltaThickness_;
+    float radiusUp = radiusDown * this->deltaThickness_;
 
     model.data[0] = position.x;
     model.data[1] = position.y;
@@ -128,12 +131,73 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
 
     return model;
 }
+#pragma endregion
+
+#pragma region utils
+char* DivideKey(std::string key)
+{
+    // previous, before, next
+    char pbn[3] = { NULL };
+
+    int keySize;
+    // 공백 제거
+    key.erase(remove(key.begin(), key.end(), ' '), key.end());
+    keySize = key.size();
+
+    // only (F, A<F, F>B, A<F>B)
+    if (keySize == 0)
+    {
+        // error
+        //std::cout << "error" << std::endl;
+        return { NULL };
+    }
+
+    if (keySize == 1)
+    {
+        pbn[1] = key[0];
+    }
+    else if (keySize == 3)
+    {
+        if (key[1] == '<')
+        {
+            pbn[0] = key[0];
+            pbn[1] = key[2];
+        }
+        else if (key[1] == '>')
+        {
+            pbn[2] = key[2];
+            pbn[1] = key[0];
+        }
+        else
+        {
+            // error
+            //std::cout << "error" << std::endl;
+            return { NULL };
+        }
+    }
+    else if (keySize == 5)
+    {
+        pbn[0] = key[0];
+        pbn[1] = key[2];
+        pbn[2] = key[4];
+    }
+    else
+    {
+        // error
+        //std::cout << "error" << std::endl;
+        return { NULL };
+    }
+
+    return pbn;
+}
+#pragma endregion
 
 // Public
 LSystem::LSystem()
 {
-    rules_ = std::vector<LRule>();
+    this->rules_ = std::map<char, LRule>();
     word_ = new std::vector<LLetter>();
+    mIgnores = std::map<char, bool>();
 
     axisX = DirectX::XMFLOAT3(1, 0, 0);
     axisY = DirectX::XMFLOAT3(0, 1, 0);
@@ -178,19 +242,9 @@ void LSystem::GetWord(char* out)
     }
 }
 
-std::vector<LRule> LSystem::GetRules() const
+std::map<char, LRule> LSystem::GetRules()
 {
     return this->rules_;
-}
-
-std::string LSystem::GetRuleText() const
-{
-    std::string rulesText;
-    for (const LRule& rule : this->rules_)
-    {
-        rulesText += rule.GetRule() + '\n';
-    }
-    return rulesText;
 }
 
 float LSystem::GetAngleChange() const
@@ -264,58 +318,52 @@ void LSystem::SetDeltaThickness(const float& val)
     this->deltaThickness_ = val;
 }
 
-// Rule
-void LSystem::AddRule(const std::string& ruleText)
+void LSystem::AddRule(std::string key, const std::string& value)
 {
-    this->rules_.push_back(LRule(ruleText));
-}
+    char* pbn = DivideKey(key);
+    char previous = pbn[0];
+    char before = pbn[1];
+    char next = pbn[2];
+    pbn = nullptr;
 
-void LSystem::AddRule(const char& key, const std::string& value)
-{
-    bool found = false;
-    int index;
-    for (int i = 0; i < this->rules_.size(); i++)
+    //if (this->rules_.count(key))
+    if (this->rules_.find(before) != this->rules_.end())
     {
-        auto& rule = this->rules_[i];
-        if (rule.GetBefore().IsEqual(key))
-        {
-            found = true;
-            index = i;
-            break;
-        }
-    }
-
-    if (!found)
-    {
-        this->rules_.push_back(LRule(key, value));
+        // 동일한 key의 rule이 이미 있는 경우
+        this->rules_[before].AddAfter(previous, next, value);
     }
     else
     {
-        this->rules_[index].SetRule(key, value);
+        // 동일한 key의 rule이 없는 경우
+        this->rules_.insert({ before, LRule(previous, before, next, value) });
     }
 }
 
-void LSystem::AddRule(const std::string& key, const std::string& value)
+void LSystem::DeleteRule(const std::string& key, const int& afterId)
 {
-    this->AddRule(key[0], value);
-}
+    char* pbn = DivideKey(key);
+    char before = pbn[1];
+    pbn = nullptr;
 
-void LSystem::DeleteRule(const char& key)
-{
-    //for (LRule& rule : this->rules_)
-    for (int i = 0; i < this->rules_.size(); i++)
+    auto iter = this->rules_.find(before);
+
+    if (iter == this->rules_.end())
     {
-        if (this->rules_[i].GetBefore().GetLetter() == key)
-        {
-            this->rules_.erase(this->rules_.begin() + i);
-            break;
-        }
+        // 없는 key의 rule을 삭제하는 경우 error
+        return;
+    }
+
+    if (iter->second.DeleteAfter(afterId))
+    {
+        // after 삭제 후 남은 after가 없는 경우
+        // L system rule map에서도 삭제
+        this->rules_.erase(before);
     }
 }
 
 void LSystem::ClearRule()
 {
-    this->rules_ = std::vector<LRule>();
+    this->rules_.clear();
 }
 
 void LSystem::ClearState()
@@ -329,36 +377,150 @@ void LSystem::ClearState()
     };
 }
 
+// Ignore
+std::map<char, bool> LSystem::GetIgnores()
+{
+    return mIgnores;
+}
+
+void LSystem::AddIgnore(char symbol)
+{
+    mIgnores.insert({ symbol, false });
+}
+
+void LSystem::DeleteIgnore(char symbol)
+{
+    if (mIgnores.find(symbol) != mIgnores.end())
+    {
+        mIgnores.erase(symbol);
+    }
+}
+
 // Run
 void LSystem::Iterate()
 {
-    bool changed;
-    std::vector<LLetter>* v = new std::vector<LLetter>();
+    std::vector<LLetter>* iterated = new std::vector<LLetter>();
 
-    for (const LLetter& letter : *(this->word_))
+    int size = this->word_->size();
+
+    // maxDepth 판단
+    int maxDepth = 0, currentDepth = 0;
+    for (int i = 0; i < size; i++)
     {
-        changed = false;
-
-        for (const LRule& rule : this->rules_)
+        char cur = this->word_->at(i).GetLetter();
+        if (cur == '[')
         {
-            if (rule.GetBefore().IsEqual(letter.GetLetter()))
-            {
-                std::vector<LLetter> letters = rule.GetAfter();
+            currentDepth++;
+            maxDepth = max(currentDepth, maxDepth);
+        }
+        if (cur == ']')
+            currentDepth--;
+    }
 
-                v->insert(v->end(), letters.begin(), letters.end());
+    std::vector<std::vector<info>> depthVector(maxDepth + 1, std::vector<info>()); // 파싱해주면서 각 Depth 별로 담아줄 이중 vector
+    std::vector<std::pair<int, int>> locations(size, std::make_pair(-1, -1)); // index 마다 각 depth, index 바로 찾아가게 해주는 vector
+    std::vector<int> leftContext(size, -1); // a < b > c 에서 a 가 위치한 index 를 담은 vector
+    std::vector<std::set<char>> rightContext(size, std::set<char>()); // a < b > c 에서 c 를 전부 담은 vector
+	// !!! 필연적으로 현재는 after가 0 ~ 1개지만, 추후 [C]와 같은 다른 depth의 after 추가도 고려하여 set으로 구현
 
-                changed = true;
-                break;
-            }
+    // STEP 1. create Info & Locations
+    int tpDepth = 0, cnt = 0;
+    for (int i = 0; i < size; i++)
+    {
+        char cur = this->word_->at(i).GetLetter();
+        if (cur == '[')
+        {
+            tpDepth++;
+            continue;
+        }
+        if (cur == ']')
+        {
+            depthVector[tpDepth].clear();
+            tpDepth--;
+            continue;
         }
 
-        if (!changed)
+        if (mIgnores.find(cur) != mIgnores.end())
+            continue;
+
+        cnt++;
+
+        // update info and locations
+        depthVector[tpDepth].push_back({ cur, i });
+        locations[i].first = tpDepth;
+        locations[i].second = depthVector[tpDepth].size() - 1;
+
+        // update left context and right context (previous and next)
+        int leftDepth = tpDepth;
+        if (cnt != 1)
         {
-            v->push_back(letter);
+            if (locations[i].second == 0) // 각 depth의 0번 index 친구라면 위쪽 depth에서 찾아야 함
+            {
+                do
+                {
+                    leftDepth--;
+                } while (depthVector[leftDepth].size() == 0);
+                leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1].origIndex;
+            }
+            else // 각 depth의 0번 index 친구가 아니라면 같은 depth에서 찾으면 됨
+                leftContext[i] = depthVector[leftDepth][locations[i].second - 1].origIndex;
+
+
+            // 역참조로 right Context info도 채워주기
+            if (locations[i].second != 0)
+				rightContext[leftContext[i]].emplace(this->word_->at(i).GetLetter());
         }
     }
 
-    this->word_ = v;
+    // STEP 2. create Iterated
+    int curDepth = 0;
+    for (int i = 0; i < size; i++)
+    {
+        char cur = this->word_->at(i).GetLetter();
+        std::set<char> right;
+
+        // 1. 괄호
+        if (cur == '[' || cur == ']')
+        {
+            iterated->emplace_back(cur);
+            continue;
+        }
+
+        // 2. mIgnore에 걸리는 모든 문자
+        if (mIgnores.find(cur) != mIgnores.end())
+        {
+            auto aft = this->rules_[cur].GetAfter(NULL, right);
+            if (aft.size() > 0)
+            {
+                for (int x = 0; x < aft.size(); x++)
+                    iterated->emplace_back(aft[x]);
+            }
+            else
+                iterated->emplace_back(cur);
+
+        	continue;
+        }
+
+        // 3. Context-Sensitive, Context-Free 전부
+        char left = NULL;
+        std::vector<LLetter> letterAfter;
+        if (leftContext[i] != -1)
+            left = this->word_->at(leftContext[i]).GetLetter();
+
+    	right = rightContext[i];
+        letterAfter = this->rules_[cur].GetAfter(left, right);
+        if (letterAfter.size() > 0)
+        {
+            for (int x = 0; x < letterAfter.size(); x++)
+                iterated->emplace_back(letterAfter[x]);
+        }
+        else
+            iterated->emplace_back(cur);
+
+    }
+
+    this->word_ = iterated;
+    
 }
 
 void LSystem::Iterate(int n)
@@ -390,160 +552,160 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         // Move: 이동 후 현재 위치 end에 저장 후 push
         switch (letter.GetType())
         {
-            case LLetter::Type::Forward:
-            {
-                // Draw + Move forward
-                this->Move();
-                endPos = this->state_.position;
-                out->push_back(CreateCylinder(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_, 50));
-                startPos = this->state_.position;
-                break;
+        case LLetter::Type::Forward:
+        {
+            // Draw + Move forward
+            this->Move();
+            endPos = this->state_.position;
+            out->push_back(CreateCylinder(startPos, endPos, this->state_.quaternion, this->state_.thickness, this->distance_, 50));
+            startPos = this->state_.position;
+            break;
+        }
+        case LLetter::Type::NoDrawForward: {
+            this->Move();
+            endPos = this->state_.position;
+            break;
+        }
+        case LLetter::Type::NoDrawForward2:
+        {
+            // No Draw + Move foward
+            this->Move(leafDistance_);
+            //endPos = this->state_.position;
+            //out->push_back(CreateLineModel(startPos, endPos));
+            break;
+        }
+        case LLetter::Type::RollLeft:
+        {
+            // angleChange_ 만큼 x축 회전
+            if (drawingLeaf_) {
+                this->Rotate(0, leafAngleChange_);
             }
-            case LLetter::Type::NoDrawForward: {
-                this->Move();
-                endPos = this->state_.position;
-                break;
+            else {
+                this->Rotate(0, angleChange_);
             }
-            case LLetter::Type::NoDrawForward2:
-            {
-                // No Draw + Move foward
-                this->Move(leafDistance_);
-                //endPos = this->state_.position;
-                //out->push_back(CreateLineModel(startPos, endPos));
-                break;
+            break;
+        }
+        case LLetter::Type::RollRight:
+        {
+            // -angleChange_ 만큼 x축 회전
+            if (drawingLeaf_) {
+                this->Rotate(0, -leafAngleChange_);
             }
-            case LLetter::Type::RollLeft:
-            {
-                // angleChange_ 만큼 x축 회전
-                if (drawingLeaf_) {
-                    this->Rotate(0, leafAngleChange_);
-                }
-                else {
-                    this->Rotate(0, angleChange_);
-                }
-                break;
+            else {
+                this->Rotate(0, -angleChange_);
             }
-            case LLetter::Type::RollRight:
-            {
-                // -angleChange_ 만큼 x축 회전
-                if (drawingLeaf_) {
-                    this->Rotate(0, -leafAngleChange_);
-                }
-                else {
-                    this->Rotate(0,- angleChange_);
-                }
-                break;
+            break;
+        }
+        case LLetter::Type::PitchUp:
+        {
+            // angleChange_ 만큼 y축 회전
+            if (drawingLeaf_) {
+                this->Rotate(1, leafAngleChange_);
             }
-            case LLetter::Type::PitchUp:
-            {
-                // angleChange_ 만큼 y축 회전
-                if (drawingLeaf_) {
-                    this->Rotate(1, leafAngleChange_);
-                }
-                else {
-                    this->Rotate(1, angleChange_);
-                }
-                break;
+            else {
+                this->Rotate(1, angleChange_);
             }
-            case LLetter::Type::PitchDown:
-            {
-                // -angleChange_ 만큼 y축 회전
-                if (drawingLeaf_) {
-                    this->Rotate(1, -leafAngleChange_);
-                }
-                else {
-                    this->Rotate(1, -angleChange_);
-                }
-                break;
+            break;
+        }
+        case LLetter::Type::PitchDown:
+        {
+            // -angleChange_ 만큼 y축 회전
+            if (drawingLeaf_) {
+                this->Rotate(1, -leafAngleChange_);
             }
-            case LLetter::Type::TurnLeft:
-            {
-                // angleChange_ 만큼 z축 회전
-                //this->Rotate(2, angleChange_);
+            else {
+                this->Rotate(1, -angleChange_);
+            }
+            break;
+        }
+        case LLetter::Type::TurnLeft:
+        {
+            // angleChange_ 만큼 z축 회전
+            //this->Rotate(2, angleChange_);
 
-                if (drawingLeaf_) {
-                    this->Rotate(2, leafAngleChange_);
-                }
-                else {
-                    this->Rotate(2, angleChange_);
-                }
-
-                break;
+            if (drawingLeaf_) {
+                this->Rotate(2, leafAngleChange_);
             }
-            case LLetter::Type::TurnRight:
-            {
-                // -angleChange_ 만큼 z축 회전
-                //this->Rotate(2, -angleChange_);
-
-                if (drawingLeaf_) {
-                    this->Rotate(2, -leafAngleChange_);
-                }
-                else {
-                    this->Rotate(2, -angleChange_);
-                }
-
-                break;
+            else {
+                this->Rotate(2, angleChange_);
             }
-            case LLetter::Type::TurnAround:
-            {
-                // 180도 z축 회전
-                this->Rotate(2, 180.f);
-                break;
-            }
-            case LLetter::Type::Push:
-            {
-                // 현재 State 저장
-                ss.push(this->state_);
-                break;
-            }
-            case LLetter::Type::Pop:
-            {
-                // 이전 State 복원
-                // 위치도 같이 옮겨지는 경우 No draw
-                this->state_ = ss.top();
-                ss.pop();
-                startPos = this->state_.position;
-                break;
-            }
-            case LLetter::Type::StartingPoint:
-            {
-                leaf = new std::vector<Vector3>();
 
-                leaf->push_back(this->state_.position);
+            break;
+        }
+        case LLetter::Type::TurnRight:
+        {
+            // -angleChange_ 만큼 z축 회전
+            //this->Rotate(2, -angleChange_);
 
-                this->drawingLeaf_ = true;
-
-                leafstack.push(leaf);
-                break;
+            if (drawingLeaf_) {
+                this->Rotate(2, -leafAngleChange_);
             }
-            case LLetter::Type::MarkingPoint:
-            {
-                leaf->push_back(this->state_.position);
-
-                break;
+            else {
+                this->Rotate(2, -angleChange_);
             }
-            case LLetter::Type::EndingPoint:
-            {
-                out->push_back(CreateLeaf(leaf, this->state_.direction));
 
-                if (!leafstack.empty()) {
-                    leaf = leafstack.top();
-                    leafstack.pop();
-                }
-                else {
-                    leaf = nullptr;
-                }
+            break;
+        }
+        case LLetter::Type::TurnAround:
+        {
+            // 180도 z축 회전
+            this->Rotate(2, 180.f);
+            break;
+        }
+        case LLetter::Type::Push:
+        {
+            // 현재 State 저장
+            ss.push(this->state_);
+            break;
+        }
+        case LLetter::Type::Pop:
+        {
+            // 이전 State 복원
+            // 위치도 같이 옮겨지는 경우 No draw
+            this->state_ = ss.top();
+            ss.pop();
+            startPos = this->state_.position;
+            break;
+        }
+        case LLetter::Type::StartingPoint:
+        {
+            leaf = new std::vector<Vector3>();
 
-                this->drawingLeaf_ = false;
-                this->leafDirection = { 0.0f, 1.0f, 0.0f };
+            leaf->push_back(this->state_.position);
 
-                break;
+            this->drawingLeaf_ = true;
+
+            leafstack.push(leaf);
+            break;
+        }
+        case LLetter::Type::MarkingPoint:
+        {
+            leaf->push_back(this->state_.position);
+
+            break;
+        }
+        case LLetter::Type::EndingPoint:
+        {
+            out->push_back(CreateLeaf(leaf, this->state_.direction));
+
+            if (!leafstack.empty()) {
+                leaf = leafstack.top();
+                leafstack.pop();
             }
-            case LLetter::Type::None:
-            {
-                break;
+            else {
+                leaf = nullptr;
             }
-         }
+
+            this->drawingLeaf_ = false;
+            this->leafDirection = { 0.0f, 1.0f, 0.0f };
+
+            break;
+        }
+        case LLetter::Type::None:
+        {
+            break;
+        }
+        }
     }
 }
 
@@ -599,6 +761,13 @@ void LSystem::LoadPreset(std::string& filename)
             {
                 this->SetDistance(std::stof(value));
             }
+            else if (key == "ignore")
+            {
+                for (const char& c : value)
+                {
+                    this->AddIgnore(c);
+                }
+            }
         }
     }
 
@@ -634,7 +803,7 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
     float sin = std::sinf(rad);
 
     float x, y, z;
-    if (drawingLeaf_) 
+    if (drawingLeaf_)
     {
         x = this->leafDirection.x;
         y = this->leafDirection.y;
@@ -653,42 +822,42 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 
     switch (axis)
     {
-		case 0:
-		{
-			if (!drawingLeaf_)
-			{
-				// Roll, x
-				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
-			}
+    case 0:
+    {
+        if (!drawingLeaf_)
+        {
+            // Roll, x
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
+        }
 
-			newY = cos * y - sin * z;
-			newZ = sin * y + cos * z;
-			break;
-		}
-		case 1:
-		{
-			if (!drawingLeaf_)
-			{
-				// Pitch, y
-				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
-			}
+        newY = cos * y - sin * z;
+        newZ = sin * y + cos * z;
+        break;
+    }
+    case 1:
+    {
+        if (!drawingLeaf_)
+        {
+            // Pitch, y
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
+        }
 
-			newX = cos * x + sin * z;
-			newZ = -sin * x + cos * z;
-			break;
-		}
-		case 2:
-		{
-			if (!drawingLeaf_)
-			{
-				// Turn, z
-				this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
-			}
+        newX = cos * x + sin * z;
+        newZ = -sin * x + cos * z;
+        break;
+    }
+    case 2:
+    {
+        if (!drawingLeaf_)
+        {
+            // Turn, z
+            this->state_.quaternion = DirectX::XMQuaternionMultiply(this->state_.quaternion, DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
+        }
 
-			newX = cos * x - sin * y;
-			newY = sin * x + cos * y;
-			break;
-		}
+        newX = cos * x - sin * y;
+        newY = sin * x + cos * y;
+        break;
+    }
     }
 
     if (drawingLeaf_)

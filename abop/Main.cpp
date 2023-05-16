@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <string>
 #include "Stdafx.h"
 #include "D3DClass.hpp"
@@ -86,7 +87,10 @@ int main(int, char**)
     {
         return -1;
     }
-    static std::vector<LRule> rules;
+
+    // rules & ignores
+    std::vector<LRule::RuleInfo> ruleInfos = std::vector<LRule::RuleInfo>();
+    std::map<char, bool> ignores = std::map<char, bool>();
 
     // Graphics 초기화
     Graphics* graphics = new Graphics();
@@ -161,11 +165,10 @@ int main(int, char**)
     // Preset load (Init render) 시 아래 변수를 true로 설정해야
     // 다음 frame에서 load 함
     static bool isUpdateRules = true;
+    static bool isUpdateIgnores = true;
     static bool isUpdateWord = true;
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
-
-    LoadPresetList();
 
     // Main loop
     bool done = false;
@@ -510,6 +513,60 @@ int main(int, char**)
 
         if (ImGui::CollapsingHeader("Rules"))
         {
+            static char addIgnore[4] = "";
+            // Ignores
+            if (ImGui::Button("Add Ignores"))
+            {
+                ClearCharArray(4, addIgnore);
+                ImGui::OpenPopup("AddIgnore");
+            }
+
+            if (isUpdateIgnores)
+            {
+                ignores = lSystem->GetIgnores();
+                isUpdateIgnores = false;
+            }
+
+            static char ignore[4];
+
+            for (auto& [ig, _] : ignores)
+            {
+                ImGui::SameLine();
+                ignore[0] = ig;
+
+                if (ImGui::Button(ignore))
+                {
+                    lSystem->DeleteIgnore(ignore[0]);
+
+                    isUpdateIgnores = true;
+                }
+
+                ClearCharArray(4, ignore);
+            }
+
+            // Ignore pop up
+            if (ImGui::BeginPopup("AddIgnore", NULL))
+            {
+                ImGui::InputText("Ignore", addIgnore, IM_ARRAYSIZE(addIgnore));
+
+                if (ImGui::Button("Add"))
+                {
+                    // 첫 글자만 인식
+                    lSystem->AddIgnore(addIgnore[0]);
+
+                    // update
+                    isUpdateIgnores = true;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Close"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+
+            // Rules
             static char addKey[16] = "";
             static char addValue[128] = "";
             if (ImGui::Button("Add"))
@@ -519,6 +576,7 @@ int main(int, char**)
                 ImGui::OpenPopup("AddRules");
             }
             
+            // add rule pop up
             if (ImGui::BeginPopup("AddRules", NULL))
             {
                 ImGui::InputText("key", addKey, IM_ARRAYSIZE(addKey));
@@ -542,35 +600,52 @@ int main(int, char**)
 
             if (isUpdateRules)
             {
-                rules = lSystem->GetRules();
+                ruleInfos.clear();
+                for (auto& [before, rule] : lSystem->GetRules())
+                {
+                    for (const LRule::RuleInfo& ruleInfo : rule.GetRuleInfos())
+                    {
+                        ruleInfos.push_back(ruleInfo);
+                    }
+                }
                 
                 isUpdateRules = false;
-
             }
 
             static char key[16];
             static char value[128];
 
-            for (LRule& rule : rules)
+            int ruleIndex = 0;      
+            for (const LRule::RuleInfo& ruleInfo : ruleInfos)
             {
-                for (int i = 0; i < rule.GetRuleCount(); i++)
+                // 동일한 key로 button 생성 시 처음 button만 인식 됨
+                // ruleIndex: key 로 변경
+                int j = 0;
+                key[j++] = char(ruleIndex++) + '0';
+                key[j++] = ':';
+                for (int i = 0; i < ruleInfo.before.size(); i++)
                 {
-                    rule.GetKey(key);
-                    rule.GetValue(value, i);
-
-                    if (ImGui::Button(key))
-                    {
-                        // !!! key가 1개인 경우만 고려
-                        lSystem->DeleteRule(key[0]);
-                        isUpdateRules = true;
-                    }
-                    ImGui::SameLine();
-                    //ImGui::Text("%s\t%s", key, value);
-                    ImGui::Text("%s", value);
-
-                    ClearCharArray(16, key);
-                    ClearCharArray(128, value);
+                    key[j] = ruleInfo.before[i];
+                    j++;
                 }
+
+                for (int i = 0; i < ruleInfo.after.size(); i++)
+                {
+                    value[i] = ruleInfo.after[i];
+                }
+
+                if (ImGui::Button(key))
+                {
+                    std::string keyStr(key);
+                    lSystem->DeleteRule(keyStr.substr(2, keyStr.size()), ruleInfo.id);
+
+                    isUpdateRules = true;
+                }
+                ImGui::SameLine();
+                ImGui::Text("%s", value);
+
+                ClearCharArray(16, key);
+                ClearCharArray(128, value);
             }
         }
 
@@ -763,19 +838,35 @@ void SavePreset(std::string filename, LSystem* lSystem)
     file.write(ok.c_str(), ok.size());
     ok = "word:" + lSystem->GetWord() + '\n';
     file.write(ok.c_str(), ok.size());
+    if (lSystem->GetIgnores().size() > 0)
+    {
+        ok = "ignore:";
+        for (auto& [symbol, _] : lSystem->GetIgnores())
+        {
+            ok += symbol;
+        }
+        ok += '\n';
+        file.write(ok.c_str(), ok.size());
+    }
     ok = "rule\n";
     file.write(ok.c_str(), ok.size());
 
-    for (LRule& rules : lSystem->GetRules())
+    bool existRule = false;
+    for (auto& [_, rule] : lSystem->GetRules())
     {
-        for (int i = 0; i < rules.GetRuleCount(); i++)
+        for (const LRule::RuleInfo& ruleInfo : rule.GetRuleInfos())
         {
-            ok = rules.GetKeyString() + ":" + rules.GetValueString(i) + '\n';
+            existRule = true;
+            std::string before = ruleInfo.before;
+            // 공백 제거
+            before.erase(remove(before.begin(), before.end(), ' '), before.end());
+
+            ok = before + ":" + ruleInfo.after + '\n';
             file.write(ok.c_str(), ok.size());
         }
     }
 
-    if (lSystem->GetRules().size() > 0)
+    if (existRule)
     {
         ok = "end";
         file.write(ok.c_str(), ok.size());

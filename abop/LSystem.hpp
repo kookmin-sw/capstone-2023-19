@@ -1,7 +1,16 @@
 #pragma once
 
+// !!! 전방선언 에러 때문에 임시로 추가
+#include <map>
+
 class LRule;
 class LLetter;
+
+struct info
+{
+    char letter;
+    int origIndex;
+};
 
 class LSystem
 {
@@ -19,8 +28,10 @@ private:
     DirectX::XMFLOAT3 axisY;
     DirectX::XMFLOAT3 axisZ;
 
-    std::vector<LRule> rules_;
+    std::map<char, LRule> rules_;
     std::vector<LLetter>* word_;
+
+    std::map<char, bool> mIgnores;
 
 public:
     LSystem();
@@ -30,8 +41,8 @@ public:
     std::string GetWord() const;       // Word text
     void GetWord(char* out);
 
-    std::vector<LRule> GetRules() const;
-    std::string GetRuleText() const;
+    // { before, LRule } pair
+    std::map<char, LRule> GetRules();
 
     float GetAngleChange() const;
     float GetDistance() const;
@@ -49,14 +60,17 @@ public:
     void SetLeafDistance(const float&);
     
     // Rule
-    void AddRule(const std::string&);
-    void AddRule(const char&, const std::string&);
-    void AddRule(const std::string&, const std::string&);
-    void DeleteRule(const char&);
+    void AddRule(std::string, const std::string&);
+    void DeleteRule(const std::string& key, const int& afterId);
     void ClearRule();
 
     void ClearState();
 
+    // Ignore
+    std::map<char, bool> GetIgnores();
+    void AddIgnore(char symbol);
+    void DeleteIgnore(char symbol);
+    
     // Run
     void Iterate();
     void Iterate(int);
@@ -74,7 +88,7 @@ private:
 
     void Reset();
 
-    // Model ����
+    // Model 관련
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
     Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
