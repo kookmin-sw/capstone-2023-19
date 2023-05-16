@@ -8,3 +8,4 @@ bool IsOperator(const std::string& s);
 std::string charToString(const char& c);
 float Calculate(const float& a, const std::string& oper, const float& b);
 float CalculateString(std::string s);
+bool IsFloat(const std::string& s);

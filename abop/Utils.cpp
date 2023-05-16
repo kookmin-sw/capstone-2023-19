@@ -203,3 +203,10 @@ float CalculateString(std::string s)
 
     return numbers.top();
 }
+
+bool IsFloat(const std::string& s) {
+    std::istringstream iss(s);
+    float dummy;
+    iss >> std::noskipws >> dummy;
+    return iss && iss.eof();
+}

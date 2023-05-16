@@ -168,19 +168,8 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
             c.target = std::to_string(CalculateString(c.target));
         }
 
-        // Condition 체크 시작
-        bool isNumber = true;
-        for (int i = 0; i < c.target.length(); i++)
-        {
-            if (!isdigit(c.target[i]))
-            {
-                isNumber = false;
-                break;
-            }
-        }
-
         // 위에서 파싱한 경우 
-        if (isNumber)
+        if (IsFloat(c.target))
             value = std::stof(c.target);
         else // 일반적인 단일 문자인 경우
 			value = std::stof(valueParams[c.target]);
