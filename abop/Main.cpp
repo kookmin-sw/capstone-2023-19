@@ -779,7 +779,6 @@ int main(int, char**)
             {
                 
                 AddConstant(constant, value);
-
             }
             ImGui::SameLine();
             if (ImGui::Button("Close"))

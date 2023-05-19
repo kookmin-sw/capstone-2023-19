@@ -5,6 +5,14 @@ void AddConstant(std::string& key, std::string& value)
 	CONSTANT[key] = value;
 }
 
+std::string GetConstant(std::string& key)
+{
+	auto found = CONSTANT.find(key);
+	if (found != CONSTANT.end())
+		return found->second;
+	return "";
+}
+
 void DeleteConstant(std::string& key)
 {
 	auto found = CONSTANT.find(key);

@@ -6,6 +6,7 @@
 static std::map<std::string, std::string> CONSTANT;
 
 void AddConstant(std::string&, std::string&);
+std::string GetConstant(std::string&);
 void DeleteConstant(std::string&);
 void ReplaceConstant(std::string&);
 bool IsConstant(std::string&);
