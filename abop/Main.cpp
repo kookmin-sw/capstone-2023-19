@@ -23,6 +23,7 @@
 #include "InputClass.hpp"
 #include "LSystem.hpp"
 #include "LRule.hpp"
+#include "Constant.hpp"
 
 // Data
 std::string PATH = "./data/preset/";
@@ -484,9 +485,21 @@ int main(int, char**)
             lSystem->GetWord(word);
             isUpdateWord = false;
         }
-
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 
+        int count = 0;
+        std::string fristStrig = "";
+        static char fristString[1024 * 256] = "";
+        if (ImGui::Button("Frist Ver."))
+        {
+            count = 0;
+            
+            //ClearCharArray(1024 * 256, word); 
+            lSystem->SetWord(fristString);
+            lSystem->ClearState();
+            graphics->UpdateModels();
+        }
+        //ImGui::Text("%c", fristString);
         if (ImGui::Button("Reset"))
         {
             lSystem->SetWord("");
@@ -500,6 +513,7 @@ int main(int, char**)
         ImGui::SameLine();
         if (ImGui::Button("Iterate"))
         {
+            
             ClearCharArray(1024 * 64, word);
             lSystem->Iterate(1);
             lSystem->GetWord(word);
@@ -507,6 +521,12 @@ int main(int, char**)
         ImGui::SameLine();
         if (ImGui::Button("Render"))
         {
+            if (!count)
+            {
+                strcpy_s(fristString, word);
+                //fristString += word;
+            }
+            count++;
             lSystem->SetWord(word);
             lSystem->ClearState();
             graphics->UpdateModels();
@@ -547,7 +567,8 @@ int main(int, char**)
 
             // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
             ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4), flags);
+
         }
 
         if (ImGui::CollapsingHeader("Rules"))
@@ -732,6 +753,60 @@ int main(int, char**)
             {
                 lSystem->SetDeltaThickness(nextThickness);
             }
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n<Constant Edit>");
+        ImGui::PopStyleColor();
+
+        if (ImGui::Button("New Constant Add"))
+        {
+            ImGui::OpenPopup("New Constant");
+        }
+
+        static char newConstant[4] = "";
+        static char newValue[4] = "";
+
+        if (ImGui::BeginPopup("New Constant", NULL))
+        {
+            ImGui::InputText("constant", newConstant, IM_ARRAYSIZE(newConstant));
+            ImGui::InputText("value", newValue, IM_ARRAYSIZE(newValue));
+
+            std::string constant = newConstant;
+            std::string value = newValue;
+
+            if (ImGui::Button("Add New"))
+            {
+                
+                AddConstant(constant, value);
+
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            
+            ImGui::EndPopup();
+        }
+        
+        const char* variables[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF" }; // 예시임
+        static int variable_current_idx = 0;
+        const char* combo_preview_value = variables[variable_current_idx];
+        if (ImGui::BeginCombo("Variable List", combo_preview_value, flags))
+        {
+            for (int n = 0; n < IM_ARRAYSIZE(variables); n++)
+            {
+                const bool is_selected = (variable_current_idx == n);
+                if (ImGui::Selectable(variables[n], is_selected))
+                    variable_current_idx = n;
+                    // 인덱싱 처리
+                    
+
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
         }
 
         ImGui::End();
