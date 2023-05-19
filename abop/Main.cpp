@@ -674,10 +674,6 @@ int main(int, char**)
             // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
             ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
                 ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4), flags);
-<<<<<<< HEAD
-
-=======
->>>>>>> dev
         }
 
         if (ImGui::CollapsingHeader("Rules"))
