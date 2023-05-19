@@ -152,6 +152,9 @@
     <ClCompile Include="Constant.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="imgui\imGuIZMOquat.cpp">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -295,6 +298,15 @@
     <ClInclude Include="Constant.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="imgui\vgMath.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\vGizmo.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imGuIZMOquat.h">
+      <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Light.ps">
@@ -315,8 +327,10 @@
     <None Include="Light.vs">
       <Filter>DX</Filter>
     </None>
-    <None Include="DirectXTK\include\SimpleMath.inl" />
     <None Include="imgui\imgui.natstepfilter">
+      <Filter>DX\ImGui\imgui</Filter>
+    </None>
+    <None Include="DirectXTK\include\SimpleMath.inl">
       <Filter>DX\ImGui\imgui</Filter>
     </None>
   </ItemGroup>
