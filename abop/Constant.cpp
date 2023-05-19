@@ -1,4 +1,6 @@
+#include <vector>
 #include "Constant.hpp"
+
 
 void AddConstant(std::string& key, std::string& value)
 {
@@ -11,6 +13,15 @@ std::string GetConstant(std::string& key)
 	if (found != CONSTANT.end())
 		return found->second;
 	return "";
+}
+
+std::vector<std::pair<std::string, std::string>> GetConstants()
+{
+	std::vector<std::pair<std::string, std::string>> ret;
+	for (auto it = CONSTANT.begin(); it != CONSTANT.end(); it++)
+		ret.push_back({ it->first, it->second });
+
+	return ret;
 }
 
 void DeleteConstant(std::string& key)
