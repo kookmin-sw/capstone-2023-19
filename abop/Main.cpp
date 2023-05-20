@@ -219,6 +219,7 @@ int main(int, char**)
         // 1. UI (Default)
         {
             
+            style.FrameRounding = 4.f;
             ImGui::Begin("DirectX Controller");
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 128));
             ImGui::Text("Welcome, DirectX World! \n\nThis is a library viewer for real-time \ngrowing plant models.");
@@ -506,7 +507,10 @@ int main(int, char**)
         }
 
         // Multi-line Text 
+        int count = 0;
+        static char fristString[1024 * 256] = "";
         static char word[1024 * 256] = "";
+
         if (isUpdateWord)
         {
             ClearCharArray(1024 * 256, word);
@@ -526,7 +530,18 @@ int main(int, char**)
         if (ImGui::Button("Start")) // render
         {
             running = true;
-            
+           
+        }
+        ImGui::PopStyleColor(3);
+
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(5 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(5 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(5 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Pause"))
+        {
+            running = false;
+            runningTime = 0.f;
         }
         ImGui::PopStyleColor(3);
 
@@ -536,16 +551,32 @@ int main(int, char**)
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
         if (ImGui::Button("Stop"))
         {
-            // Auto render stop
-            running = false;
-            runningTime = 0.f;
+            
+            // Reset
+            lSystem->SetWord("");
+            lSystem->ClearRule();
+            lSystem->ClearState();
+            ClearCharArray(1024 * 256, word);
+            graphics->UpdateModels();
+
+            count = 0;
+            strcpy_s(word, fristString);
+            //lSystem->GetWord(word);
+            
+            // Render
+            lSystem->SetWord(word);
+            lSystem->ClearState();
+            graphics->UpdateModels();
+
         }
         ImGui::PopStyleColor(3);
-        
+
         if (running)
         {
             if (runningTime > frequency)
             {
+                if (!count) strcpy_s(fristString, word);
+                count++;
                 ClearCharArray(1024 * 64, word);
                 lSystem->Iterate(1);
                 lSystem->GetWord(word);
@@ -559,7 +590,7 @@ int main(int, char**)
 
         ImGui::SameLine();
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("  frequency :");
+        ImGui::Text("frequency :");
         ImGui::SameLine();
         float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
         ImGui::Text("%d", frequency);
@@ -581,19 +612,7 @@ int main(int, char**)
 
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 
-        int count = 0;
-        std::string fristStrig = "";
-        static char fristString[1024 * 256] = "";
-        if (ImGui::Button("Frist Ver."))
-        {
-            count = 0;
-            
-            //ClearCharArray(1024 * 256, word); 
-            lSystem->SetWord(fristString);
-            lSystem->ClearState();
-            graphics->UpdateModels();
-        }
-        //ImGui::Text("%c", fristString);
+        
         if (ImGui::Button("Reset"))
         {
             lSystem->SetWord("");
@@ -615,11 +634,7 @@ int main(int, char**)
         ImGui::SameLine();
         if (ImGui::Button("Render"))
         {
-            if (!count)
-            {
-                strcpy_s(fristString, word);
-                //fristString += word;
-            }
+            if (!count) strcpy_s(fristString, word);
             count++;
             lSystem->SetWord(word);
             lSystem->ClearState();
@@ -666,10 +681,14 @@ int main(int, char**)
 
         if (ImGui::CollapsingHeader("Word"))
         {
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
             if (ImGui::Button("Save"))
             {
                 lSystem->SetWord(word);
             }
+            ImGui::PopStyleColor(3);
 
             // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
             ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
@@ -858,6 +877,73 @@ int main(int, char**)
             {
                 lSystem->SetDeltaThickness(nextThickness);
             }
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n<Constant>");
+        ImGui::PopStyleColor();
+
+        if (ImGui::Button("New Constant Add"))
+        {
+            ImGui::OpenPopup("New Constant");
+        }
+
+        static char newConstant[4] = "";
+        static char newValue[4] = "";
+
+        if (ImGui::BeginPopup("New Constant", NULL))
+        {
+            ImGui::Text("[New Constant Window]");
+            ImGui::InputText("constant", newConstant, IM_ARRAYSIZE(newConstant));
+            ImGui::InputText("value", newValue, IM_ARRAYSIZE(newValue));
+
+            std::string constant = newConstant;
+            std::string value = newValue;
+
+           // bool constantEdit = false;
+
+            if (ImGui::Button("Add New"))
+            {
+                AddConstant(constant, value);
+                ImGui::OpenPopup("Constant Edit");
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::BeginPopup("Constant Edit", NULL))
+            {
+                static int slider_i = 50;
+                ImGui::Text("[New Constant Edit Slider]");
+
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(1 / 7.0f, 0.5f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
+                ImGui::SliderInt(" ", &slider_i, 0, 100); // Constant Slider
+                ImGui::PopStyleColor(4);
+                
+                char outConstant[1024] = "";
+                strcpy_s(outConstant, GetConstant(constant).c_str());
+                
+                ImGui::Text(">>> constant : %s", outConstant);
+
+                if (ImGui::Button("Edit"))
+                {
+                    AddConstant(constant, value);
+
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Close"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
+            ImGui::EndPopup();
         }
 
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
