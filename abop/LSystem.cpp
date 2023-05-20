@@ -683,9 +683,24 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::NoDrawForward2:
             {
                 // No Draw + Move foward
-                this->Move();
-                startPos = mState.position;
-                //out->push_back(CreateLineModel(startPos, endPos));
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    float distance = std::stof(params[0]);
+                    float thickness = params.size() > 1
+                        ? std::stof(params[1])
+                        : 0.3f;
+
+                    this->MoveParam(distance);
+                    startPos = mState.position;
+                }
+                else
+                {
+                    this->Move();
+                    startPos = mState.position;
+                    //out->push_back(CreateLineModel(startPos, endPos));
+                }
+
                 break;
             }
             case LLetter::Type::MakeLeaf: // Leaf Model Set 1
@@ -917,6 +932,14 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
 
                 break;
             }
+            case LLetter::Type::Tilt:
+            {
+                if (letter.IsParametic()) 
+                    this->Rotate(3, std::stof(letter.GetParameters()[0]));
+                else 
+                    this->Rotate(3, 90.0f);
+                break;
+            }
             case LLetter::Type::None:
             {
                 break;
@@ -1090,6 +1113,14 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 			newY = sin * x + cos * y;
 			break;
 		}
+        case 3: // only for $ symbol
+        {
+            DirectX::XMFLOAT3 axisHead;
+            axisHead.x = x, axisHead.y = y, axisHead.z = z;
+            mState.quaternion = DirectX::XMQuaternionMultiply(
+                mState.quaternion,
+                DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisHead), rad));
+        }
     }
 
     if (mDrawingLeaf)

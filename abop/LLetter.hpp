@@ -22,7 +22,8 @@ public:
         Pop = ']',
         StartingPoint = '{',
         EndingPoint = '}',
-        MarkingPoint = '.'
+        MarkingPoint = '.',
+        Tilt = '$'
     };
 
 private:
