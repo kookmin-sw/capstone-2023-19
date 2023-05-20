@@ -186,6 +186,8 @@ int main(int, char**)
     unsigned long long lastTick;
     quat qRot = quat(1.f, 0.f, 0.f, 0.f);
 
+    std::string firstString;
+
     // Main loop
     bool done = false;
     while (!done)
@@ -506,9 +508,7 @@ int main(int, char**)
             ImGui::EndMenuBar();
         }
 
-        // Multi-line Text 
-        int count = 0;
-        static char fristString[1024 * 256] = "";
+        // Multi-line Text
         static char word[1024 * 256] = "";
 
         if (isUpdateWord)
@@ -529,8 +529,8 @@ int main(int, char**)
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
         if (ImGui::Button("Start")) // render
         {
-            running = true;
-           
+           running = true;
+           firstString = lSystem->GetWord();
         }
         ImGui::PopStyleColor(3);
 
@@ -551,22 +551,19 @@ int main(int, char**)
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
         if (ImGui::Button("Stop"))
         {
-            
-            // Reset
+            // Reset (rule은 유지)
             lSystem->SetWord("");
-            lSystem->ClearRule();
             lSystem->ClearState();
             ClearCharArray(1024 * 256, word);
             graphics->UpdateModels();
-
-            count = 0;
-            strcpy_s(word, fristString);
-            //lSystem->GetWord(word);
+            running = false;
+            runningTime = 0;
             
             // Render
-            lSystem->SetWord(word);
-            lSystem->ClearState();
-            graphics->UpdateModels();
+            lSystem->SetWord(firstString);
+            isUpdateWord = true;
+            //lSystem->ClearState();
+            //graphics->UpdateModels();
 
         }
         ImGui::PopStyleColor(3);
@@ -575,8 +572,6 @@ int main(int, char**)
         {
             if (runningTime > frequency)
             {
-                if (!count) strcpy_s(fristString, word);
-                count++;
                 ClearCharArray(1024 * 64, word);
                 lSystem->Iterate(1);
                 lSystem->GetWord(word);
@@ -626,7 +621,6 @@ int main(int, char**)
         ImGui::SameLine();
         if (ImGui::Button("Iterate"))
         {
-            
             ClearCharArray(1024 * 64, word);
             lSystem->Iterate(1);
             lSystem->GetWord(word);
@@ -634,8 +628,6 @@ int main(int, char**)
         ImGui::SameLine();
         if (ImGui::Button("Render"))
         {
-            if (!count) strcpy_s(fristString, word);
-            count++;
             lSystem->SetWord(word);
             lSystem->ClearState();
             graphics->UpdateModels();
