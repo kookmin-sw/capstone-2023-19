@@ -786,14 +786,10 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                         std::stof(params[1])
                         : 1.0f;
 
-                    // Position 보정
-                    position = position + mState.direction * scale;
                     out->push_back(CreateLeafPreset(position, mState.quaternion, type, scale));
                 }
                 else
                 {
-                    // Position 보정
-                    position = position + mState.direction;
                     out->push_back(CreateLeafPreset(position, mState.quaternion, 1, 1.0f));
                 }
                 break;
