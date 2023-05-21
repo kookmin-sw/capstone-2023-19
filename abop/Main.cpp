@@ -868,7 +868,7 @@ int main(int, char**)
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
             if (ImGui::Button("Add New"))
             {
-                if (newConstant && newValue)
+                if (constant.size() && value.size())
                 {
                     AddConstant(constant, value);
                 }
@@ -1194,7 +1194,24 @@ void SavePreset(std::string filename, LSystem* lSystem)
 
     if (existRule)
     {
-        ok = "end";
+        ok = "end\n";
+        file.write(ok.c_str(), ok.size());
+    }
+
+    ok = "constant\n";
+    file.write(ok.c_str(), ok.size());
+
+    bool existConstant = false;
+    for (const std::pair<std::string, std::string>& constant : GetConstants())
+    {
+        existConstant = true;
+        ok = constant.first + ":" + constant.second + '\n';
+        file.write(ok.c_str(), ok.size());
+    }
+
+    if (existConstant)
+    {
+        ok = "end\n";
         file.write(ok.c_str(), ok.size());
     }
 

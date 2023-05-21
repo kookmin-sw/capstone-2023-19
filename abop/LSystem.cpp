@@ -956,6 +956,7 @@ void LSystem::LoadPreset(std::string& filename)
     std::ifstream ifs;
 
     this->Reset();
+    ResetConstant();
 
     ifs.open(filename);
 
@@ -973,6 +974,19 @@ void LSystem::LoadPreset(std::string& filename)
 
                 int index = inp.find("->");
                 this->AddRule(inp.substr(0, index), inp.substr(index + 2, inp.size()));
+            }
+        }
+        if (inp == "constant")
+        {
+            while (ifs >> inp)
+            {
+                if (inp == "end")
+                {
+                    break;
+                }
+
+                std::vector<std::string> constantInfo = split(inp, ':');
+                AddConstant(constantInfo[0], constantInfo[1]);
             }
         }
         else

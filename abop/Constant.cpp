@@ -42,6 +42,11 @@ void UpdateConstant(std::string& key, std::string& value)
 	}
 }
 
+void ResetConstant()
+{
+	CONSTANT = std::map<std::string, std::string>();
+}
+
 void DeleteConstant(std::string& key)
 {
 	auto found = CONSTANT.find(key);
