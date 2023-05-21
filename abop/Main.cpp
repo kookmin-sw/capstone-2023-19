@@ -43,6 +43,7 @@ void ClearCharArray(int size, char* out);
 std::vector<std::string> LoadPresetList();
 void SavePreset(std::string filename, LSystem* lsystem);
 unsigned long long timeSinceEpochMiliisec();
+void PrintConstant(std::string& constant, std::string& value);
 
 // Main code
 int main(int, char**)
@@ -185,6 +186,8 @@ int main(int, char**)
     float runningTime = 0.0f;
     unsigned long long lastTick;
     quat qRot = quat(1.f, 0.f, 0.f, 0.f);
+
+    std::string firstString;
 
     // Main loop
     bool done = false;
@@ -362,7 +365,7 @@ int main(int, char**)
             {
 
             }
-
+            
             if (show_mouse_window)
             {
 
@@ -525,18 +528,18 @@ int main(int, char**)
         static int frequency = 5;
 
         ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
         if (ImGui::Button("Start")) // render
         {
             running = true;
-           
+            firstString = lSystem->GetWord();
         }
         ImGui::PopStyleColor(3);
 
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(5 / 7.0f, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(5 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(5 / 7.0f, 0.5f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(5 / 7.0f, 0.8f, 0.8f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(5 / 7.0f, 0.8f, 0.8f));
         if (ImGui::Button("Pause"))
         {
@@ -547,26 +550,25 @@ int main(int, char**)
 
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
         if (ImGui::Button("Stop"))
         {
             
-            // Reset
+            // Reset (rule은 유지)
             lSystem->SetWord("");
             lSystem->ClearRule();
             lSystem->ClearState();
             ClearCharArray(1024 * 256, word);
             graphics->UpdateModels();
+            running = false;
+            runningTime = 0;
 
-            count = 0;
-            strcpy_s(word, fristString);
-            //lSystem->GetWord(word);
-            
             // Render
-            lSystem->SetWord(word);
-            lSystem->ClearState();
-            graphics->UpdateModels();
+            lSystem->SetWord(firstString);
+            isUpdateWord = true;
+            //lSystem->ClearState();
+            //graphics->UpdateModels();
 
         }
         ImGui::PopStyleColor(3);
@@ -575,8 +577,6 @@ int main(int, char**)
         {
             if (runningTime > frequency)
             {
-                if (!count) strcpy_s(fristString, word);
-                count++;
                 ClearCharArray(1024 * 64, word);
                 lSystem->Iterate(1);
                 lSystem->GetWord(word);
@@ -634,8 +634,6 @@ int main(int, char**)
         ImGui::SameLine();
         if (ImGui::Button("Render"))
         {
-            if (!count) strcpy_s(fristString, word);
-            count++;
             lSystem->SetWord(word);
             lSystem->ClearState();
             graphics->UpdateModels();
@@ -879,91 +877,87 @@ int main(int, char**)
             }
         }
 
+        static char newConstant[4] = "";
+        static char newValue[4] = "";
+        static std::string constant;
+        static std::string value;
+        static bool constant_edit_window = false;
+
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
         ImGui::Text("\n<Constant>");
         ImGui::PopStyleColor();
+        ImGui::InputText("constant", newConstant, IM_ARRAYSIZE(newConstant));
+        ImGui::InputText("value", newValue, IM_ARRAYSIZE(newValue));
 
-        if (ImGui::Button("New Constant Add"))
+        constant = newConstant;
+        value = newValue;
+
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1 / 7.0f, 0.5f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
+        if (ImGui::Button("Add New"))
         {
-            ImGui::OpenPopup("New Constant");
-        }
-
-        static char newConstant[4] = "";
-        static char newValue[4] = "";
-
-        if (ImGui::BeginPopup("New Constant", NULL))
-        {
-            ImGui::Text("[New Constant Window]");
-            ImGui::InputText("constant", newConstant, IM_ARRAYSIZE(newConstant));
-            ImGui::InputText("value", newValue, IM_ARRAYSIZE(newValue));
-
-            std::string constant = newConstant;
-            std::string value = newValue;
-
-           // bool constantEdit = false;
-
-            if (ImGui::Button("Add New"))
+            if (newConstant && newValue)
             {
                 AddConstant(constant, value);
-                ImGui::OpenPopup("Constant Edit");
+                constant_edit_window = true;
             }
+
+        }ImGui::PopStyleColor(3);
+
+
+        if (constant_edit_window)
+        {
+            PrintConstant(constant, value);
+            ImGui::SameLine();
+            if (ImGui::Button("Delete"))
+            {
+                DeleteConstant(constant);
+                constant_edit_window = false;
+            }
+        }
+
+
+        static bool view_code_window = false;
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n\n<Constant>");
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.3f, 0.3f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.5f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.9f, 0.9f));
+        if (ImGui::Button("View current L-System code"))
+        {
+            view_code_window = true;
+
+        }ImGui::PopStyleColor(3);
+
+
+        if (view_code_window)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+            ImGui::Text("Rendering with this L-System code.");
+            ImGui::PopStyleColor();
             ImGui::SameLine();
             if (ImGui::Button("Close"))
             {
-                ImGui::CloseCurrentPopup();
+                view_code_window = false;
             }
 
-            if (ImGui::BeginPopup("Constant Edit", NULL))
-            {
-                static int slider_i = 50;
-                ImGui::Text("[New Constant Edit Slider]");
+            static float wrap_width = 200.0f;
+            ImGui::SliderFloat("width", &wrap_width, 0, 500, "%.0f");
 
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(1 / 7.0f, 0.5f, 0.5f));
-                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.5f));
-                ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.5f));
-                ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
-                ImGui::SliderInt(" ", &slider_i, 0, 100); // Constant Slider
-                ImGui::PopStyleColor(4);
-                
-                char outConstant[1024] = "";
-                strcpy_s(outConstant, GetConstant(constant).c_str());
-                
-                ImGui::Text(">>> constant : %s", outConstant);
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
+            ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
 
-                if (ImGui::Button("Edit"))
-                {
-                    AddConstant(constant, value);
+            ImGui::Text(word, wrap_width);
+            draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(0, 255, 0, 255));
+            ImGui::PopTextWrapPos();
 
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Close"))
-                {
-                    ImGui::CloseCurrentPopup();
-                }
-
-                ImGui::EndPopup();
-            }
-            ImGui::EndPopup();
         }
-
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
-        ImGui::Text("\nRendering with this L-System code.");
-        ImGui::PopStyleColor();
-
-        static float wrap_width = 200.0f;
-        ImGui::SliderFloat("width", &wrap_width, 0, 500, "%.0f");
-
-        ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
-        ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
-        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
-
-        ImGui::Text(word, wrap_width);
-
-        draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(0, 255, 0, 255));
-        ImGui::PopTextWrapPos();
-
         ImGui::End();
 #pragma endregion L-System
 
@@ -1169,4 +1163,35 @@ void SavePreset(std::string filename, LSystem* lSystem)
 unsigned long long timeSinceEpochMiliisec()
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+void PrintConstant(std::string& constant, std::string& value)
+{   
+
+    static int slider_i = std::stoi(value);
+    static int sliderRange = slider_i * 2;
+    static char outConstant[4];
+    strcpy_s(outConstant, constant.c_str());
+
+    ImGui::Text("\n[New Constant]");
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(1 / 7.0f, 0.5f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
+    ImGui::SliderInt(" ", &slider_i, 0, sliderRange); // Constant Slider
+    ImGui::PopStyleColor(4);
+
+    ImGui::Text(">>> constant : %s ", outConstant);
+    ImGui::SameLine();
+    ImGui::Text(", value : %d", slider_i);
+
+
+    if (IsConstant(constant))
+    {
+        if (GetConstant(constant) != std::to_string(slider_i))
+        {
+            CONSTANT[constant] = std::to_string(slider_i);
+        }
+    }
+
 }
