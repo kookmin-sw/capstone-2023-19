@@ -118,6 +118,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="PresetLeaf.cpp" />
     <ClCompile Include="RuleCondition.cpp" />
     <ClCompile Include="Square.cpp" />
     <ClCompile Include="SystemClass.cpp">
@@ -227,6 +228,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Plane.hpp" />
+    <ClInclude Include="PresetLeaf.hpp" />
     <ClInclude Include="RandomSeed.hpp" />
     <ClInclude Include="RuleCondition.hpp" />
     <ClInclude Include="Square.hpp" />

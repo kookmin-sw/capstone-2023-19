@@ -155,6 +155,9 @@
     <ClCompile Include="imgui\imGuIZMOquat.cpp">
       <Filter>DX\ImGui\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="PresetLeaf.cpp">
+      <Filter>DX\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LLetter.hpp">
@@ -306,6 +309,9 @@
     </ClInclude>
     <ClInclude Include="imgui\imGuIZMOquat.h">
       <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="PresetLeaf.hpp">
+      <Filter>DX\Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
