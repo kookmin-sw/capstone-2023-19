@@ -20,6 +20,7 @@ private:
     float mDeltaThickness = 1.0f;
     float mLeafAngleChange = 22.5f;
     float mLeafDistance = 0.5f;
+    float mThickness = 0.3f;
     bool mDrawingLeaf = false;
     Vector3 mLeafDirection;
     State mState;
@@ -88,6 +89,7 @@ private:
     void Rotate(const unsigned short&, const float&);
 
     void Reset();
+    void ResetState();
 
     // Model 관련
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);

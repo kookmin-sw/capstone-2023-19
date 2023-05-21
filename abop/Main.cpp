@@ -503,6 +503,7 @@ int main(int, char**)
                         isUpdateWord = true;
                         isUpdateCamera = true;
                         isUpdateLSystemSetting = true;
+                        isUpdateConstants = true;
                     }
                 }
                 ImGui::EndMenu();

@@ -263,13 +263,7 @@ LSystem::LSystem()
 
     mLeafDirection = { 0.0f, 1.0f, 0.0f };
 
-    mState =
-    {
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
-        0.3f
-    };
+    ResetState();
 }
 
 LSystem::~LSystem()
@@ -318,7 +312,7 @@ float LSystem::GetDistance() const
 
 float LSystem::GetThickness() const
 {
-    return mState.thickness;
+    return mThickness;
 }
 
 float LSystem::GetDeltaThickness() const
@@ -363,7 +357,7 @@ void LSystem::SetWord(const std::string& word)
 
 void LSystem::SetThickness(const float& val)
 {
-    mState.thickness = val;
+    mThickness = val;
 }
 
 void LSystem::SetDeltaThickness(const float& val)
@@ -635,6 +629,8 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         return;
     }
 
+    ResetState();
+
     float width = 0.5;
     std::stack<StateInfo> ss;
     std::vector<Vector3>* leaf = nullptr;
@@ -657,7 +653,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     float distance = std::stof(params[0]);
                     float thickness = params.size() > 1
                         ? std::stof(params[1])
-                        : 0.3f;
+                        : mState.thickness;
 
                     this->MoveParam(distance);
                     endPos = mState.position;
@@ -1166,4 +1162,15 @@ void LSystem::Reset()
     //float mLeafAngleChange = 22.5f;
     //float mLeafDistance = 0.5f;
     //bool mDrawingLeaf = false;
+}
+
+void LSystem::ResetState()
+{
+    mState =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
+        mThickness
+    };
 }
