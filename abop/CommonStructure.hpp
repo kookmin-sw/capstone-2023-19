@@ -37,6 +37,7 @@ enum ModelType
     Custom,
     // Same as DX/Models/ModelVariation.cpp
     LeafModel,
+    PresetLeafModel,
     TriangleModel,
     SquareModel,
     PlaneModel,

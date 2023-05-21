@@ -175,6 +175,22 @@ void Graphics::UpdateModels()
 				this->models_->push_back((ModelClass*)leaf);
 				break;
 			}
+			case ModelType::PresetLeafModel:
+			{
+				PresetLeaf* leafPreset = new PresetLeaf;
+
+				leafPreset->SetPosition(model.data[0], model.data[1], model.data[2]);
+				leafPreset->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
+				leafPreset->SetType(model.data[7]);
+				leafPreset->SetScale(model.data[8]);
+
+				leafPreset->Initialize(this->d3d_->GetDevice(), model);
+
+				delete[] model.data;
+
+				this->models_->push_back((ModelClass*)leafPreset);
+				break;
+			}
 			case ModelType::CubeModel:
 			{
 				Cube* cube = new Cube;

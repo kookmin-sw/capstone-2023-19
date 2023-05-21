@@ -1,7 +1,13 @@
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 #include "Stdafx.h"
 #include "ModelClass.hpp"
+#include "Utils.hpp"
 #include "PresetLeaf.hpp"
-#include <vector>
+
+#include <iostream>
 
 bool PresetLeaf::Initialize(ID3D11Device* device, Model model)
 {
@@ -27,38 +33,46 @@ bool PresetLeaf::InitializeBuffers(ID3D11Device* device, Model model)
         return false;
     }
 
-    // Type에 따라 vertexCount 설정
-    switch (mType)
+    // Vertex, Index 정보 담긴 file 불러오기
+    std::string fileName = "data/preset_leaf/" + std::to_string(mType) + ".txt";
+    std::ifstream file(fileName);
+
+    // vertex 정보, index 정보 설정
+    std::string line;
+    float x, y, z;
+    int a, b, c;
+    if (file.is_open())
     {
-        case 1:
+        for (int i = 0; i < this->vertexCount_; i++)
         {
-            vertices[0].position = { 0.0f, 0.0f, 0.0f };
-            vertices[0].color = { 0.19f, 0.35f, 0.15f, 0.0f };
+	        if (std::getline(file, line))
+	        {
+                std::vector<std::string> temp = split(line, ' ');
+                x = std::stof(temp[0]) * mScale;
+                y = std::stof(temp[1]) * mScale;
+                z = std::stof(temp[2]) * mScale;
 
-            vertices[1].position = { -0.191315f * mScale, 0.0f, 0.46195f * mScale };
-            vertices[1].color = { 0.19f, 0.35f, 0.15f, 0.0f };
-
-            vertices[2].position = { 0.0f, 0.0f, 1.0f * mScale };
-            vertices[2].color = { 0.19f, 0.35f, 0.15f, 0.0f };
-
-            vertices[3].position = { 0.191315f * mScale, 0.0f, 0.46195f * mScale };
-            vertices[3].color = { 0.19f, 0.35f, 0.15f, 0.0f };
-            break;
+                vertices[i].position = { x, y, z };
+                vertices[i].color = { 0.19f, 0.35f, 0.15f, 0.0f };
+	        }
         }
-        // TODO : 나머지 Type의 Leaf Preset 추가 
-    }
-    
-    // Type에 따라 indexCount 설정
-    switch (mType)
-    {
-        case 1:
+
+        for (int i = 0; i < this->indexCount_; i += 3)
         {
-            indices[0] = 0, indices[1] = 1, indices[2] = 2;
-            indices[3] = 0, indices[4] = 2, indices[5] = 1;
-            indices[6] = 0, indices[7] = 2, indices[8] = 3;
-            indices[9] = 0, indices[10] = 3, indices[11] = 2;
-            break;
+	        if (std::getline(file, line))
+	        {
+                std::vector<std::string> temp = split(line, ' ');
+                a = std::stoi(temp[0]);
+                b = std::stoi(temp[1]);
+                c = std::stoi(temp[2]);
+
+                indices[i] = a;
+                indices[i + 1] = b;
+                indices[i + 2] = c;
+	        }
         }
+
+        file.close();
     }
     
 
