@@ -277,7 +277,19 @@ std::vector<LLetter> LRule::GetAfter(const LLetter& previous,
     // rule before(key)의 파라미터가 없는 경우
     // 변환된 after 모두 iterated에 추가
     int index = dist(gen) % total;
-    return mSortedAfter[index].letters;
+    for (LLetter letter : mSortedAfter[index].letters)
+    {
+        if (letter.IsParametic())
+        {
+            // after letter에 param이 있는 경우
+            // param key value map을 통해 변환
+            letter.CalculateParameter(valueParams);
+        }
+
+        result.push_back(letter);
+    }
+
+    return result;
 }
 
 std::vector<LRule::RuleInfo> LRule::GetRuleInfos()
