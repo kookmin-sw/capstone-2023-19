@@ -11,6 +11,7 @@ public:
         NoDrawForward2 = 'G',
         MakeLeaf = 'J',
         MakeLeaf2 = 'K',
+        UseLeafPreset = 'L',
         TurnLeft = '+',
         TurnRight = '-',
         PitchUp = '^',

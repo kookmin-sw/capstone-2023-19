@@ -96,4 +96,5 @@ private:
     Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
     Model CreateLeafSegment(std::vector<Vector3>*);
+    Model CreateLeafPreset(Vector3&, DirectX::XMVECTOR&, const int&, const float&); 
 };

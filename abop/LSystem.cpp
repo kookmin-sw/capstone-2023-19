@@ -164,6 +164,28 @@ Model LSystem::CreateLeafSegment(std::vector<Vector3>* leaf)
 
     return model;
 }
+
+Model LSystem::CreateLeafPreset(Vector3& position, DirectX::XMVECTOR& quaternion, const int& type, const float& scale)
+{
+    Model model;
+
+    model.modelType = ModelType::PresetLeafModel;
+
+    model.dataCount = 9;
+    model.data = new float[model.dataCount];
+
+    model.data[0] = position.x;
+    model.data[1] = position.y;
+    model.data[2] = position.z;
+    model.data[3] = DirectX::XMVectorGetX(quaternion);
+    model.data[4] = DirectX::XMVectorGetY(quaternion);
+    model.data[5] = DirectX::XMVectorGetZ(quaternion);
+    model.data[6] = DirectX::XMVectorGetW(quaternion);
+    model.data[7] = type;
+    model.data[8] = scale;
+
+    return model;
+}
 #pragma endregion
 
 #pragma region utils
@@ -751,6 +773,29 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
                 }
 
+                break;
+            }
+            case LLetter::Type::UseLeafPreset:
+            {
+                Vector3 position = startPos;
+                if (letter.IsParametic()) 
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    int type = std::stoi(params[0]);
+                    float scale = params.size() > 1 ?
+                        std::stof(params[1])
+                        : 1.0f;
+
+                    // Position 보정
+                    position = position + mState.direction * scale;
+                    out->push_back(CreateLeafPreset(position, mState.quaternion, type, scale));
+                }
+                else
+                {
+                    // Position 보정
+                    position = position + mState.direction;
+                    out->push_back(CreateLeafPreset(position, mState.quaternion, 1, 1.0f));
+                }
                 break;
             }
             case LLetter::Type::RollLeft:
