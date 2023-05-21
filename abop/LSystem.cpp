@@ -552,8 +552,10 @@ void LSystem::Iterate()
                 do
                 {
                     leftDepth--;
-                } while (depthVector[leftDepth].size() == 0);
-                leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1];
+                } while (leftDepth >= 0 && depthVector[leftDepth].size() == 0);
+
+                if (leftDepth >= 0)
+                    leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1];
             }
             // 각 depth의 0번 index 친구가 아니라면 같은 depth에서 찾으면 됨
             else
