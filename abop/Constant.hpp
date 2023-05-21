@@ -10,6 +10,7 @@ std::string GetConstant(std::string&);
 std::vector<std::pair<std::string, std::string>> GetConstants();
 void UpdateConstant(std::string&, float&);
 void UpdateConstant(std::string&, std::string&);
+void ResetConstant();
 void DeleteConstant(std::string&);
 void ReplaceConstant(std::string&);
 bool IsConstant(std::string&);
