@@ -24,6 +24,24 @@ std::vector<std::pair<std::string, std::string>> GetConstants()
 	return ret;
 }
 
+void UpdateConstant(std::string& key, float& value)
+{
+	std::string strValue = std::to_string(value);
+
+	if (CONSTANT[key] != strValue)
+	{
+		CONSTANT[key] = strValue;
+	}
+}
+
+void UpdateConstant(std::string& key, std::string& value)
+{
+	if (CONSTANT[key] != value)
+	{
+		CONSTANT[key] = value;
+	}
+}
+
 void DeleteConstant(std::string& key)
 {
 	auto found = CONSTANT.find(key);
