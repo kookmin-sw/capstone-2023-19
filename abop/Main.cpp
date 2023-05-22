@@ -489,12 +489,6 @@ int main(int, char**)
 
             //    ImGui::EndMenu();
             //}
-
-            if (ImGui::BeginMenu("Load Model"))
-            {
-                ImGui::EndMenu();
-            }
-            
             if (ImGui::BeginMenu("Preset"))
             {
                 for (std::string& presetName : LoadPresetList())

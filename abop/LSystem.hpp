@@ -82,7 +82,7 @@ public:
     // Preset
     void LoadPreset(std::string&);
 
-    bool LoadModel(std::vector<Model>*);
+    bool LoadModel(const char*, std::vector<Model>*, float);
 
 private:
     void Move();
@@ -99,5 +99,5 @@ private:
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
     Model CreateLeafSegment(std::vector<Vector3>*);
     Model CreateLeafPreset(Vector3&, DirectX::XMVECTOR&, const int&, const float&); 
-    Model CreateModel(std::vector<TextureVertex>*);
+    Model CreateModel(std::vector<TextureVertex>*, float);
 };

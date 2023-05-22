@@ -1,7 +1,6 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
-#include <sstream>
 #include <stack>
 #include <cmath>
 #include <map>
@@ -17,6 +16,22 @@
 #include "LSystem.hpp"
 
 #pragma region Model
+
+const char* GetModelPath(int type)
+{
+	switch (type)
+	{
+		case 1:
+			return "./data/preset_flower/whiteFlower_A.fbx";
+		case 2:
+            return "./data/preset_flower/whiteFlower_B.fbx";
+		case 3:
+			return "./data/preset_flower/whiteFlower_C.fbx";
+	}
+
+    return "";
+}
+
 // Model 관련 
 Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
@@ -188,9 +203,8 @@ Model LSystem::CreateLeafPreset(Vector3& position, DirectX::XMVECTOR& quaternion
     return model;
 }
 
-bool LSystem::LoadModel(std::vector<Model>* out)
+bool LSystem::LoadModel(const char* filePath, std::vector<Model>* out, float scale)
 {
-
     std::vector<TextureVertex>* vertices = new std::vector<TextureVertex>();
 
     FbxManager* manager = FbxManager::Create();
@@ -201,7 +215,7 @@ bool LSystem::LoadModel(std::vector<Model>* out)
     FbxImporter* importer = FbxImporter::Create(manager, "");
     FbxScene* mFbxScene = FbxScene::Create(manager, "");
 
-    bool status = importer->Initialize("./data/source/LastVerstionHibiscus5.fbx", -1, manager->GetIOSettings()); // TODO - 파일경로 
+    bool status = importer->Initialize(filePath, -1, manager->GetIOSettings()); // TODO - 파일경로 
     if (status == false)
     {
         std::cout << "(initialize)status: false -> return false" << '\n';
@@ -251,9 +265,9 @@ bool LSystem::LoadModel(std::vector<Model>* out)
                     DirectX::XMFLOAT2 texture;
                     DirectX::XMFLOAT3 normalvector;
 
-                    auto index = mesh->GetPolygonVertex(PolygonIndex, VerticeIndex);
+                    int index = mesh->GetPolygonVertex(PolygonIndex, VerticeIndex);
                     position.x = (float)pVertices[index].mData[0];
-                    position.y = (float)pVertices[index].mData[1];
+                    position.y = (float)pVertices[index].mData[1] ;
                     position.z = (float)pVertices[index].mData[2];
 
                     FbxVector4 normal = normalEl->GetDirectArray().GetAt(vertexCounter++);
@@ -281,17 +295,13 @@ bool LSystem::LoadModel(std::vector<Model>* out)
                 }
             }
         }
-
-
     }
-
-    out->push_back(CreateModel(vertices));
-    std::cout << "model push_back" << '\n';
+    out->push_back(CreateModel(vertices, scale));
 
     return true;
 }
 
-Model LSystem::CreateModel(std::vector<TextureVertex>* vertices)
+Model LSystem::CreateModel(std::vector<TextureVertex>* vertices, float scale)
 {
     int size = vertices->size();
     Vector4 color{ 0.0f, 0.0f, 0.0f, 0.0f };
@@ -305,12 +315,16 @@ Model LSystem::CreateModel(std::vector<TextureVertex>* vertices)
     model.indexCount = size * 3;
     model.indices = new int[model.indexCount];
 
-    model.dataCount = 4;
-    model.data = new float[4];
+    model.dataCount = 8;
+    model.data = new float[8];
     model.data[0] = DirectX::XMVectorGetX(mState.quaternion);
     model.data[1] = DirectX::XMVectorGetY(mState.quaternion);
     model.data[2] = DirectX::XMVectorGetZ(mState.quaternion);
     model.data[3] = DirectX::XMVectorGetW(mState.quaternion);
+    model.data[4] = mState.position.x;
+    model.data[5] = mState.position.y;
+    model.data[6] = mState.position.z;
+    model.data[7] = scale;
 
     for (int i = 0; i < size; i++)
     {
@@ -872,23 +886,18 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             if (letter.IsParametic())
             {
                 std::vector<std::string> params = letter.GetParameters();
-                float distance = std::stof(params[0]);
+                int type = std::stof(params[0]);
+
+                // TODO - 크기 지원
                 float scale = params.size() > 1 ?
                     std::stof(params[1])
                     : 1.0f;
 
-                this->MoveParam(distance);
-                endPos = mState.position;
-
-                // TODO - 언리얼에서 모델 넣기
-                out->push_back(
-                    CreateTrunk(startPos, startPos + mState.direction * scale, mState.quaternion,
-                        scale, scale));
+                LoadModel(GetModelPath(type), out, scale);
             }
             else
             {
-                // TODO - 언리얼에서 모델 넣기
-                out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
+                LoadModel(GetModelPath(1), out, 1.0f);
             }
 
             break;
@@ -1121,9 +1130,6 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 this->Rotate(3, std::stof(letter.GetParameters()[0]));
             else
                 this->Rotate(3, 90.0f);
-
-            // DEBUG - TODO
-            LoadModel(out);
             break;
         }
         case LLetter::Type::None:
