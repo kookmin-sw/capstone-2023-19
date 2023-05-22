@@ -465,6 +465,11 @@ FodyWeavers.xsd
 
 # assets
 unreal/Content/StarterContent/
+# https://www.unrealengine.com/marketplace/ko/item/888e1b5dac154f23b72ebe935bc5cd6b
+unreal/Content/BarkPack/    
+# https://www.unrealengine.com/marketplace/ko/item/378e93bf02374e4c9169e0261c44f5fd
+unreal/Content/MS_BushLeafV1/
+
 # Precompiled Assets
 unreal/SourceArt/**/*.png
 unreal/SourceArt/**/*.tga
