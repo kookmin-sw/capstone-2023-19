@@ -463,6 +463,8 @@ FodyWeavers.xsd
 *.VC.db
 *.VC.opendb
 
+# assets
+unreal/Content/StarterContent/
 # Precompiled Assets
 unreal/SourceArt/**/*.png
 unreal/SourceArt/**/*.tga
@@ -512,3 +514,4 @@ Plugins/**/Binaries/*
 Plugins/**/Intermediate/*
 
 # End of https://www.toptal.com/developers/gitignore/api/unrealengine
+unreal/Content/BarkPack/ShowCaseLevel.umap
