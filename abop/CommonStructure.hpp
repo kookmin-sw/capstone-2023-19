@@ -19,6 +19,13 @@ struct State
     float thickness;
 };
 
+struct StateInfo
+{
+    State treeState;
+    Vector3 leafDirection;
+};
+
+
 struct VertexType
 {
     Vector3 position;
@@ -30,6 +37,7 @@ enum ModelType
     Custom,
     // Same as DX/Models/ModelVariation.cpp
     LeafModel,
+    PresetLeafModel,
     TriangleModel,
     SquareModel,
     PlaneModel,

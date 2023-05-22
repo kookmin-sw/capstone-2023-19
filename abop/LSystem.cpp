@@ -4,11 +4,13 @@
 #include <sstream>
 #include <stack>
 #include <cmath>
+#include <map>
+#include <string>
 #include "Stdafx.h"
-#include "Constants.hpp"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
 #include "Utils.hpp"
+#include "Constant.hpp"
 #include "LRule.hpp"
 #include "LLetter.hpp"
 #include "LSystem.hpp"
@@ -129,6 +131,58 @@ Model LSystem::CreateLeaf(std::vector<Vector3>* leaf, Vector3& direction)
         model.indices[i++] = a;
     }
     // model.indices[--i] = 1;
+
+    return model;
+}
+
+Model LSystem::CreateLeafSegment(std::vector<Vector3>* leaf)
+{
+    int size = leaf->size();
+
+    Vector4 green{ 0.19f, 0.35f, 0.15f, 0.0f };
+
+    Model model;
+
+    model.modelType = ModelType::LeafModel;
+    model.vertexCount = size;
+    model.vertexTypes = new VertexType[size];
+    model.indexCount = 6;
+    model.indices = new int[model.indexCount];
+
+    // TEMP
+    for (int i = 0; i < size; i++)
+        model.vertexTypes[i] = VertexType{ leaf->at(i), green };
+
+    int i = 0;
+    int vertex = 1;
+    model.indices[0] = 0;
+    model.indices[1] = 1;
+    model.indices[2] = 2;
+    model.indices[3] = 0;
+    model.indices[4] = 2;
+    model.indices[5] = 1;
+
+    return model;
+}
+
+Model LSystem::CreateLeafPreset(Vector3& position, DirectX::XMVECTOR& quaternion, const int& type, const float& scale)
+{
+    Model model;
+
+    model.modelType = ModelType::PresetLeafModel;
+
+    model.dataCount = 9;
+    model.data = new float[model.dataCount];
+
+    model.data[0] = position.x;
+    model.data[1] = position.y;
+    model.data[2] = position.z;
+    model.data[3] = DirectX::XMVectorGetX(quaternion);
+    model.data[4] = DirectX::XMVectorGetY(quaternion);
+    model.data[5] = DirectX::XMVectorGetZ(quaternion);
+    model.data[6] = DirectX::XMVectorGetW(quaternion);
+    model.data[7] = type;
+    model.data[8] = scale;
 
     return model;
 }
@@ -287,13 +341,7 @@ LSystem::LSystem()
 
     mLeafDirection = { 0.0f, 1.0f, 0.0f };
 
-    mState =
-    {
-        {0.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
-        0.3f
-    };
+    ResetState();
 }
 
 LSystem::~LSystem()
@@ -342,7 +390,7 @@ float LSystem::GetDistance() const
 
 float LSystem::GetThickness() const
 {
-    return mState.thickness;
+    return mThickness;
 }
 
 float LSystem::GetDeltaThickness() const
@@ -387,7 +435,7 @@ void LSystem::SetWord(const std::string& word)
 
 void LSystem::SetThickness(const float& val)
 {
-    mState.thickness = val;
+    mThickness = val;
 }
 
 void LSystem::SetDeltaThickness(const float& val)
@@ -576,8 +624,10 @@ void LSystem::Iterate()
                 do
                 {
                     leftDepth--;
-                } while (depthVector[leftDepth].size() == 0);
-                leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1];
+                } while (leftDepth >= 0 && depthVector[leftDepth].size() == 0);
+
+                if (leftDepth >= 0)
+                    leftContext[i] = depthVector[leftDepth][depthVector[leftDepth].size() - 1];
             }
             // 각 depth의 0번 index 친구가 아니라면 같은 depth에서 찾으면 됨
             else
@@ -657,8 +707,10 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         return;
     }
 
+    ResetState();
+
     float width = 0.5;
-    std::stack<State> ss;
+    std::stack<StateInfo> ss;
     std::vector<Vector3>* leaf = nullptr;
     std::stack<std::vector<Vector3>*> leafstack;
 
@@ -679,7 +731,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     float distance = std::stof(params[0]);
                     float thickness = params.size() > 1
                         ? std::stof(params[1])
-                        : 0.3f;
+                        : mState.thickness;
 
                     this->MoveParam(distance);
                     endPos = mState.position;
@@ -701,15 +753,101 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             }
             case LLetter::Type::NoDrawForward: {
                 this->Move();
-                endPos = mState.position;
+                startPos = mState.position;
                 break;
             }
             case LLetter::Type::NoDrawForward2:
             {
                 // No Draw + Move foward
-                this->Move(mLeafDistance);
-                //endPos = mState.position;
-                //out->push_back(CreateLineModel(startPos, endPos));
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    float distance = std::stof(params[0]);
+                    float thickness = params.size() > 1
+                        ? std::stof(params[1])
+                        : 0.3f;
+
+                    this->MoveParam(distance);
+                    startPos = mState.position;
+                }
+                else
+                {
+                    this->Move();
+                    startPos = mState.position;
+                    //out->push_back(CreateLineModel(startPos, endPos));
+                }
+
+                break;
+            }
+            case LLetter::Type::MakeLeaf: // Leaf Model Set 1
+            {
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    float distance = std::stof(params[0]);
+                    float scale = params.size() > 1 ?
+                        std::stof(params[1])
+                        : 1.0f;
+
+                    this->MoveParam(distance);
+                    endPos = mState.position;
+
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(
+                        CreateTrunk(startPos, startPos + mState.direction * scale, mState.quaternion,
+                            scale, scale));
+                }
+                else
+                {
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
+                }
+
+                break;
+            }
+            case LLetter::Type::MakeLeaf2: // Leaf Model Set 2
+            {
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    float distance = std::stof(params[0]);
+                    float scale = params.size() > 1 ?
+                        std::stof(params[1])
+                        : 0.3f;
+
+                    this->MoveParam(distance);
+                    endPos = mState.position;
+
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(
+                        CreateTrunk(startPos, endPos, mState.quaternion,
+                            scale, scale));
+                }
+                else
+                {
+                    // TODO - 언리얼에서 모델 넣기
+                    out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
+                }
+
+                break;
+            }
+            case LLetter::Type::UseLeafPreset:
+            {
+                Vector3 position = startPos;
+                if (letter.IsParametic()) 
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    int type = std::stoi(params[0]);
+                    float scale = params.size() > 1 ?
+                        std::stof(params[1])
+                        : 1.0f;
+
+                    out->push_back(CreateLeafPreset(position, mState.quaternion, type, scale));
+                }
+                else
+                {
+                    out->push_back(CreateLeafPreset(position, mState.quaternion, 1, 1.0f));
+                }
                 break;
             }
             case LLetter::Type::RollLeft:
@@ -840,14 +978,15 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             case LLetter::Type::Push:
             {
                 // 현재 State 저장
-                ss.push(mState);
+                ss.push({ mState, mLeafDirection });
                 break;
             }
             case LLetter::Type::Pop:
             {
                 // 이전 State 복원
                 // 위치도 같이 옮겨지는 경우 No draw
-                mState = ss.top();
+                mState = ss.top().treeState;
+                mLeafDirection = ss.top().leafDirection;
                 ss.pop();
                 startPos = mState.position;
                 break;
@@ -856,22 +995,24 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             {
                 leaf = new std::vector<Vector3>();
 
-                leaf->push_back(mState.position);
+                //leaf->push_back(mState.position);
 
-                mDrawingLeaf = true;
+                //mDrawingLeaf = true;
 
                 leafstack.push(leaf);
                 break;
             }
             case LLetter::Type::MarkingPoint:
             {
-                leaf->push_back(mState.position);
+                if (leaf->size() == 0 || leaf->at(leaf->size() - 1) != mState.position)
+                    leaf->push_back(mState.position);
 
                 break;
             }
             case LLetter::Type::EndingPoint:
             {
-                out->push_back(CreateLeaf(leaf, mState.direction));
+                if (leaf->size() >= 3)
+                    out->push_back(CreateLeafSegment(leaf));
 
                 if (!leafstack.empty()) {
                     leaf = leafstack.top();
@@ -881,9 +1022,17 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     leaf = nullptr;
                 }
 
-                mDrawingLeaf = false;
-                mLeafDirection = { 0.0f, 1.0f, 0.0f };
+                //mDrawingLeaf = false;
+                //mLeafDirection = { 0.0f, 1.0f, 0.0f };
 
+                break;
+            }
+            case LLetter::Type::Tilt:
+            {
+                if (letter.IsParametic()) 
+                    this->Rotate(3, std::stof(letter.GetParameters()[0]));
+                else 
+                    this->Rotate(3, 90.0f);
                 break;
             }
             case LLetter::Type::None:
@@ -1091,6 +1240,7 @@ void LSystem::LoadPreset(std::string& filename)
     std::ifstream ifs;
 
     this->Reset();
+    ResetConstant();
 
     ifs.open(filename);
 
@@ -1108,6 +1258,19 @@ void LSystem::LoadPreset(std::string& filename)
 
                 int index = inp.find("->");
                 this->AddRule(inp.substr(0, index), inp.substr(index + 2, inp.size()));
+            }
+        }
+        if (inp == "constant")
+        {
+            while (ifs >> inp)
+            {
+                if (inp == "end")
+                {
+                    break;
+                }
+
+                std::vector<std::string> constantInfo = split(inp, ':');
+                AddConstant(constantInfo[0], constantInfo[1]);
             }
         }
         else
@@ -1250,6 +1413,14 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 			newY = sin * x + cos * y;
 			break;
 		}
+        case 3: // only for $ symbol
+        {
+            DirectX::XMFLOAT3 axisHead;
+            axisHead.x = x, axisHead.y = y, axisHead.z = z;
+            mState.quaternion = DirectX::XMQuaternionMultiply(
+                mState.quaternion,
+                DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisHead), rad));
+        }
     }
 
     if (mDrawingLeaf)
@@ -1279,4 +1450,15 @@ void LSystem::Reset()
     //float mLeafAngleChange = 22.5f;
     //float mLeafDistance = 0.5f;
     //bool mDrawingLeaf = false;
+}
+
+void LSystem::ResetState()
+{
+    mState =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f),
+        mThickness
+    };
 }

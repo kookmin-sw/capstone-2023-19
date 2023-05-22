@@ -32,6 +32,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Constant.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="D3DClass.cpp">
@@ -64,6 +65,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="imgui\imGuIZMOquat.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_impl_dx11.cpp" />
@@ -116,6 +118,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="PresetLeaf.cpp" />
     <ClCompile Include="RuleCondition.cpp" />
     <ClCompile Include="Square.cpp" />
     <ClCompile Include="SystemClass.cpp">
@@ -153,6 +156,7 @@
     </ClInclude>
     <ClInclude Include="CommonStructure.hpp" />
     <ClInclude Include="CommonVariable.hpp" />
+    <ClInclude Include="Constant.hpp" />
     <ClInclude Include="Cube.hpp" />
     <ClInclude Include="Cylinder.hpp" />
     <ClInclude Include="D3DClass.hpp">
@@ -171,7 +175,6 @@
     <ClInclude Include="FontClass.hpp" />
     <ClInclude Include="FontShaderClass.hpp" />
     <ClInclude Include="FpsClass.hpp" />
-    <ClInclude Include="Constants.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsClass.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -187,6 +190,9 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="imgui\imGuIZMOquat.h" />
+    <ClInclude Include="imgui\vGizmo.h" />
+    <ClInclude Include="imgui\vgMath.h" />
     <ClInclude Include="InputClass.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
@@ -222,6 +228,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Plane.hpp" />
+    <ClInclude Include="PresetLeaf.hpp" />
     <ClInclude Include="RandomSeed.hpp" />
     <ClInclude Include="RuleCondition.hpp" />
     <ClInclude Include="Square.hpp" />

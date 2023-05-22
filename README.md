@@ -1,4 +1,4 @@
-# The Algorithmic Beauty of Plants
+# [The Algorithmic Beauty of Plants](https://kookmin-sw.github.io/capstone-2023-19/)
 식물의 성장을 알고리즘화하여 생성하고 DirectX를 활용하여 Timelapse와 같은 방법으로 시각화하는 프로젝트입니다.
 - L-system에 기초하여 직접 나무와 꽃을 생성해볼 수 있습니다.
 - Unreal 엔진에서 사용할 수 있도록 라이브러리로 만들어 배포할 예정입니다.

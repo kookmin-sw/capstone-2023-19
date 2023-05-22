@@ -3,6 +3,8 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_internal.h"
 
+#include "imgui/imGuIZMOquat.h"
+
 #include <d3d11.h>
 #include <tchar.h>
 
@@ -23,6 +25,9 @@
 #include "InputClass.hpp"
 #include "LSystem.hpp"
 #include "LRule.hpp"
+#include "Constant.hpp"
+
+#include <windows.h>
 
 // Data
 std::string PATH = "./data/preset/";
@@ -92,9 +97,10 @@ int main(int, char**)
         return -1;
     }
 
-    // rules & ignores
+    // rules, ignores, constant
     std::vector<LRule::RuleInfo> ruleInfos = std::vector<LRule::RuleInfo>();
     std::map<char, bool> ignores = std::map<char, bool>();
+    std::vector<std::pair<std::string, std::string>> constantInfos = std::vector<std::pair<std::string, std::string>>();
 
     // Graphics 초기화
     Graphics* graphics = new Graphics();
@@ -165,19 +171,24 @@ int main(int, char**)
     static bool show_location_window = false;
     static bool show_console_window = false;
     static bool show_light_window = false;
+    
+    static bool show_mouse_window = false;
 
     // Preset load (Init render) 시 아래 변수를 true로 설정해야
     // 다음 frame에서 load 함
     static bool isUpdateRules = true;
     static bool isUpdateIgnores = true;
+    static bool isUpdateConstants = true;
     static bool isUpdateWord = true;
     static bool isUpdateCamera = true;
     static bool isUpdateLSystemSetting = true;
 
-    // ----
     bool running = false;
     float runningTime = 0.0f;
     unsigned long long lastTick;
+    quat qRot = quat(1.f, 0.f, 0.f, 0.f);
+
+    std::string firstString;
 
     // Main loop
     bool done = false;
@@ -212,6 +223,7 @@ int main(int, char**)
         // 1. UI (Default)
         {
             
+            style.FrameRounding = 4.f;
             ImGui::Begin("DirectX Controller");
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 128));
             ImGui::Text("Welcome, DirectX World! \n\nThis is a library viewer for real-time \ngrowing plant models.");
@@ -279,6 +291,11 @@ int main(int, char**)
 
             ImGui::Begin("Camera Location Window", &show_location_window);
 
+            ImGui::Text(" ");
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 225));
+            ImGui::Checkbox("Mouse Drag Window", &show_mouse_window);
+            ImGui::PopStyleColor();
+
             // Camera Position
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
             ImGui::Text("\n<Camera Position>");
@@ -333,6 +350,56 @@ int main(int, char**)
                     cameraSensitivity = 0.1f;
                 }
                 graphics->SetCameraSensitivity(cameraSensitivity);
+            }
+
+            // Camera Arm
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Camera Arm>");
+            ImGui::PopStyleColor();
+
+            if (ImGui::Button("Arm On"))
+            {
+                //graphics->SetCameraPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Arm Off"))
+            {
+
+            }
+            
+            if (show_mouse_window)
+            {
+
+
+                ImGui::Begin("Mouse Drag Window", &show_mouse_window);
+
+                const float w = ImGui::GetContentRegionAvailWidth();
+                const float half = w / 2.f;
+                const float third = w / 3.f;
+
+                static float resSolid = 1.0;
+                static float axesLen = .95;
+                static float axesThickness = 1.0;
+                vec3 resAxes(axesLen, axesThickness, axesThickness);
+
+                ImGui::PushItemWidth(third);
+                ImGui::DragFloat("##res1", &axesLen, 0.01f, 0.0, 1.0, "len %.2f");
+                ImGui::SameLine();
+                ImGui::DragFloat("##res2", &axesThickness, 0.01f, 0.0, 8.0, "thick %.2f");
+                ImGui::SameLine();
+                ImGui::DragFloat("##res3", &resSolid, 0.01f, 0.0, 8.0, "solids %.2f");
+                ImGui::PopItemWidth();
+
+                imguiGizmo::resizeAxesOf(resAxes);
+                imguiGizmo::resizeSolidOf(resSolid);
+                if (ImGui::gizmo3D("##gizmo1", qRot, w /*, mode */))
+                {
+                    // !! 수정해야 함
+                    graphics->SetCameraPosition(cameraPosition[0] + qRot.x, cameraPosition[1] + qRot.y, cameraPosition[2] + qRot.z);
+                }
+                //mat4 modelMatrix = mat4_cast(qRot);
+
+                ImGui::End();
             }
 
             ImGui::End();
@@ -436,6 +503,7 @@ int main(int, char**)
                         isUpdateWord = true;
                         isUpdateCamera = true;
                         isUpdateLSystemSetting = true;
+                        isUpdateConstants = true;
                     }
                 }
                 ImGui::EndMenu();
@@ -443,41 +511,9 @@ int main(int, char**)
             ImGui::EndMenuBar();
         }
 
-        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
-        if (ImGui::Button("Save As"))
-        {
-            ImGui::OpenPopup("SaveAs");
-        }
-
-        if (ImGui::BeginPopup("SaveAs", NULL))
-        {
-            std::string filename = "";
-            static char buffer[128];
-
-            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
-    
-            if (ImGui::Button("Save"))
-            {
-                filename = buffer;
-
-                // !!! 배포할 때에는 경로를 직접 수정
-                SavePreset(filename, lSystem);
-                ClearCharArray(128, buffer);
-
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
-            {
-                ClearCharArray(128, buffer);
-                ImGui::CloseCurrentPopup();
-            }
-
-            ImGui::EndPopup();
-        }
-
-        // Multi-line Text 
+        // Multi-line Text
         static char word[1024 * 256] = "";
+
         if (isUpdateWord)
         {
             ClearCharArray(1024 * 256, word);
@@ -485,8 +521,96 @@ int main(int, char**)
             isUpdateWord = false;
         }
 
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n < Auto Render >");
+        ImGui::PopStyleColor();
+        
+        static int frequency = 5;
+
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Start")) // render
+        {
+           running = true;
+           firstString = lSystem->GetWord();
+        }
+        ImGui::PopStyleColor(3);
+
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(5 / 7.0f, 0.5f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(5 / 7.0f, 0.8f, 0.8f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(5 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Pause"))
+        {
+            running = false;
+            runningTime = 0.f;
+        }
+        ImGui::PopStyleColor(3);
+
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0, 0.8f, 0.8f));
+        if (ImGui::Button("Stop"))
+        {
+            // Reset (rule은 유지)
+            lSystem->SetWord("");
+            lSystem->ClearState();
+            ClearCharArray(1024 * 256, word);
+            graphics->UpdateModels();
+            running = false;
+            runningTime = 0;
+            
+            // Render
+            lSystem->SetWord(firstString);
+            isUpdateWord = true;
+            //lSystem->ClearState();
+            //graphics->UpdateModels();
+
+        }
+        ImGui::PopStyleColor(3);
+
+        if (running)
+        {
+            if (runningTime > frequency)
+            {
+                ClearCharArray(1024 * 64, word);
+                lSystem->Iterate(1);
+                lSystem->GetWord(word);
+                lSystem->SetWord(word);
+                lSystem->ClearState();
+                graphics->UpdateModels();
+                runningTime = 0.f;
+            }
+            runningTime += timeSinceEpochMiliisec() - lastTick;
+        }
+
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("frequency :");
+        ImGui::SameLine();
+        float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+        ImGui::Text("%d", frequency);
+        ImGui::SameLine();
+        ImGui::PushButtonRepeat(true);
+        if (ImGui::ArrowButton("##left", ImGuiDir_Left)) 
+        { 
+            frequency--;
+            if (frequency < 1) { frequency = 1; }
+        }
+        ImGui::SameLine(0.0f, spacing);
+        if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { frequency++; }
+        ImGui::PopButtonRepeat();
+
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n < Manual Render >");
+        ImGui::PopStyleColor();
+
         static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
 
+        
         if (ImGui::Button("Reset"))
         {
             lSystem->SetWord("");
@@ -511,45 +635,62 @@ int main(int, char**)
             lSystem->ClearState();
             graphics->UpdateModels();
         }
+
+        // !!! 나중에 menu bar로 옮기기 (popup이 안되는 이슈)
         ImGui::SameLine();
-        if (ImGui::Button("Run"))
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
+        if (ImGui::Button("Save As"))
         {
-            running = true;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Stop"))
-        {
-            running = false;
-            runningTime = 0.f;
+            ImGui::OpenPopup("SaveAs");
         }
 
-        if (running)
+        if (ImGui::BeginPopup("SaveAs", NULL))
         {
-            if (runningTime > 5)
+            std::string filename = "";
+            static char buffer[128];
+
+            ImGui::InputText("Preset Name", buffer, IM_ARRAYSIZE(buffer));
+
+            if (ImGui::Button("Save"))
             {
-                ClearCharArray(1024 * 64, word);
-                lSystem->Iterate(1);
-                lSystem->GetWord(word);
-                lSystem->SetWord(word);
-                lSystem->ClearState();
-                graphics->UpdateModels();
-                runningTime = 0.f;
+                filename = buffer;
+
+                // !!! 배포할 때에는 경로를 직접 수정
+                SavePreset(filename, lSystem);
+                ClearCharArray(128, buffer);
+
+                ImGui::CloseCurrentPopup();
             }
-            runningTime += timeSinceEpochMiliisec() - lastTick;
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                ClearCharArray(128, buffer);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
+        ImGui::PopStyleColor(3);
+
 
         if (ImGui::CollapsingHeader("Word"))
         {
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(4 / 7.0f, 0.6f, 0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(4 / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(4 / 7.0f, 0.8f, 0.8f));
             if (ImGui::Button("Save"))
             {
                 lSystem->SetWord(word);
             }
+            ImGui::PopStyleColor(3);
 
             // TODO 화면 밖에 나가면 줄바꿈 되도록 수정 예정
             ImGui::InputTextMultiline("words", word, IM_ARRAYSIZE(word),
-                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+                ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4), flags);
         }
 
+        // rule
         if (ImGui::CollapsingHeader("Rules"))
         {
             static char addIgnore[4] = "";
@@ -699,6 +840,92 @@ int main(int, char**)
             }
         }
 
+        // constant
+        if (ImGui::CollapsingHeader("Constants"))
+        {
+            if (isUpdateConstants)
+            {
+                constantInfos = GetConstants();
+
+                isUpdateConstants = false;
+            }
+
+            static char newConstant[4] = "";
+            static char newValue[4] = "";
+            static std::string constant;
+            static std::string value;
+
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+            ImGui::Text("\n<Constant>");
+            ImGui::PopStyleColor();
+            ImGui::InputText("constant", newConstant, IM_ARRAYSIZE(newConstant));
+            ImGui::InputText("value", newValue, IM_ARRAYSIZE(newValue));
+
+            constant = newConstant;
+            value = newValue;
+
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(1 / 7.0f, 0.5f, 0.5f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.7f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
+            if (ImGui::Button("Add New"))
+            {
+                if (constant.size() && value.size())
+                {
+                    AddConstant(constant, value);
+                }
+                ClearCharArray(4, newConstant);
+                ClearCharArray(4, newValue);
+
+                isUpdateConstants = true;
+            }
+            ImGui::PopStyleColor(3);
+
+            float values[20];       // constant 최대 20개
+            for (int i = 0; i < constantInfos.size(); i++)
+            {
+                std::string constantKey = constantInfos[i].first;
+                values[i] = std::stof(constantInfos[i].second);
+
+                static char outConstant[4];
+                strcpy_s(outConstant, constantKey.c_str());
+
+                //ImGui::Text("\n[New Constant]");
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(1 / 7.0f, 0.5f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, (ImVec4)ImColor::HSV(1 / 7.0f, 0.6f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_FrameBgActive, (ImVec4)ImColor::HSV(1 / 7.0f, 0.7f, 0.5f));
+                ImGui::PushStyleColor(ImGuiCol_SliderGrab, (ImVec4)ImColor::HSV(1 / 7.0f, 0.9f, 0.9f));
+                std::string constantSlider = " ";
+                for (int j = 0; j < i; j++)
+                {
+                    constantSlider += " ";
+                }
+                if (ImGui::SliderFloat(const_cast<char*>(constantSlider.c_str()), &values[i], 0.f, 100.f))
+                {
+                    //const_cast<char*>(constant.c_str())
+
+                    if (IsConstant(constantKey))
+                    {
+                        UpdateConstant(constantKey, values[i]);
+                        isUpdateConstants = true;
+                    }
+                }
+
+                ImGui::PopStyleColor(4);
+
+                ImGui::Text(">>> constant : %s ", outConstant);
+                ImGui::SameLine();
+                ImGui::Text(", value : %f", values[i]);
+
+                ImGui::SameLine();
+                std::string deleteConstantKey = "Delete [" + constantKey + "]";
+                if (ImGui::Button(const_cast<char*>(deleteConstantKey.c_str())))
+                {
+                    DeleteConstant(constantKey);
+                    isUpdateConstants = true;
+                }
+            }
+        }
+
         if (ImGui::CollapsingHeader("Settings"))
         {
             static float distance = 1.0f;
@@ -734,6 +961,47 @@ int main(int, char**)
             }
         }
 
+
+        static bool view_code_window = false;
+
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 190, 255, 255));
+        ImGui::Text("\n\n<Constant>");
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(3 / 7.0f, 0.3f, 0.3f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(3 / 7.0f, 0.5f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(3 / 7.0f, 0.9f, 0.9f));
+        if (ImGui::Button("View current L-System code"))
+        {
+            view_code_window = true;
+
+        }ImGui::PopStyleColor(3);
+
+
+        if (view_code_window)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+            ImGui::Text("Rendering with this L-System code.");
+            ImGui::PopStyleColor();
+            ImGui::SameLine();
+            if (ImGui::Button("Close"))
+            {
+                view_code_window = false;
+            }
+
+            static float wrap_width = 200.0f;
+            ImGui::SliderFloat("width", &wrap_width, 0, 500, "%.0f");
+
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImVec2 marker_min = ImVec2(pos.x + wrap_width, pos.y);
+            ImVec2 marker_max = ImVec2(pos.x + wrap_width + 10, pos.y + ImGui::GetTextLineHeight());
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+
+            ImGui::Text(word, wrap_width);
+            draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(0, 255, 0, 255));
+            ImGui::PopTextWrapPos();
+
+        }
         ImGui::End();
 #pragma endregion L-System
 
@@ -927,7 +1195,24 @@ void SavePreset(std::string filename, LSystem* lSystem)
 
     if (existRule)
     {
-        ok = "end";
+        ok = "end\n";
+        file.write(ok.c_str(), ok.size());
+    }
+
+    ok = "constant\n";
+    file.write(ok.c_str(), ok.size());
+
+    bool existConstant = false;
+    for (const std::pair<std::string, std::string>& constant : GetConstants())
+    {
+        existConstant = true;
+        ok = constant.first + ":" + constant.second + '\n';
+        file.write(ok.c_str(), ok.size());
+    }
+
+    if (existConstant)
+    {
+        ok = "end\n";
         file.write(ok.c_str(), ok.size());
     }
 
