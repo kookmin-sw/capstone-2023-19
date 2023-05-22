@@ -250,6 +250,19 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, Model model)
             model.vertexTypes[i].color.y,
             model.vertexTypes[i].color.z
         );
+
+        vertices[i].texture = DirectX::XMFLOAT2
+        (
+            model.texVertexTypes[i].texture.x,
+            model.texVertexTypes[i].texture.y
+        );
+
+        vertices[i].normal = DirectX::XMFLOAT3
+        (
+            model.texVertexTypes[i].normalVector.x,
+            model.texVertexTypes[i].normalVector.y,
+            model.texVertexTypes[i].normalVector.z
+        );
     }
 
     // Index
