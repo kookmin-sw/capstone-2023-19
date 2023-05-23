@@ -1,0 +1,17 @@
+distance:1.000000
+angle:90.000000
+thickness:0.500000
+deltaThickness:0.900000
+word:T(6)A
+rule
+A->[+(30)FQA][+(30)^(120)FQA][+(30)&(120)FQA]
+F->S^(Z)F
+Q->[/(66)L(5,1)]
+Q->[\(66)L(5,1)]
+S->FQ
+T(t):t>0->T(t-1)
+T(t):t=0->FFFF
+end
+constant
+Z:5
+end

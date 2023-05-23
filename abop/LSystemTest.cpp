@@ -21,8 +21,16 @@ int main()
 
     //lSystem->SetWord("+(50)\\(333)^(111)F");
     //lSystem->SetWord("F+(45)\\(45)FF");
-    lSystem->SetWord("F");
-    lSystem->AddRule("F", "F[-&\\F][\\++&F]F[--&/F][+&F]");
+
+    lSystem->SetThickness(1.f);
+    lSystem->SetDeltaThickness(0.95f);
+    lSystem->SetWord("A");
+    lSystem->AddRule("A", "[+(30)FQA][+(30)^(120)FQA][+(30)&(120)FQA]");
+    lSystem->AddRule("F", "S^(5)F");
+    lSystem->AddRule("Q", "[/(66)J(5,1)]");
+    lSystem->AddRule("Q", "[\\(66)J(5,1)]");
+    lSystem->AddRule("S", "FQ");
+    lSystem->Iterate(5);
     //lSystem->AddRule("X", "F-[[X]+X]+F[+FX]-X");
     //lSystem->AddRule("F", "FF");
 

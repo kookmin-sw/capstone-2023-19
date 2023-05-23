@@ -1050,6 +1050,8 @@ void LSystem::GetResultUEInfos(std::vector<UEModel>* models)
         return;
     }
 
+    ResetState();
+
     float forwardDistance = 100.f;
     SetDistance(forwardDistance);
     std::stack<State> s;
@@ -1196,13 +1198,13 @@ void LSystem::GetResultUEInfos(std::vector<UEModel>* models)
                     distance = std::stof(params[0]) * forwardDistance;
                     thickness = params.size() > 1
                         ? std::stof(params[1])
-                        : 1.f;
+                        : mState.thickness;
 
                     MoveParam(distance);
                 }
                 else
                 {
-                    thickness = 1.f;
+                    thickness = mState.thickness;
 
                     Move();
                 }
@@ -1215,6 +1217,7 @@ void LSystem::GetResultUEInfos(std::vector<UEModel>* models)
                 Rotate(0, -90.f);
                 model.rotation = QuatToF4(mState.quaternion);
                 Rotate(0, 90.f);
+
                 model.scale = Vector3(thickness, thickness, distance);
 
                 models->push_back(model);

@@ -54,7 +54,18 @@ void AGenerator::BeginPlay()
 	else if (treeLeafMode)
 	{
 		// default.map
-		System->SetWord("FF+(45)F[J][/(30)J]");
+		System->SetThickness(0.5f);
+		System->SetDeltaThickness(0.92f);
+		System->SetDistance(0.7f);
+		System->SetWord("T(6)A");
+		System->AddRule("A", "[+(30)FQA][+(30)^(120)FQA][+(30)&(120)FQA]");
+		System->AddRule("F", "S^(5)F");
+		System->AddRule("Q", "[/(66)J(5,1)]");
+		System->AddRule("Q", "[\\(66)J(5,1)]");
+		System->AddRule("S", "FQ");
+		System->AddRule("T(t):t>0", "T(t - 1)");
+		System->AddRule("T(t):t=0", "FFFF");
+		System->Iterate(7);
 		//TrunkType = TrunkMaterialType::Beech_I;
 
 		std::vector<LSystem::UEModel>* models = new std::vector<LSystem::UEModel>();
@@ -62,7 +73,7 @@ void AGenerator::BeginPlay()
 
 		UWorld* world = GetWorld();
 
-		for (const LSystem::UEModel& model : *models)
+		for (LSystem::UEModel& model : *models)
 		{
 			Position = FVector(-model.position.x, -model.position.z, model.position.y);
 			FQuat q = FQuat(model.rotation.x, model.rotation.y, model.rotation.z, model.rotation.w);
@@ -71,6 +82,14 @@ void AGenerator::BeginPlay()
 			if (model.type == 1)
 			{
 				ATrunk* trunk = world->SpawnActor<ATrunk>(ATrunk::StaticClass(), Position, Rotator, SpawnParams);
+				UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), model.scale.x, model.scale.y, model.scale.z);
+				if (model.scale.x < 0.000001f)
+				{
+					model.scale.x = 0.000001f;
+					model.scale.y = 0.000001f;
+				}
+				FVector Scale = FVector(model.scale.x, model.scale.y, 1);
+				trunk->SetActorScale3D(Scale);
 			}
 			else
 			{
@@ -84,5 +103,4 @@ void AGenerator::BeginPlay()
 void AGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
