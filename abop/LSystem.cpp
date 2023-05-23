@@ -1230,6 +1230,28 @@ void LSystem::GetResultUEInfos(std::vector<UEModel>* models)
 
                 break;
             }
+            case LLetter::Type::MakeLeaf: // Leaf Model Set 1
+            {
+                // Leaf 이후 이동 X
+                float distance;
+
+                Move();     // UE 내 SetDistance()로 offset 맞춤 (고정된 크기)
+                endPos = mState.position;
+
+                UEModel model = UEModel();
+                model.type = 2;
+                model.position = (endPos + startPos) * 0.5f;
+                Rotate(0, -90.f);
+                model.rotation = QuatToF4(mState.quaternion);
+                Rotate(0, 90.f);
+                //model.scale = Vector3(thickness, thickness, distance);
+
+                models->push_back(model);
+
+                startPos = mState.position;
+
+                break;
+            }
         }
     }
 }

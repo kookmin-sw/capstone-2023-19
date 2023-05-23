@@ -9,6 +9,7 @@
 #include "LLetter.hpp"
 #include "Trunk.h"
 #include "Vine.h"
+#include "Leaf.h"
 #include "Generator.h"
 
 // Sets default values
@@ -27,8 +28,8 @@ void AGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	// Mode
-	bool vineMode = true;
-	bool treeLeafMode = false;
+	bool vineMode = false;
+	bool treeLeafMode = true;
 
 	if (vineMode)
 	{
@@ -53,7 +54,7 @@ void AGenerator::BeginPlay()
 	else if (treeLeafMode)
 	{
 		// default.map
-		System->SetWord("");
+		System->SetWord("FF+(45)F[J][/(30)J]");
 		//TrunkType = TrunkMaterialType::Beech_I;
 
 		std::vector<LSystem::UEModel>* models = new std::vector<LSystem::UEModel>();
@@ -67,7 +68,14 @@ void AGenerator::BeginPlay()
 			FQuat q = FQuat(model.rotation.x, model.rotation.y, model.rotation.z, model.rotation.w);
 			Rotator = FRotator(q);
 
-			ATrunk* trunk = world->SpawnActor<ATrunk>(ATrunk::StaticClass(), Position, Rotator, SpawnParams);
+			if (model.type == 1)
+			{
+				ATrunk* trunk = world->SpawnActor<ATrunk>(ATrunk::StaticClass(), Position, Rotator, SpawnParams);
+			}
+			else
+			{
+				ALeaf* leaf = world->SpawnActor<ALeaf>(ALeaf::StaticClass(), Position, Rotator, SpawnParams);
+			}
 		}
 	}
 }
