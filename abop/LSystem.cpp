@@ -27,6 +27,8 @@ const char* GetModelPath(int type)
             return "./data/preset_flower/whiteFlower_B.fbx";
 		case 3:
 			return "./data/preset_flower/whiteFlower_C.fbx";
+        case 4:
+            return "./data/preset_flower/flower.fbx";
 	}
 
     return "";
@@ -203,7 +205,7 @@ Model LSystem::CreateLeafPreset(Vector3& position, DirectX::XMVECTOR& quaternion
     return model;
 }
 
-bool LSystem::LoadModel(const char* filePath, std::vector<Model>* out, float scale)
+bool LSystem::LoadModel(const char* filePath, std::vector<Model>* out, float scale, Vector4& color)
 {
     std::vector<TextureVertex>* vertices = new std::vector<TextureVertex>();
 
@@ -215,7 +217,7 @@ bool LSystem::LoadModel(const char* filePath, std::vector<Model>* out, float sca
     FbxImporter* importer = FbxImporter::Create(manager, "");
     FbxScene* mFbxScene = FbxScene::Create(manager, "");
 
-    bool status = importer->Initialize(filePath, -1, manager->GetIOSettings()); // TODO - 파일경로 
+    bool status = importer->Initialize(filePath, -1, manager->GetIOSettings());
     if (status == false)
     {
         std::cout << "(initialize)status: false -> return false" << '\n';
@@ -296,15 +298,14 @@ bool LSystem::LoadModel(const char* filePath, std::vector<Model>* out, float sca
             }
         }
     }
-    out->push_back(CreateModel(vertices, scale));
+    out->push_back(CreateModel(vertices, scale, color));
 
     return true;
 }
 
-Model LSystem::CreateModel(std::vector<TextureVertex>* vertices, float scale)
+Model LSystem::CreateModel(std::vector<TextureVertex>* vertices, float scale, Vector4& color)
 {
     int size = vertices->size();
-    Vector4 color{ 0.0f, 0.0f, 0.0f, 0.0f };
     Vector3 position;
 
     Model model;
@@ -883,6 +884,7 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         }
         case LLetter::Type::MakeLeaf: // Leaf Model Set 1
         {
+            Vector4 flowerColor = { 181.0f / 256.0f, 69.0f / 256.0f, 89.0f / 256.0f, 0.0f };
             if (letter.IsParametic())
             {
                 std::vector<std::string> params = letter.GetParameters();
@@ -893,11 +895,11 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                     std::stof(params[1])
                     : 1.0f;
 
-                LoadModel(GetModelPath(type), out, scale);
+                LoadModel(GetModelPath(type), out, scale, flowerColor);
             }
             else
             {
-                LoadModel(GetModelPath(1), out, 1.0f);
+                LoadModel(GetModelPath(1), out, 1.0f, flowerColor);
             }
 
             break;
