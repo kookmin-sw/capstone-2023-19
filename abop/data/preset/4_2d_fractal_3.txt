@@ -1,0 +1,10 @@
+distance:1.000000
+angle:20.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:X
+rule
+F->FF
+X->F[+X]F[-X]+X
+end
+constant

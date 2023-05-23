@@ -1,9 +1,10 @@
 distance:1.000000
-angle:90.000000
+angle:120.000000
 thickness:0.300000
 deltaThickness:1.000000
-word:A[+A]A[-A]A[+A]B
-ignore:+-
+word:F-f-f
 rule
-A>B->B
+F->F-f+F+f-F
+f->ff
 end
+constant
