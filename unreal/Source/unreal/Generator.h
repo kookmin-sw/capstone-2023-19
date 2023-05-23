@@ -2,12 +2,16 @@
 
 #pragma once
 
+#include <vector>
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Generator.generated.h"
 
 class LLetter;
 class LSystem;
+class AVine;
+class ATrunk;
+class ALeaf;
 
 enum class TrunkMaterialType : uint8;
 
@@ -27,6 +31,8 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void Iterate();
+	void Clear();
 
 private:
 	//TrunkMaterialType TrunkType;
@@ -35,4 +41,13 @@ private:
 	FActorSpawnParameters SpawnParams;
 	FRotator Rotator;
 	FVector Position;
+
+	std::vector<AVine*>* vines;
+	std::vector<ATrunk*>* trunks;
+	std::vector<ALeaf*>* leaves;
+	float renderTime;
+	float iterateCycle;
+	int iterateCount;
+	int tryCount;
+	int mode;
 };

@@ -20,6 +20,10 @@ AGenerator::AGenerator()
 
 	System = new LSystem();
 	Position = FVector::ZeroVector;
+	renderTime = -5.0f;
+	vines = new std::vector<AVine*>();
+	trunks = new std::vector<ATrunk*>();
+	leaves = new std::vector<ALeaf*>();
 }
 
 // Called when the game starts or when spawned
@@ -27,31 +31,21 @@ void AGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Mode
-	bool vineMode = false;
-	bool treeLeafMode = true;
+	tryCount = 0;
+	// Mode, 0: vine mode, 1: tree mode
+	mode = 1;
 
-	if (vineMode)
+	if (mode == 0)
 	{
 		// vine.map
 		System->SetAngleChange(22.5f);
-		System->SetWord("F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-[-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]+[+F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]-F(0.1875)F(0.1875)-[-F(0.1875)+F(0.1875)+F(0.1875)]+[+F(0.1875)-F(0.1875)-F(0.1875)]]]");
-
-		std::vector<LSystem::UEModel>* models = new std::vector<LSystem::UEModel>();
-		System->GetResultUEInfos(models);
-
-		UWorld* world = GetWorld();
-
-		for (const LSystem::UEModel& model : *models)
-		{
-			Position = FVector(-model.position.x, -model.position.z, model.position.y);
-			FQuat q = FQuat(model.rotation.x, model.rotation.y, model.rotation.z, model.rotation.w);
-			Rotator = FRotator(q);
-
-			AVine* vine = world->SpawnActor<AVine>(AVine::StaticClass(), Position, Rotator, SpawnParams);
-		}
+		System->SetWord("F(0.1875)");
+		System->AddRule("F(t)", "F(t)F(t)-[-F(t)+F(t)+F(t)]+[+F(t)-F(t)-F(t)]");
+		//System->Iterate(3);
+		iterateCount = 3;
+		iterateCycle = 5.f;
 	}
-	else if (treeLeafMode)
+	else
 	{
 		// default.map
 		System->SetThickness(0.5f);
@@ -65,9 +59,61 @@ void AGenerator::BeginPlay()
 		System->AddRule("S", "FQ");
 		System->AddRule("T(t):t>0", "T(t - 1)");
 		System->AddRule("T(t):t=0", "FFFF");
-		System->Iterate(7);
+		//System->Iterate(7);
+		iterateCount = 7;
+		iterateCycle = 3.f;
 		//TrunkType = TrunkMaterialType::Beech_I;
+	}
+}
 
+// Called every frame
+void AGenerator::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	renderTime += DeltaTime;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), renderTime);
+
+	if (renderTime > iterateCycle)
+	{
+		renderTime = 0.f;
+		// Destory before;
+		Iterate();
+	}
+}
+
+void AGenerator::Iterate()
+{
+	if (tryCount >= iterateCount)
+	{
+		return;
+	}
+
+	// Iterate 전 기존 rendering 초기화
+	Clear();
+
+	System->Iterate();
+
+	if (mode == 0)
+	{
+		std::vector<LSystem::UEModel>* models = new std::vector<LSystem::UEModel>();
+		System->GetResultUEInfos(models);
+
+		UWorld* world = GetWorld();
+
+		for (const LSystem::UEModel& model : *models)
+		{
+			Position = FVector(-model.position.x, -model.position.z, model.position.y);
+			FQuat q = FQuat(model.rotation.x, model.rotation.y, model.rotation.z, model.rotation.w);
+			Rotator = FRotator(q);
+
+			AVine* vine = world->SpawnActor<AVine>(AVine::StaticClass(), Position, Rotator, SpawnParams);
+			UE_LOG(LogTemp, Warning, TEXT("%d"), 1);
+			vines->push_back(vine);
+		}
+	}
+	else
+	{
 		std::vector<LSystem::UEModel>* models = new std::vector<LSystem::UEModel>();
 		System->GetResultUEInfos(models);
 
@@ -82,7 +128,7 @@ void AGenerator::BeginPlay()
 			if (model.type == 1)
 			{
 				ATrunk* trunk = world->SpawnActor<ATrunk>(ATrunk::StaticClass(), Position, Rotator, SpawnParams);
-				UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), model.scale.x, model.scale.y, model.scale.z);
+				//UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), model.scale.x, model.scale.y, model.scale.z);
 				if (model.scale.x < 0.000001f)
 				{
 					model.scale.x = 0.000001f;
@@ -90,17 +136,38 @@ void AGenerator::BeginPlay()
 				}
 				FVector Scale = FVector(model.scale.x, model.scale.y, 1);
 				trunk->SetActorScale3D(Scale);
+				trunks->push_back(trunk);
 			}
 			else
 			{
 				ALeaf* leaf = world->SpawnActor<ALeaf>(ALeaf::StaticClass(), Position, Rotator, SpawnParams);
+				leaves->push_back(leaf);
 			}
 		}
 	}
+
+	tryCount++;
 }
 
-// Called every frame
-void AGenerator::Tick(float DeltaTime)
+void AGenerator::Clear()
 {
-	Super::Tick(DeltaTime);
+	if (mode == 0)
+	{
+		for (AVine* vine : *vines)
+		{
+			vine->Destroy();
+		}
+	}
+	else
+	{
+		for (ATrunk* trunk : *trunks)
+		{
+			trunk->Destroy();
+		}
+
+		for (ALeaf* leaf : *leaves)
+		{
+			leaf->Destroy();
+		}
+	}
 }
