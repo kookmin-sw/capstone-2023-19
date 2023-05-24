@@ -894,8 +894,17 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
                 float scale = params.size() > 1 ?
                     std::stof(params[1])
                     : 1.0f;
+                if (1 <= type && type <= 3)
+					LoadModel(GetModelPath(type), out, scale, flowerColor);
+                else if (type >= 4)
+                {
+                    // 자체 보정
+                    DirectX::XMVECTOR quat = DirectX::XMQuaternionMultiply(
+                        mState.quaternion,
+                        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f));
 
-                LoadModel(GetModelPath(type), out, scale, flowerColor);
+                    out->push_back(CreateLeafPreset(startPos, quat, 2, scale * 2.3f));
+                }
             }
             else
             {
@@ -925,7 +934,8 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
             else
             {
                 // TODO - 언리얼에서 모델 넣기
-                out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
+                Vector4 Black = { 0.0f, 0.0f, 0.f, 0.f };
+                LoadModel("./data/preset_flower/leaf_A.fbx", out, 1.0f, Black);
             }
 
             break;
