@@ -4,12 +4,13 @@
 ATrunk::ATrunk()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 
+
 	// Mesh
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM(TEXT("StaticMesh'/Game/SM_Trunk.SM_Trunk'"));
 	if (SM.Succeeded())
 	{
 		Mesh->SetStaticMesh(SM.Object);
@@ -19,17 +20,28 @@ ATrunk::ATrunk()
 		UE_LOG(LogTemp, Warning, TEXT("Invalid basic cylinder mesh"));
 	}
 
-	// Material
-	//TrunkMaterialPath = GetTrunkMaterialPath();
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> Mat(TEXT("MaterialInstanceConstant'/Game/BarkPack/Materials/oak/oak_I.oak_I'"));
-	if (Mat.Succeeded())
-	{
-		Mesh->SetMaterial(0, Mat.Object);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Invalid material"));
-	}
+	// Mesh
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> SM(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
+	//if (SM.Succeeded())
+	//{
+	//	Mesh->SetStaticMesh(SM.Object);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Invalid basic cylinder mesh"));
+	//}
+
+	//// Material
+	////TrunkMaterialPath = GetTrunkMaterialPath();
+	//static ConstructorHelpers::FObjectFinder<UMaterialInterface> Mat(TEXT("MaterialInstanceConstant'/Game/BarkPack/Materials/oak/oak_I.oak_I'"));
+	//if (Mat.Succeeded())
+	//{
+	//	Mesh->SetMaterial(0, Mat.Object);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Invalid material"));
+	//}
 
 	// starting rotate
 	FRotator rotator = FRotator(0.f, -90.f, 0.f);

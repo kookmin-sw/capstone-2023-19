@@ -7,7 +7,7 @@
 AVine::AVine()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 
@@ -19,7 +19,7 @@ AVine::AVine()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Invalid basic cylinder mesh"));
+		UE_LOG(LogTemp, Warning, TEXT("Invalid vine mesh"));
 	}
 }
 
