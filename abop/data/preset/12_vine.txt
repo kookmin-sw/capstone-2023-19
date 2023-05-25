@@ -1,0 +1,10 @@
+distance:1.000000
+angle:22.500000
+thickness:0.300000
+deltaThickness:1.000000
+word:F(0.1875)
+rule
+F(t)->F(t)F(t)-[-F(t)+F(t)+F(t)]+[+F(t)-F(t)-F(t)]
+end
+constant
+end
