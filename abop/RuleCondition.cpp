@@ -45,6 +45,12 @@ RuleCondition::Condition ConvertStringToCondition(std::string str)
         cond.target = str.substr(0, str.find("="));
         cond.compare = str.substr(str.find("=") + 1, str.size() - str.find("="));
     }
+    else if (str.find('!=') != std::string::npos)
+    {
+        cond.sign = RuleCondition::Sign::NotSame;
+        cond.target = str.substr(0, str.find("!="));
+        cond.compare = str.substr(str.find("!=") + 2, str.size() - str.find("!="));
+    }
 
     // error
     return cond;
@@ -222,6 +228,14 @@ bool RuleCondition::CheckCondition(std::map<std::string, std::string> valueParam
                 {
                     return false;
                 }
+                break;
+            }
+        case Sign::NotSame:
+        	{
+				if (!(value != compare))
+				{
+                    return false;
+				}
                 break;
             }
         }

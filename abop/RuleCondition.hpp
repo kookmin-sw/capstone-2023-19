@@ -7,7 +7,8 @@ public:
         More,
         Less,
         MoreSame,
-        LessSame
+        LessSame,
+        NotSame
     };
 
     struct Condition
