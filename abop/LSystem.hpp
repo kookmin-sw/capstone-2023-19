@@ -1,6 +1,6 @@
 #pragma once
 
-// !!! Àü¹æ¼±¾ğ ¿¡·¯ ¶§¹®¿¡ ÀÓ½Ã·Î Ãß°¡
+// !!! ì „ë°©ì„ ì–¸ ì—ëŸ¬ ë•Œë¬¸ì— ì„ì‹œë¡œ ì¶”ê°€
 #include <map>
 
 class LRule;
@@ -14,6 +14,23 @@ struct info
 
 class LSystem
 {
+public:
+    //struct UEState
+    //{
+    //    Vector3 position;
+    //    Vector3 direction;    // ë°©í–¥ ë‹¨ìœ„ ë²¡í„°
+    //    DirectX::XMVECTOR quaternion;
+    //    float thickness;
+    //};
+
+    struct UEModel
+    {
+        int type;
+        Vector3 position;
+        Vector4 rotation;
+        Vector3 scale;
+    };
+
 private:
     float mAngleChange = 90;
     float mDistance = 1.0f;
@@ -78,6 +95,7 @@ public:
 
     // Result
     void GetResultVertex(std::vector<Model>*);
+    void GetResultUEInfos(std::vector<UEModel>*);
 
     // Preset
     void LoadPreset(std::string&);
@@ -93,7 +111,7 @@ private:
     void Reset();
     void ResetState();
 
-    // Model °ü·Ã
+    // Model ê´€ë ¨
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
     Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);

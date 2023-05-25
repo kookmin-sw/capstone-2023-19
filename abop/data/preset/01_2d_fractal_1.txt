@@ -1,0 +1,9 @@
+distance:1.000000
+angle:72.000000
+thickness:0.300000
+deltaThickness:1.000000
+word:F-F-F-F-F
+rule
+F->F-F++F+F-F-F
+end
+constant
