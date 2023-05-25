@@ -1,0 +1,16 @@
+distance:0.2
+angle:18.0
+thickness:0.01
+deltaThickness:1.000000
+word:P
+rule
+P->I+[P+U]--//[---T]I[+++T]-[PU]++PU
+I->FS[//&&T][//^^T]FS
+S->SFS
+T->L(4,0.5)
+U->[&&&C'W]
+C->F
+W->K(4,0.5)
+end
+constant
+end

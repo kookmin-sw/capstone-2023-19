@@ -347,6 +347,62 @@ Model LSystem::CreateModel(std::vector<TextureVertex>* vertices, float scale, Ve
 }
 #pragma endregion
 
+Vector3 ToEulerAngles(DirectX::XMVECTOR q) {
+    DirectX::XMFLOAT4* f4 = new DirectX::XMFLOAT4();
+    DirectX::XMStoreFloat4(f4, q);
+
+    Vector3 angles;
+
+    // roll (x-axis rotation)
+    double sinr_cosp = 2 * (f4->w * f4->x + f4->y * f4->z);
+    double cosr_cosp = 1 - 2 * (f4->x * f4->x + f4->y * f4->y);
+    angles.x = DirectX::XMConvertToDegrees(std::atan2(sinr_cosp, cosr_cosp));
+    if (angles.x > 360.f)
+    {
+        angles.x -= 360.f;
+    }
+    else if (angles.x < 0.f)
+    {
+        angles.x += 360.f;
+    }
+
+    // pitch (y-axis rotation)
+    double sinp = std::sqrt(1 + 2 * (f4->w * f4->y - f4->x * f4->z));
+    double cosp = std::sqrt(1 - 2 * (f4->w * f4->y - f4->x * f4->z));
+    angles.y = DirectX::XMConvertToDegrees(2 * std::atan2(sinp, cosp) - PI / 2);
+    if (angles.y > 360.f)
+    {
+        angles.y -= 360.f;
+    }
+    else if (angles.y < 0.f)
+    {
+        angles.y += 360.f;
+    }
+
+    // yaw (z-axis rotation)
+    double siny_cosp = 2 * (f4->w * f4->z + f4->x * f4->y);
+    double cosy_cosp = 1 - 2 * (f4->y * f4->y + f4->z * f4->z);
+    angles.z = DirectX::XMConvertToDegrees(std::atan2(siny_cosp, cosy_cosp));
+    if (angles.z > 360.f)
+    {
+        angles.z -= 360.f;
+    }
+    else if (angles.z < 0.f)
+    {
+        angles.z += 360.f;
+    }
+
+    return angles;
+}
+
+Vector4 QuatToF4(DirectX::XMVECTOR q)
+{
+    DirectX::XMFLOAT4* f4 = new DirectX::XMFLOAT4();
+    DirectX::XMStoreFloat4(f4, q);
+
+    return Vector4{ f4->w, f4->x, f4->y, f4->z };
+}
+
 #pragma region utils
 struct RuleKey
 {
@@ -1138,6 +1194,222 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         {
             break;
         }
+        }
+    }
+}
+
+void LSystem::GetResultUEInfos(std::vector<UEModel>* models)
+{
+    if (mWord.size() < 1)
+    {
+        return;
+    }
+
+    ResetState();
+
+    float forwardDistance = 100.f;
+    SetDistance(forwardDistance);
+    std::stack<State> s;
+    Vector3 startPos;
+    Vector3 endPos;
+
+    for (const LLetter& letter : mWord)
+    {
+        switch (letter.GetType())
+        {
+            case LLetter::Type::None:
+            {
+                break;
+            }
+#pragma region rotate
+            // 기존 symbol 동작 유지 ue에 맞게 수정 (기존 모델 재사용)
+            // 이전에 원래 pitch up down을 ^, &으로 썼었으나 회전 변환 수정하면서 roll 로 바뀜
+            case LLetter::Type::RollLeft:
+            {
+                // "\"
+                // ue 기준 pitch down
+                // \(60) -> y(pitch) -60
+                if (letter.IsParametic())
+                {
+                    this->Rotate(2, std::stof(letter.GetParameters()[0]));
+                }
+                else
+                {
+                    this->Rotate(2, mAngleChange);
+                }
+
+                break;
+            }
+            case LLetter::Type::RollRight:
+            {
+                // "/"
+                // ue 기준 pitch up
+                // /(60) -> y(pitch) 60
+                if (letter.IsParametic())
+                {
+                    this->Rotate(2, -1 * std::stof(letter.GetParameters()[0]));
+                }
+                else
+                {
+                    this->Rotate(2, -mAngleChange);
+                }
+
+                break;
+            }
+            case LLetter::Type::PitchUp:
+            {
+                // "^"
+                // ue 기준 yaw +
+                // ^(30) -> z(yaw) 30
+                if (letter.IsParametic())
+                {
+                    this->Rotate(1, -1 * std::stof(letter.GetParameters()[0]));
+                }
+                else
+                {
+                    this->Rotate(1, -mAngleChange);
+                }
+
+                break;
+            }
+            case LLetter::Type::PitchDown:
+            {
+                // "&"
+                // ue   기준 yaw -
+                // &(30) -> z(yaw) -30
+                if (letter.IsParametic())
+                {
+                    this->Rotate(1, std::stof(letter.GetParameters()[0]));
+                }
+                else
+                {
+                    this->Rotate(1, mAngleChange);
+                }
+
+                break;
+            }
+            case LLetter::Type::TurnLeft:
+            {
+                // "+"
+                // ue 기준 roll
+                // -(30) -> x(roll) 30
+                if (letter.IsParametic())
+                {
+                    this->Rotate(0, std::stof(letter.GetParameters()[0]));
+                }
+                else
+                {
+                    this->Rotate(0, mAngleChange);
+                }
+
+                break;
+            }
+            case LLetter::Type::TurnRight:
+            {
+                // "-"
+                // ue 기준 roll
+                // +(30) -> x(roll) -30
+                if (letter.IsParametic())
+                {
+                    this->Rotate(0, -1 * std::stof(letter.GetParameters()[0]));
+                }
+                else
+                {
+                    this->Rotate(0, -1 * mAngleChange);
+                }
+
+                break;
+            }
+            case LLetter::Type::TurnAround:
+            {
+                // !!! DONT USE
+                this->Rotate(2, 180.f);
+
+                break;
+            }
+#pragma endregion
+            case LLetter::Type::Push:
+            {
+                s.push(mState);
+
+                break;
+            }
+            case LLetter::Type::Pop:
+            {
+                mState = s.top();
+                s.pop();
+                startPos = mState.position;
+
+                break;
+            }
+            case LLetter::Type::Forward:
+            {
+                float distance;
+                float thickness;
+                // Trunk
+                if (letter.IsParametic())
+                {
+                    std::vector<std::string> params = letter.GetParameters();
+                    distance = std::stof(params[0]) * forwardDistance;
+                    thickness = params.size() > 1
+                        ? std::stof(params[1])
+                        : mState.thickness;
+
+                    MoveParam(distance);
+                }
+                else
+                {
+                    thickness = mState.thickness;
+
+                    Move();
+                }
+
+                endPos = mState.position;
+                
+                UEModel model = UEModel();
+                model.type = 1;
+                model.position = (endPos + startPos) * 0.5f;
+                Rotate(0, -90.f);
+                model.rotation = QuatToF4(mState.quaternion);
+                Rotate(0, 90.f);
+
+                model.scale = Vector3(thickness, thickness, distance);
+
+                models->push_back(model);
+
+                startPos = mState.position;
+
+                break;
+            }
+            case LLetter::Type::NoDrawForward:
+            {
+                this->Move();
+                endPos = mState.position;
+
+                break;
+            }
+            case LLetter::Type::MakeLeaf: // Leaf Model Set 1
+            {
+                // Leaf 이후 이동 X
+                float distance;
+
+                Move();     // UE 내 SetDistance()로 offset 맞춤 (고정된 크기)
+                endPos = mState.position;
+
+                UEModel model = UEModel();
+                model.type = 2;
+                model.position = (endPos + startPos) * 0.5f;
+                Rotate(0, -90.f);
+                model.rotation = QuatToF4(mState.quaternion);
+                Rotate(0, 90.f);
+                //model.scale = Vector3(thickness, thickness, distance);
+
+                models->push_back(model);
+
+                startPos = mState.position;
+
+                break;
+            }
         }
     }
 }
