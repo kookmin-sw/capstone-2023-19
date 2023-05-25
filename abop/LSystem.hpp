@@ -1,6 +1,6 @@
 #pragma once
 
-// !!! ì „ë°©ì„ ì–¸ ì—ëŸ¬ ë•Œë¬¸ì— ì„ì‹œë¡œ ì¶”ê°€
+// !!! Àü¹æ¼±¾ğ ¿¡·¯ ¶§¹®¿¡ ÀÓ½Ã·Î Ãß°¡
 #include <map>
 
 class LRule;
@@ -100,6 +100,8 @@ public:
     // Preset
     void LoadPreset(std::string&);
 
+    bool LoadModel(const char*, std::vector<Model>*, float, Vector4&);
+
 private:
     void Move();
     void MoveParam(const float& distance);
@@ -109,10 +111,11 @@ private:
     void Reset();
     void ResetState();
 
-    // Model ê´€ë ¨
+    // Model °ü·Ã
     Model CreateTrunk(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&);
     Model CreateCylinder(Vector3&, Vector3&, DirectX::XMVECTOR&, const float&, const float&, const int&);
 	Model CreateLeaf(std::vector<Vector3>*, Vector3&);
     Model CreateLeafSegment(std::vector<Vector3>*);
     Model CreateLeafPreset(Vector3&, DirectX::XMVECTOR&, const int&, const float&); 
+    Model CreateModel(std::vector<TextureVertex>*, float, Vector4&);
 };

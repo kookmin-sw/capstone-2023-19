@@ -489,7 +489,6 @@ int main(int, char**)
 
             //    ImGui::EndMenu();
             //}
-            
             if (ImGui::BeginMenu("Preset"))
             {
                 for (std::string& presetName : LoadPresetList())
@@ -627,6 +626,7 @@ int main(int, char**)
             ClearCharArray(1024 * 64, word);
             lSystem->Iterate(1);
             lSystem->GetWord(word);
+            //lSystem->LoadModel();
         }
         ImGui::SameLine();
         if (ImGui::Button("Render"))

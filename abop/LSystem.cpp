@@ -1,11 +1,11 @@
 #include <fstream>
 #include <vector>
 #include <iostream>
-#include <sstream>
 #include <stack>
 #include <cmath>
 #include <map>
 #include <string>
+#include <fbxsdk.h>
 #include "Stdafx.h"
 #include "CommonStructure.hpp"
 #include "CommonVariable.hpp"
@@ -16,6 +16,24 @@
 #include "LSystem.hpp"
 
 #pragma region Model
+
+const char* GetModelPath(int type)
+{
+	switch (type)
+	{
+		case 1:
+			return "./data/preset_flower/whiteFlower_A.fbx";
+		case 2:
+            return "./data/preset_flower/whiteFlower_B.fbx";
+		case 3:
+			return "./data/preset_flower/whiteFlower_C.fbx";
+        case 4:
+            return "./data/preset_flower/flower.fbx";
+	}
+
+    return "";
+}
+
 // Model 관련 
 Model LSystem::CreateTrunk(Vector3& startPos, Vector3& endPos, DirectX::XMVECTOR& quaternion, const float& thickness, const float& distance)
 {
@@ -48,7 +66,7 @@ Model LSystem::CreateCylinder(Vector3& startPos, Vector3& endPos, DirectX::XMVEC
     model.data = new float[11];
 
     Vector3 position = (startPos + endPos) / 2.0f;
-	float radiusUp = radiusDown * mDeltaThickness;
+    float radiusUp = radiusDown * mDeltaThickness;
 
     model.data[0] = position.x;
     model.data[1] = position.y;
@@ -183,6 +201,147 @@ Model LSystem::CreateLeafPreset(Vector3& position, DirectX::XMVECTOR& quaternion
     model.data[6] = DirectX::XMVectorGetW(quaternion);
     model.data[7] = type;
     model.data[8] = scale;
+
+    return model;
+}
+
+bool LSystem::LoadModel(const char* filePath, std::vector<Model>* out, float scale, Vector4& color)
+{
+    std::vector<TextureVertex>* vertices = new std::vector<TextureVertex>();
+
+    FbxManager* manager = FbxManager::Create();
+
+    FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
+    manager->SetIOSettings(ios);
+
+    FbxImporter* importer = FbxImporter::Create(manager, "");
+    FbxScene* mFbxScene = FbxScene::Create(manager, "");
+
+    bool status = importer->Initialize(filePath, -1, manager->GetIOSettings());
+    if (status == false)
+    {
+        std::cout << "(initialize)status: false -> return false" << '\n';
+        return false;
+    }
+
+    status = importer->Import(mFbxScene);
+    if (status == false)
+    {
+        std::cout << "(import)status: false -> return false" << '\n';
+        return false;
+    }
+
+    importer->Destroy();
+
+    FbxNode* rootNode = mFbxScene->GetRootNode();
+
+    if (rootNode)
+    {
+        for (int i = 0; i < rootNode->GetChildCount(); i++)
+        {
+            FbxNode* childNode = rootNode->GetChild(i);
+
+            if (childNode->GetNodeAttribute() == NULL)
+                continue;
+
+            FbxNodeAttribute::EType AttributeType = childNode->GetNodeAttribute()->GetAttributeType();
+
+            if (AttributeType != FbxNodeAttribute::eMesh)
+                continue;
+
+            FbxMesh* mesh = (FbxMesh*)childNode->GetNodeAttribute();
+
+            FbxVector4* pVertices = mesh->GetControlPoints();
+
+            const int VertexCount = mesh->GetControlPointsCount();
+            const int PolygonCount = mesh->GetPolygonCount();
+            int vertexCounter = 0;
+            FbxGeometryElementNormal* normalEl = mesh->GetElementNormal();
+
+            for (int PolygonIndex = 0; PolygonIndex < PolygonCount; PolygonIndex++)
+            {
+                const int VerticeCount = mesh->GetPolygonSize(PolygonIndex);
+                for (int VerticeIndex = 0; VerticeIndex < VerticeCount; VerticeIndex++)
+                {
+                    DirectX::XMFLOAT3 position;
+                    DirectX::XMFLOAT2 texture;
+                    DirectX::XMFLOAT3 normalvector;
+
+                    int index = mesh->GetPolygonVertex(PolygonIndex, VerticeIndex);
+                    position.x = (float)pVertices[index].mData[0];
+                    position.y = (float)pVertices[index].mData[1] ;
+                    position.z = (float)pVertices[index].mData[2];
+
+                    FbxVector4 normal = normalEl->GetDirectArray().GetAt(vertexCounter++);
+                    normalvector.x = (float)normal[0];
+                    normalvector.y = (float)normal[1];
+                    normalvector.z = (float)normal[2];
+
+                    FbxVector2 fbxTexCoord;
+                    FbxStringList UVSetNameList;
+                    for (int k = 0; k < mesh->GetElementUVCount(); ++k)
+                    {
+                        FbxGeometryElementUV* eUV = mesh->GetElementUV(k);
+                        int TextureUVIndex = mesh->GetTextureUVIndex(PolygonIndex, VerticeIndex);
+                        fbxTexCoord = eUV->GetDirectArray().GetAt(TextureUVIndex);
+                        texture.x = static_cast<float>(fbxTexCoord[0]);
+                        texture.y = static_cast<float>(fbxTexCoord[1]);
+                    }
+
+                    //std::cout << "position : " << position.x << " " << position.y << " " << position.z << '\n';
+                    //std::cout << "normalvector : " << normalvector.x << " " << normalvector.y << " " << normalvector.z << '\n';
+                    //std::cout << "texture : " << texture.x << " " << texture.y << '\n';
+
+                    vertices->push_back({ position, texture, normalvector });
+
+                }
+            }
+        }
+    }
+    out->push_back(CreateModel(vertices, scale, color));
+
+    return true;
+}
+
+Model LSystem::CreateModel(std::vector<TextureVertex>* vertices, float scale, Vector4& color)
+{
+    int size = vertices->size();
+    Vector3 position;
+
+    Model model;
+    model.modelType = ModelType::Custom;
+    model.vertexCount = size;
+    model.vertexTypes = new VertexType[size];
+    model.texVertexTypes = new TextureVertex[size];
+    model.indexCount = size * 3;
+    model.indices = new int[model.indexCount];
+
+    model.dataCount = 8;
+    model.data = new float[8];
+    model.data[0] = DirectX::XMVectorGetX(mState.quaternion);
+    model.data[1] = DirectX::XMVectorGetY(mState.quaternion);
+    model.data[2] = DirectX::XMVectorGetZ(mState.quaternion);
+    model.data[3] = DirectX::XMVectorGetW(mState.quaternion);
+    model.data[4] = mState.position.x;
+    model.data[5] = mState.position.y;
+    model.data[6] = mState.position.z;
+    model.data[7] = scale;
+
+    for (int i = 0; i < size; i++)
+    {
+        position.x = (*vertices)[i].position.x, position.y = (*vertices)[i].position.y, position.z = (*vertices)[i].position.z;
+        model.vertexTypes[i] = VertexType{ position, color };
+        model.texVertexTypes[i] = TextureVertex{ (*vertices)[i].position, (*vertices)[i].texture, (*vertices)[i].normalVector };
+    }
+
+    int i = 0;
+    int vertex = 0;
+    while (i < size * 3 - 1)
+    {
+        model.indices[i++] = vertex++;
+        model.indices[i++] = vertex++;
+        model.indices[i++] = vertex;
+    }
 
     return model;
 }
@@ -484,9 +643,9 @@ void LSystem::AddRule(std::string key, const std::string& value)
     {
         // 동일한 key의 rule이 이미 있는 경우
         mRules[formatKey].AddAfter(LLetter(ruleKey.previous),
-                                   LLetter(ruleKey.next),
-                                   ConvertStringToLLetter(value),
-                                   ruleKey.condition);
+            LLetter(ruleKey.next),
+            ConvertStringToLLetter(value),
+            ruleKey.condition);
     }
     else
     {
@@ -654,7 +813,7 @@ void LSystem::Iterate()
         }
 
         // 2. mIgnore에 걸리는 모든 문자
-    	// TODO - 만약 Parametric L-Letter가 Ignore라면?
+        // TODO - 만약 Parametric L-Letter가 Ignore라면?
         if (mIgnores.find(curString[0]) != mIgnores.end())
         {
             auto after = mRules[curString].GetAfter(NULL, NULL, cur);
@@ -723,323 +882,319 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         // Move: 이동 후 현재 위치 end에 저장 후 push
         switch (letter.GetType())
         {
-            case LLetter::Type::Forward:
+        case LLetter::Type::Forward:
+        {
+            if (letter.IsParametic())
             {
-                if (letter.IsParametic())
-                {
-                    std::vector<std::string> params = letter.GetParameters();
-                    float distance = std::stof(params[0]);
-                    float thickness = params.size() > 1
-                        ? std::stof(params[1])
-                        : mState.thickness;
+                std::vector<std::string> params = letter.GetParameters();
+                float distance = std::stof(params[0]);
+                float thickness = params.size() > 1
+                    ? std::stof(params[1])
+                    : mState.thickness;
 
-                    this->MoveParam(distance);
-                    endPos = mState.position;
-                    out->push_back(
-                        CreateCylinder(startPos, endPos, mState.quaternion,
-                            thickness, distance, 50));
-                }
-                else
-                {
-                    // Draw + Move forward
-                    this->Move();
-                    endPos = mState.position;
-                    out->push_back(
-                        CreateCylinder(startPos, endPos, mState.quaternion,
-                            mState.thickness, mDistance, 50));
-                }
-                startPos = mState.position;
-                break;
+                this->MoveParam(distance);
+                endPos = mState.position;
+                out->push_back(
+                    CreateCylinder(startPos, endPos, mState.quaternion,
+                        thickness, distance, 50));
             }
-            case LLetter::Type::NoDrawForward: {
+            else
+            {
+                // Draw + Move forward
+                this->Move();
+                endPos = mState.position;
+                out->push_back(
+                    CreateCylinder(startPos, endPos, mState.quaternion,
+                        mState.thickness, mDistance, 50));
+            }
+            startPos = mState.position;
+            break;
+        }
+        case LLetter::Type::NoDrawForward: {
+            this->Move();
+            startPos = mState.position;
+            break;
+        }
+        case LLetter::Type::NoDrawForward2:
+        {
+            // No Draw + Move foward
+            if (letter.IsParametic())
+            {
+                std::vector<std::string> params = letter.GetParameters();
+                float distance = std::stof(params[0]);
+                float thickness = params.size() > 1
+                    ? std::stof(params[1])
+                    : 0.3f;
+
+                this->MoveParam(distance);
+                startPos = mState.position;
+            }
+            else
+            {
                 this->Move();
                 startPos = mState.position;
+                //out->push_back(CreateLineModel(startPos, endPos));
+            }
+
+            break;
+        }
+        case LLetter::Type::MakeLeaf: // Leaf Model Set 1
+        {
+            Vector4 flowerColor = { 181.0f / 256.0f, 69.0f / 256.0f, 89.0f / 256.0f, 0.0f };
+            if (letter.IsParametic())
+            {
+                std::vector<std::string> params = letter.GetParameters();
+                int type = std::stof(params[0]);
+
+                // TODO - 크기 지원
+                float scale = params.size() > 1 ?
+                    std::stof(params[1])
+                    : 1.0f;
+                if (1 <= type && type <= 3)
+					LoadModel(GetModelPath(type), out, scale, flowerColor);
+                else if (type >= 4)
+                {
+                    // 자체 보정
+                    DirectX::XMVECTOR quat = DirectX::XMQuaternionMultiply(
+                        mState.quaternion,
+                        DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * PI / 180.0f));
+
+                    out->push_back(CreateLeafPreset(startPos, quat, 2, scale * 2.3f));
+                }
+            }
+            else
+            {
+                LoadModel(GetModelPath(1), out, 1.0f, flowerColor);
+            }
+
+            break;
+        }
+        case LLetter::Type::MakeLeaf2: // Leaf Model Set 2
+        {
+            Vector4 flowerColor = { 181.0f / 256.0f, 69.0f / 256.0f, 89.0f / 256.0f, 0.0f };
+            if (letter.IsParametic())
+            {
+                std::vector<std::string> params = letter.GetParameters();
+                int type = std::stof(params[0]);
+
+                // TODO - 크기 지원
+                float scale = params.size() > 1 ?
+                    std::stof(params[1])
+                    : 1.0f;
+                LoadModel(GetModelPath(type), out, scale, flowerColor);
+            }
+
+            break;
+        }
+        case LLetter::Type::UseLeafPreset:
+        {
+            Vector3 position = startPos;
+            if (letter.IsParametic())
+            {
+                std::vector<std::string> params = letter.GetParameters();
+                int type = std::stoi(params[0]);
+                float scale = params.size() > 1 ?
+                    std::stof(params[1])
+                    : 1.0f;
+
+                out->push_back(CreateLeafPreset(position, mState.quaternion, type, scale));
+            }
+            else
+            {
+                out->push_back(CreateLeafPreset(position, mState.quaternion, 1, 1.0f));
+            }
+            break;
+        }
+        case LLetter::Type::RollLeft:
+        {
+            if (letter.IsParametic())
+            {
+                this->Rotate(0, std::stof(letter.GetParameters()[0]));
                 break;
             }
-            case LLetter::Type::NoDrawForward2:
+            else
             {
-                // No Draw + Move foward
-                if (letter.IsParametic())
-                {
-                    std::vector<std::string> params = letter.GetParameters();
-                    float distance = std::stof(params[0]);
-                    float thickness = params.size() > 1
-                        ? std::stof(params[1])
-                        : 0.3f;
-
-                    this->MoveParam(distance);
-                    startPos = mState.position;
-                }
-                else
-                {
-                    this->Move();
-                    startPos = mState.position;
-                    //out->push_back(CreateLineModel(startPos, endPos));
-                }
-
-                break;
-            }
-            case LLetter::Type::MakeLeaf: // Leaf Model Set 1
-            {
-                if (letter.IsParametic())
-                {
-                    std::vector<std::string> params = letter.GetParameters();
-                    float distance = std::stof(params[0]);
-                    float scale = params.size() > 1 ?
-                        std::stof(params[1])
-                        : 1.0f;
-
-                    this->MoveParam(distance);
-                    endPos = mState.position;
-
-                    // TODO - 언리얼에서 모델 넣기
-                    out->push_back(
-                        CreateTrunk(startPos, startPos + mState.direction * scale, mState.quaternion,
-                            scale, scale));
-                }
-                else
-                {
-                    // TODO - 언리얼에서 모델 넣기
-                    out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
-                }
-
-                break;
-            }
-            case LLetter::Type::MakeLeaf2: // Leaf Model Set 2
-            {
-                if (letter.IsParametic())
-                {
-                    std::vector<std::string> params = letter.GetParameters();
-                    float distance = std::stof(params[0]);
-                    float scale = params.size() > 1 ?
-                        std::stof(params[1])
-                        : 0.3f;
-
-                    this->MoveParam(distance);
-                    endPos = mState.position;
-
-                    // TODO - 언리얼에서 모델 넣기
-                    out->push_back(
-                        CreateTrunk(startPos, endPos, mState.quaternion,
-                            scale, scale));
-                }
-                else
-                {
-                    // TODO - 언리얼에서 모델 넣기
-                    out->push_back(CreateTrunk(startPos, startPos + mState.direction * 0.3f, mState.quaternion, 0.3f, 0.3f));
-                }
-
-                break;
-            }
-            case LLetter::Type::UseLeafPreset:
-            {
-                Vector3 position = startPos;
-                if (letter.IsParametic()) 
-                {
-                    std::vector<std::string> params = letter.GetParameters();
-                    int type = std::stoi(params[0]);
-                    float scale = params.size() > 1 ?
-                        std::stof(params[1])
-                        : 1.0f;
-
-                    out->push_back(CreateLeafPreset(position, mState.quaternion, type, scale));
-                }
-                else
-                {
-                    out->push_back(CreateLeafPreset(position, mState.quaternion, 1, 1.0f));
-                }
-                break;
-            }
-            case LLetter::Type::RollLeft:
-            {
-                if (letter.IsParametic())
-                {
-                    this->Rotate(0, std::stof(letter.GetParameters()[0]));
-                    break;
-                }
-                else
-                {
-                    // mAngleChange 만큼 x축 회전
-                    if (mDrawingLeaf) {
-                        this->Rotate(0, mLeafAngleChange);
-                    }
-                    else {
-                        this->Rotate(0, mAngleChange);
-                    }
-                }
-                break;
-            }
-            case LLetter::Type::RollRight:
-            {
-                if (letter.IsParametic())
-                {
-                    this->Rotate(0, -1 * std::stof(letter.GetParameters()[0]));
-                    break;
-                }
-                else
-                {
-                    // -mAngleChange 만큼 x축 회전
-                    if (mDrawingLeaf) {
-                        this->Rotate(0, -mLeafAngleChange);
-                    }
-                    else {
-                        this->Rotate(0, -mAngleChange);
-                    }
-                }
-                break;
-            }
-            case LLetter::Type::PitchUp:
-            {
-                if (letter.IsParametic())
-                {
-                    this->Rotate(1, std::stof(letter.GetParameters()[0]));
-                    break;
-                }
-                else
-                {
-                    // mAngleChange 만큼 y축 회전
-                    if (mDrawingLeaf) {
-                        this->Rotate(1, mLeafAngleChange);
-                    }
-                    else {
-                        this->Rotate(1, mAngleChange);
-                    }
-                }
-                break;
-            }
-            case LLetter::Type::PitchDown:
-            {
-                if (letter.IsParametic())
-                {
-                    this->Rotate(1, -1 * std::stof(letter.GetParameters()[0]));
-                    break;
-                }
-                else
-                {
-                    // -mAngleChange 만큼 y축 회전
-                    if (mDrawingLeaf) {
-                        this->Rotate(1, -mLeafAngleChange);
-                    }
-                    else {
-                        this->Rotate(1, -mAngleChange);
-                    }
-                }
-                break;
-            }
-            case LLetter::Type::TurnLeft:
-            {
-                if (letter.IsParametic())
-                {
-                    this->Rotate(2, std::stof(letter.GetParameters()[0]));
-                    break;
-                }
-                else
-                {
-                    // mAngleChange 만큼 z축 회전
-                    //this->Rotate(2, mAngleChange);
-
-                    if (mDrawingLeaf) {
-                        this->Rotate(2, mLeafAngleChange);
-                    }
-                    else {
-                        this->Rotate(2, mAngleChange);
-                    }
-                }
-                break;
-            }
-            case LLetter::Type::TurnRight:
-            {
-                if (letter.IsParametic())
-                {
-                    this->Rotate(2, -1 * std::stof(letter.GetParameters()[0]));
-                    break;
-                }
-                else
-                {
-                    // -mAngleChange 만큼 z축 회전
-                    //this->Rotate(2, -mAngleChange);
-
-                    if (mDrawingLeaf) {
-                        this->Rotate(2, -mLeafAngleChange);
-                    }
-                    else {
-                        this->Rotate(2, -mAngleChange);
-                    }
-                }
-
-                break;
-            }
-            case LLetter::Type::TurnAround:
-            {
-                // 180도 z축 회전
-                this->Rotate(2, 180.f);
-                break;
-            }
-            case LLetter::Type::Push:
-            {
-                // 현재 State 저장
-                ss.push({ mState, mLeafDirection });
-                break;
-            }
-            case LLetter::Type::Pop:
-            {
-                // 이전 State 복원
-                // 위치도 같이 옮겨지는 경우 No draw
-                mState = ss.top().treeState;
-                mLeafDirection = ss.top().leafDirection;
-                ss.pop();
-                startPos = mState.position;
-                break;
-            }
-            case LLetter::Type::StartingPoint:
-            {
-                leaf = new std::vector<Vector3>();
-
-                //leaf->push_back(mState.position);
-
-                //mDrawingLeaf = true;
-
-                leafstack.push(leaf);
-                break;
-            }
-            case LLetter::Type::MarkingPoint:
-            {
-                if (leaf->size() == 0 || leaf->at(leaf->size() - 1) != mState.position)
-                    leaf->push_back(mState.position);
-
-                break;
-            }
-            case LLetter::Type::EndingPoint:
-            {
-                if (leaf->size() >= 3)
-                    out->push_back(CreateLeafSegment(leaf));
-
-                if (!leafstack.empty()) {
-                    leaf = leafstack.top();
-                    leafstack.pop();
+                // mAngleChange 만큼 x축 회전
+                if (mDrawingLeaf) {
+                    this->Rotate(0, mLeafAngleChange);
                 }
                 else {
-                    leaf = nullptr;
+                    this->Rotate(0, mAngleChange);
                 }
-
-                //mDrawingLeaf = false;
-                //mLeafDirection = { 0.0f, 1.0f, 0.0f };
-
-                break;
             }
-            case LLetter::Type::Tilt:
+            break;
+        }
+        case LLetter::Type::RollRight:
+        {
+            if (letter.IsParametic())
             {
-                if (letter.IsParametic()) 
-                    this->Rotate(3, std::stof(letter.GetParameters()[0]));
-                else 
-                    this->Rotate(3, 90.0f);
+                this->Rotate(0, -1 * std::stof(letter.GetParameters()[0]));
                 break;
             }
-            case LLetter::Type::None:
+            else
             {
+                // -mAngleChange 만큼 x축 회전
+                if (mDrawingLeaf) {
+                    this->Rotate(0, -mLeafAngleChange);
+                }
+                else {
+                    this->Rotate(0, -mAngleChange);
+                }
+            }
+            break;
+        }
+        case LLetter::Type::PitchUp:
+        {
+            if (letter.IsParametic())
+            {
+                this->Rotate(1, std::stof(letter.GetParameters()[0]));
                 break;
             }
-         }
+            else
+            {
+                // mAngleChange 만큼 y축 회전
+                if (mDrawingLeaf) {
+                    this->Rotate(1, mLeafAngleChange);
+                }
+                else {
+                    this->Rotate(1, mAngleChange);
+                }
+            }
+            break;
+        }
+        case LLetter::Type::PitchDown:
+        {
+            if (letter.IsParametic())
+            {
+                this->Rotate(1, -1 * std::stof(letter.GetParameters()[0]));
+                break;
+            }
+            else
+            {
+                // -mAngleChange 만큼 y축 회전
+                if (mDrawingLeaf) {
+                    this->Rotate(1, -mLeafAngleChange);
+                }
+                else {
+                    this->Rotate(1, -mAngleChange);
+                }
+            }
+            break;
+        }
+        case LLetter::Type::TurnLeft:
+        {
+            if (letter.IsParametic())
+            {
+                this->Rotate(2, std::stof(letter.GetParameters()[0]));
+                break;
+            }
+            else
+            {
+                // mAngleChange 만큼 z축 회전
+                //this->Rotate(2, mAngleChange);
+
+                if (mDrawingLeaf) {
+                    this->Rotate(2, mLeafAngleChange);
+                }
+                else {
+                    this->Rotate(2, mAngleChange);
+                }
+            }
+            break;
+        }
+        case LLetter::Type::TurnRight:
+        {
+            if (letter.IsParametic())
+            {
+                this->Rotate(2, -1 * std::stof(letter.GetParameters()[0]));
+                break;
+            }
+            else
+            {
+                // -mAngleChange 만큼 z축 회전
+                //this->Rotate(2, -mAngleChange);
+
+                if (mDrawingLeaf) {
+                    this->Rotate(2, -mLeafAngleChange);
+                }
+                else {
+                    this->Rotate(2, -mAngleChange);
+                }
+            }
+
+            break;
+        }
+        case LLetter::Type::TurnAround:
+        {
+            // 180도 z축 회전
+            this->Rotate(2, 180.f);
+            break;
+        }
+        case LLetter::Type::Push:
+        {
+            // 현재 State 저장
+            ss.push({ mState, mLeafDirection });
+            break;
+        }
+        case LLetter::Type::Pop:
+        {
+            // 이전 State 복원
+            // 위치도 같이 옮겨지는 경우 No draw
+            mState = ss.top().treeState;
+            mLeafDirection = ss.top().leafDirection;
+            ss.pop();
+            startPos = mState.position;
+            break;
+        }
+        case LLetter::Type::StartingPoint:
+        {
+            leaf = new std::vector<Vector3>();
+
+            //leaf->push_back(mState.position);
+
+            //mDrawingLeaf = true;
+
+            leafstack.push(leaf);
+            break;
+        }
+        case LLetter::Type::MarkingPoint:
+        {
+            if (leaf->size() == 0 || leaf->at(leaf->size() - 1) != mState.position)
+                leaf->push_back(mState.position);
+
+            break;
+        }
+        case LLetter::Type::EndingPoint:
+        {
+            if (leaf->size() >= 3)
+                out->push_back(CreateLeafSegment(leaf));
+
+            if (!leafstack.empty()) {
+                leaf = leafstack.top();
+                leafstack.pop();
+            }
+            else {
+                leaf = nullptr;
+            }
+
+            //mDrawingLeaf = false;
+            //mLeafDirection = { 0.0f, 1.0f, 0.0f };
+
+            break;
+        }
+        case LLetter::Type::Tilt:
+        {
+            if (letter.IsParametic())
+                this->Rotate(3, std::stof(letter.GetParameters()[0]));
+            else
+                this->Rotate(3, 90.0f);
+            break;
+        }
+        case LLetter::Type::None:
+        {
+            break;
+        }
+        }
     }
 }
 
@@ -1396,56 +1551,56 @@ void LSystem::Rotate(const unsigned short& axis, const float& angle)
 
     switch (axis)
     {
-		case 0:
-		{
-			if (!mDrawingLeaf)
-			{
-				// Roll, x
-				mState.quaternion = DirectX::XMQuaternionMultiply(
-                    mState.quaternion,
-                    DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
-			}
-
-			newY = cos * y - sin * z;
-			newZ = sin * y + cos * z;
-			break;
-		}
-		case 1:
-		{
-			if (!mDrawingLeaf)
-			{
-				// Pitch, y
-				mState.quaternion = DirectX::XMQuaternionMultiply(
-                    mState.quaternion,
-                    DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
-			}
-
-			newX = cos * x + sin * z;
-			newZ = -sin * x + cos * z;
-			break;
-		}
-		case 2:
-		{
-			if (!mDrawingLeaf)
-			{
-				// Turn, z
-				mState.quaternion = DirectX::XMQuaternionMultiply(
-                    mState.quaternion, 
-                    DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
-			}
-
-			newX = cos * x - sin * y;
-			newY = sin * x + cos * y;
-			break;
-		}
-        case 3: // only for $ symbol
+    case 0:
+    {
+        if (!mDrawingLeaf)
         {
-            DirectX::XMFLOAT3 axisHead;
-            axisHead.x = x, axisHead.y = y, axisHead.z = z;
+            // Roll, x
             mState.quaternion = DirectX::XMQuaternionMultiply(
                 mState.quaternion,
-                DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisHead), rad));
+                DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), rad));
         }
+
+        newY = cos * y - sin * z;
+        newZ = sin * y + cos * z;
+        break;
+    }
+    case 1:
+    {
+        if (!mDrawingLeaf)
+        {
+            // Pitch, y
+            mState.quaternion = DirectX::XMQuaternionMultiply(
+                mState.quaternion,
+                DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisY), rad));
+        }
+
+        newX = cos * x + sin * z;
+        newZ = -sin * x + cos * z;
+        break;
+    }
+    case 2:
+    {
+        if (!mDrawingLeaf)
+        {
+            // Turn, z
+            mState.quaternion = DirectX::XMQuaternionMultiply(
+                mState.quaternion,
+                DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisZ), rad));
+        }
+
+        newX = cos * x - sin * y;
+        newY = sin * x + cos * y;
+        break;
+    }
+    case 3: // only for $ symbol
+    {
+        DirectX::XMFLOAT3 axisHead;
+        axisHead.x = x, axisHead.y = y, axisHead.z = z;
+        mState.quaternion = DirectX::XMQuaternionMultiply(
+            mState.quaternion,
+            DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisHead), rad));
+    }
     }
 
     if (mDrawingLeaf)

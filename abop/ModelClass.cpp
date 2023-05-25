@@ -84,6 +84,11 @@ Vector3 ModelClass::GetRotation()
     return this->rotation_;
 }
 
+Vector3 ModelClass::GetScale()
+{
+    return this->scale_;
+}
+
 DirectX::XMFLOAT4 ModelClass::GetQuaternion()
 {
     return this->quaternion_;
@@ -126,12 +131,14 @@ void ModelClass::SetQuaternion(const float& x, const float& y, const float& z, c
 
 void ModelClass::SetScale(const float& x, const float& y, const float& z)
 {
-    // !!! to be update
+    scale_.x = x;
+    scale_.y = y;
+    scale_.z = z;
 }
 
 void ModelClass::SetScale(const Vector3& scale)
 {
-    // !!! to be update
+    scale_ = scale;
 }
 
 void ModelClass::SetColor(const float& r, const float& g, const float& b, const float& a)
@@ -249,6 +256,19 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, Model model)
             model.vertexTypes[i].color.x,
             model.vertexTypes[i].color.y,
             model.vertexTypes[i].color.z
+        );
+
+        vertices[i].texture = DirectX::XMFLOAT2
+        (
+            model.texVertexTypes[i].texture.x,
+            model.texVertexTypes[i].texture.y
+        );
+
+        vertices[i].normal = DirectX::XMFLOAT3
+        (
+            model.texVertexTypes[i].normalVector.x,
+            model.texVertexTypes[i].normalVector.y,
+            model.texVertexTypes[i].normalVector.z
         );
     }
 
