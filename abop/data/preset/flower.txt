@@ -10,7 +10,7 @@ S->SFS
 T->L(4,0.5)
 U->[&&&C'W]
 C->F
-W->J(4,0.5)
+W->K(4,0.5)
 end
 constant
 end

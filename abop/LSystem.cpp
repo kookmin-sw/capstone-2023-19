@@ -915,27 +915,17 @@ void LSystem::GetResultVertex(std::vector<Model>* out)
         }
         case LLetter::Type::MakeLeaf2: // Leaf Model Set 2
         {
+            Vector4 flowerColor = { 181.0f / 256.0f, 69.0f / 256.0f, 89.0f / 256.0f, 0.0f };
             if (letter.IsParametic())
             {
                 std::vector<std::string> params = letter.GetParameters();
-                float distance = std::stof(params[0]);
+                int type = std::stof(params[0]);
+
+                // TODO - 크기 지원
                 float scale = params.size() > 1 ?
                     std::stof(params[1])
-                    : 0.3f;
-
-                this->MoveParam(distance);
-                endPos = mState.position;
-
-                // TODO - 언리얼에서 모델 넣기
-                out->push_back(
-                    CreateTrunk(startPos, endPos, mState.quaternion,
-                        scale, scale));
-            }
-            else
-            {
-                // TODO - 언리얼에서 모델 넣기
-                Vector4 Black = { 0.0f, 0.0f, 0.f, 0.f };
-                LoadModel("./data/preset_flower/leaf_A.fbx", out, 1.0f, Black);
+                    : 1.0f;
+                LoadModel(GetModelPath(type), out, scale, flowerColor);
             }
 
             break;
