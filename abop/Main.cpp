@@ -499,6 +499,8 @@ int main(int, char**)
                     {
                         lSystem->LoadPreset(presetName);
                         isUpdateRules = true;
+                        isUpdateConstants = true;
+                        isUpdateIgnores = true;
                         isUpdateWord = true;
                         isUpdateCamera = true;
                         isUpdateLSystemSetting = true;

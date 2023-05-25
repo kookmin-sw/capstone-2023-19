@@ -44,7 +44,7 @@ void UpdateConstant(std::string& key, std::string& value)
 
 void ResetConstant()
 {
-	CONSTANT = std::map<std::string, std::string>();
+	CONSTANT.clear();
 }
 
 void DeleteConstant(std::string& key)

@@ -625,6 +625,7 @@ void LSystem::DeleteRule(const std::string& key, const int& afterId)
 void LSystem::ClearRule()
 {
     mRules.clear();
+    mIgnores.clear();
 }
 
 void LSystem::ClearState()
