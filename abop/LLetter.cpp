@@ -2,8 +2,10 @@
 #include <vector>
 #include <map>
 #include "Utils.hpp"
-#include "Constants.hpp"
+#include "Constant.hpp"
 #include "LLetter.hpp"
+
+#include <iostream>
 
 LLetter::LLetter()
 {
@@ -134,7 +136,9 @@ void LLetter::CalculateParameter(std::map<std::string, std::string> valueParams)
     }
 
     std::vector<std::string> newParams = std::vector<std::string>();
-    for (auto [key, value] : valueParams)
+
+    // Parmaeter Value로 대체
+	for (auto& [key, value] : valueParams)
     {
         // value 값이 음수인 경우 '-' 기호를 '~'로 수정
         if (value[0] == '-')
@@ -143,6 +147,10 @@ void LLetter::CalculateParameter(std::map<std::string, std::string> valueParams)
         }
         ReplaceAll(mParametersString, key, value);
     }
+
+    // Constant Value로 대체
+    ReplaceConstant(mParametersString);
+
     mParametersString = mParametersString.substr(1, mParametersString.size() - 2);    // '(', ')' 제외
     for (const std::string& p : split(mParametersString, ','))
     {

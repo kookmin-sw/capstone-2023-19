@@ -149,8 +149,14 @@
     <ClCompile Include="RuleCondition.cpp">
       <Filter>LSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Constant.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
     <ClCompile Include="imgui\imGuIZMOquat.cpp">
       <Filter>DX\ImGui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="PresetLeaf.cpp">
+      <Filter>DX\Models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,7 +298,7 @@
     <ClInclude Include="RuleCondition.hpp">
       <Filter>LSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Constants.hpp">
+    <ClInclude Include="Constant.hpp">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="imgui\vgMath.h">
@@ -303,6 +309,9 @@
     </ClInclude>
     <ClInclude Include="imgui\imGuIZMOquat.h">
       <Filter>DX\ImGui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="PresetLeaf.hpp">
+      <Filter>DX\Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

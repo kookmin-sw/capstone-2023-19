@@ -44,12 +44,13 @@ float Vector3::Dot(const Vector3& vec) const
 	return x * vec.x + y * vec.y + z * vec.z;
 }
 
-void Vector3::Cross(const Vector3& vec)
+Vector3 Vector3::Cross(const Vector3& vec)
 {
 	float newX = y * vec.z - z * vec.y;
 	float newY = z * vec.x - x * vec.z;
 	float newZ = x * vec.y - y * vec.x;
 	x = newX; y = newY; z = newZ;
+	return { newX, newY, newZ };
 }
 
 
@@ -87,6 +88,16 @@ Vector3& Vector3::operator/(const float& op)
 	this->z /= op;
 
 	return *this;
+}
+
+bool Vector3::operator==(const Vector3& vec)
+{
+	return (this->x == vec.x && this->y == vec.y && this->z == vec.z);
+}
+
+bool Vector3::operator!=(const Vector3& vec)
+{
+	return !(*this == vec);
 }
 
 Vector3& operator%(const Vector3& vec1, const Vector3& vec2)

@@ -9,6 +9,9 @@ public:
         Forward = 'F',
         NoDrawForward = 'f',
         NoDrawForward2 = 'G',
+        MakeLeaf = 'J',
+        MakeLeaf2 = 'K',
+        UseLeafPreset = 'L',
         TurnLeft = '+',
         TurnRight = '-',
         PitchUp = '^',
@@ -20,7 +23,8 @@ public:
         Pop = ']',
         StartingPoint = '{',
         EndingPoint = '}',
-        MarkingPoint = '.'
+        MarkingPoint = '.',
+        Tilt = '$'
     };
 
 private:
