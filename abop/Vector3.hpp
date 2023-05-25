@@ -11,8 +11,8 @@ public:
     void SetY(const float&);
     void SetZ(const float&);
 
-    float Dot(const Vector3& vec) const;
-    void Cross(const Vector3& vec);
+    float Dot(const Vector3&) const;
+    Vector3 Cross(const Vector3&);
 
     void Normalized();
     float SqrtMagnitude();
@@ -20,6 +20,8 @@ public:
     Vector3& operator-(const Vector3&);
     Vector3& operator*(const float&);
     Vector3& operator/(const float&);
+    bool operator==(const Vector3&);
+    bool operator!=(const Vector3&);
 
 public:
     float x = 0.0f;

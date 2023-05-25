@@ -135,23 +135,7 @@ void Graphics::UpdateModels()
 
 	if (false)
 	{
-		// 임시 Plane 추가
-		Plane* plane = new Plane();
-		plane->SetWidth(1000.0f);
-		plane->SetHeight(1000.0f);
-		plane->SetColor(0.3f, 0.3f, 0.3f, 1.0f);
-		// 임시 회전
-		DirectX::XMFLOAT3 axisX = DirectX::XMFLOAT3(1, 0, 0);
-		DirectX::XMVECTOR v = DirectX::XMQuaternionRotationAxis(DirectX::XMLoadFloat3(&axisX), 90.0f * 3.14f / 180.0f);
-		plane->SetQuaternion
-		(
-			DirectX::XMVectorGetX(v),
-			DirectX::XMVectorGetY(v),
-			DirectX::XMVectorGetZ(v),
-			DirectX::XMVectorGetW(v)
-		);
-		plane->Initialize(this->d3d_->GetDevice());
-		this->models_->push_back((ModelClass*)plane);
+		// RENDER TEST CODE HERE
 	}
 
 	this->lSystem_->GetResultVertex(models);
@@ -162,7 +146,13 @@ void Graphics::UpdateModels()
 			case ModelType::Custom:
 			{
 				ModelClass* modelClass = new ModelClass;
+				modelClass->SetQuaternion(model.data[0], model.data[1], model.data[2], model.data[3]);
+				modelClass->SetPosition(model.data[4], model.data[5], model.data[6]);
+				modelClass->SetScale(model.data[7], model.data[7], model.data[7]);
+ 					
 				modelClass->Initialize(this->d3d_->GetDevice(), model);
+
+				delete[] model.data;
 
 				this->models_->push_back(modelClass);
 				break;
@@ -173,6 +163,22 @@ void Graphics::UpdateModels()
 				leaf->Initialize(this->d3d_->GetDevice(), model);
 
 				this->models_->push_back((ModelClass*)leaf);
+				break;
+			}
+			case ModelType::PresetLeafModel:
+			{
+				PresetLeaf* leafPreset = new PresetLeaf;
+
+				leafPreset->SetPosition(model.data[0], model.data[1], model.data[2]);
+				leafPreset->SetQuaternion(model.data[3], model.data[4], model.data[5], model.data[6]);
+				leafPreset->SetType(model.data[7]);
+				leafPreset->SetScale(model.data[8]);
+
+				leafPreset->Initialize(this->d3d_->GetDevice(), model);
+
+				delete[] model.data;
+
+				this->models_->push_back((ModelClass*)leafPreset);
 				break;
 			}
 			case ModelType::CubeModel:
@@ -277,7 +283,13 @@ bool Graphics::Render()
 		model->Render(this->d3d_->GetDeviceContext());
 
 		// 스케일 변환
-		// !!! to be update
+		Vector3 scale = model->GetScale();
+		DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScaling(
+			scale.x,
+			scale.y,
+			scale.z
+		);
+		worldMatrix = DirectX::XMMatrixMultiply(worldMatrix, scaleMatrix);
 
 		// 회전 변환
 		DirectX::XMFLOAT4 quat = model->GetQuaternion();

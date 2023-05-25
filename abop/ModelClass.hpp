@@ -45,6 +45,7 @@ public:
     int GetIndexCount();
     Vector3 GetPosition();
     Vector3 GetRotation();
+    Vector3 GetScale();
     DirectX::XMFLOAT4 GetQuaternion();
 
     ID3D11ShaderResourceView* GetTexture();

@@ -14,7 +14,7 @@ public:
     {
         std::string target;
         Sign sign;
-        float compare;
+        std::string compare;
     };
 
 public:

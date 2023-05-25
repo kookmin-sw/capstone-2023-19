@@ -1,0 +1,15 @@
+distance:0.25
+angle:48.0
+thickness:0.01
+deltaThickness:1.000000
+word:FA(0)
+rule
+A(t)->A(t+1)F[/B(t+1)][/&/B(t+1)][///B(t+1)]
+B(t)->J(t/B+1,0.5,t+1)
+J(l,s,t):l>=4->+(40)J(l,s,t,1)
+J(l,s,t,m)->^(30)J(l,s,t,m,0)
+J(l,s,t,m,x)->&(30)J(l,s,t,m)
+end
+constant
+B:2.5
+end

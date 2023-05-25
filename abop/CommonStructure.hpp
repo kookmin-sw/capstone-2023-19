@@ -19,10 +19,24 @@ struct State
     float thickness;
 };
 
+struct StateInfo
+{
+    State treeState;
+    Vector3 leafDirection;
+};
+
+
 struct VertexType
 {
     Vector3 position;
     Vector4 color;          
+};
+
+struct TextureVertex
+{
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT2 texture;
+    DirectX::XMFLOAT3 normalVector;
 };
 
 enum ModelType
@@ -30,6 +44,7 @@ enum ModelType
     Custom,
     // Same as DX/Models/ModelVariation.cpp
     LeafModel,
+    PresetLeafModel,
     TriangleModel,
     SquareModel,
     PlaneModel,
@@ -45,6 +60,7 @@ struct Model
     int vertexCount;
     int indexCount;
     VertexType* vertexTypes = nullptr;
+    TextureVertex* texVertexTypes = nullptr;
     int* indices = nullptr;
 
     // For LeafModel
