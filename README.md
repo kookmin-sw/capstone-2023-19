@@ -5,11 +5,13 @@ This is a project that algorithmizes and generates plant growth and renders it o
 
 ## Preview
 ### 소개 영상
+
 |1|2|
 |-|-|
 |[![Video Label](https://img.youtube.com/vi/R9rPVV2W3PQ/0.jpg)](https://youtu.be/R9rPVV2W3PQ)|[![Video Label](https://img.youtube.com/vi/_pugUGXtPZ0/0.jpg)](https://www.youtube.com/watch?v=_pugUGXtPZ0&ab_channel=JHdev)|
 
 ### DirectX Rendering
+
 |Preset name|Result|
 |-|-|
 |02_2d_fractal_2|![02_2d_fractal_2](docs/2.PNG)|
@@ -27,6 +29,7 @@ This is a project that algorithmizes and generates plant growth and renders it o
 |12_vine|![](docs/ue1.PNG)|
 
 ## 팀 소개
+
 |학번|이름|역할|
 |:-:|:-:|:-:|
 |20181655|이동훈|Growth system|
@@ -90,6 +93,7 @@ FPS와 Backgroud color 등 시뮬레이터 옵션과 카메라 옵션을 수정�
 <img src="./docs/lSystemWidget.png" width="181" height="448"/>
 
 #### Auto Render
+
 |||
 |-|-|
 |**Start**|일정 주기로 `Iterate`, `Render`를 반복합니다.|
@@ -98,6 +102,7 @@ FPS와 Backgroud color 등 시뮬레이터 옵션과 카메라 옵션을 수정�
 |**frequency**|`Iterate`, `Render` 빈도를 조절합니다.|
 
 #### Manual Render
+
 |||
 |-|-|
 |**Reset**|모든 설정 및 입력을 초기화 합니다.|
@@ -108,6 +113,7 @@ FPS와 Backgroud color 등 시뮬레이터 옵션과 카메라 옵션을 수정�
 초기 상태(symbols) 입력입니다. `Iterate` 및 `Save As` 전 `Save`를 클릭하여 저장해야 합니다. 아래 `View current L-System code` 버튼을 눌러 전체 word를 자세하게 볼 수 있습니다.
 
 #### Rules
+
 |||
 |-|-|
 |**Add Ignores**|변환 규칙 중 무시되는 Symbol을 설정합니다. symbol context를 확인할 때와 해당 symbol로 선언된 rule을 모두 무시합니다.|
