@@ -5,44 +5,38 @@
 #include <vector>
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Generator.generated.h"
+#include "VineGenerator.generated.h"
 
 class LLetter;
 class LSystem;
-class ATrunk;
-class ALeaf;
-
-enum class TrunkMaterialType : uint8;
+class AVine;
 
 UCLASS()
-class UNREAL_API AGenerator : public AActor
+class UNREAL_API AVineGenerator : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	// Sets default values for this actor's properties
-	AGenerator();
+	AVineGenerator();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void Iterate();
 	void Clear();
 
 private:
-	//TrunkMaterialType TrunkType;
-
 	LSystem* System;
 	FActorSpawnParameters SpawnParams;
 	FRotator Rotator;
 	FVector Position;
 
-	std::vector<ATrunk*>* trunks;
-	std::vector<ALeaf*>* leaves;
+	std::vector<AVine*>* vines;
 	float renderTime;
 	float iterateCycle;
 	int iterateCount;
