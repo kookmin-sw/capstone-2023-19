@@ -1,3 +1,4 @@
+[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=10124796&assignment_repo_type=AssignmentRepo)
 # [The Algorithmic Beauty of Plants](https://kookmin-sw.github.io/capstone-2023-19/)
 식물의 성장을 알고리즘화하여 생성하고, DirectX 기반으로 시간의 흐름에 따라 렌더링하는 프로젝트이다. DirectX 환경 시뮬레이터에서 사용자가 임의대로 모델의 규칙과 파라미터를 조정하여 2D 및 3D 그래픽 디자인 개발에 사용할 수 있는 다양한 종류의 식물 모델 생성할 수 있으며 생성한 모델을 Unreal Engine과 같은 게임 엔진에서 사용 가능하다.
 
